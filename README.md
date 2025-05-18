@@ -2,10 +2,22 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## GitHub Pages Deployment
+
+This project is configured to automatically deploy to GitHub Pages when changes are pushed to the main branch. The site will be available at: https://davlasry.github.io/pianolab/
+
+To enable GitHub Pages:
+1. Go to the repository settings
+2. Navigate to "Pages" in the sidebar
+3. Under "Build and deployment", select "GitHub Actions" as the source
+4. Your site will be built and deployed automatically after each push to the main branch
+
+## Available Plugins
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
 ## Expanding the ESLint configuration
 
