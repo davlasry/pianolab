@@ -13,7 +13,7 @@ function App() {
 
     const {
         notes,
-        loadMidi, // call this once, maybe in a “Load” button
+        loadMidi, // call this once, maybe in a "Load" button
         // setHand,
     } = useMidiNotes();
 
@@ -34,8 +34,11 @@ function App() {
             <Toolbar
                 onPlay={() => Player.play()}
                 onPause={Player.pause}
+                onResume={Player.resume}
                 onStop={Player.stop}
                 isReady={isReady}
+                isPlaying={Player.isPlaying}
+                isPaused={Player.isPaused}
             />
 
             <Clock />

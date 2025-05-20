@@ -8,12 +8,38 @@ export const usePlayer = (notes: Note[]) => {
     const [activeNotes, setActiveNotes] = useState<any[]>([]);
     const [activeChord, setActiveChord] = useState<string>("");
     const [audioDuration, setAudioDuration] = useState<number>(0);
+    const [isPlaying, setIsPlaying] = useState<boolean>(false);
+    const [isPaused, setIsPaused] = useState<boolean>(false);
 
     // keep these across renders
     const playerRef = useRef<Tone.Player | null>(null);
     const notesPartRef = useRef<Tone.Part | null>(null);
     const chordPartRef = useRef<Tone.Part | null>(null);
     const synthRef = useRef<Tone.PolySynth | null>(null);
+
+    // Update isPlaying and isPaused state based on the Transport state
+    useEffect(() => {
+        const updatePlayingState = () => {
+            const transportState = Tone.getTransport().state;
+            setIsPlaying(transportState === "started");
+            setIsPaused(transportState === "paused");
+        };
+
+        // Initial state
+        updatePlayingState();
+
+        // Listen for transport state changes
+        Tone.getTransport().on("start", updatePlayingState);
+        Tone.getTransport().on("stop", updatePlayingState);
+        Tone.getTransport().on("pause", updatePlayingState);
+
+        return () => {
+            // Clean up listeners
+            Tone.getTransport().off("start", updatePlayingState);
+            Tone.getTransport().off("stop", updatePlayingState);
+            Tone.getTransport().off("pause", updatePlayingState);
+        };
+    }, []);
 
     // async function loadMidi() {
     //     try {
@@ -170,5 +196,7 @@ export const usePlayer = (notes: Note[]) => {
         activeChord,
         audioDuration,
         seek,
+        isPlaying,
+        isPaused,
     };
 };
