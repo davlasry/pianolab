@@ -14,7 +14,7 @@ import { useMouse } from "src/Keyboard/interactivity/useMouse";
 import { useKeyboard } from "src/Keyboard/interactivity/useKeyboard";
 import { useTouch } from "src/Keyboard/interactivity/useTouch";
 
-interface KlavierProps {
+interface KeyboardProps {
     /**
      * The lowest and the highest notes of the piano in MIDI numbers (0-127).
      * @defaultValue [21, 108]
@@ -29,7 +29,7 @@ interface KlavierProps {
     /**
      * Currently pressed keys. Puts component into controlled mode; active keys must be managed externally via callbacks.
      */
-    activeKeys?: Array<number>;
+    // activeKeys?: Array<number>;
 
     /**
      * Fired when a key is played.
@@ -91,13 +91,14 @@ interface KlavierProps {
         whiteKey?: CustomKeyComponent;
         label?: CustomLabelComponent;
     };
+    activeNotes?: any[];
 }
 
-const Klavier = (props: KlavierProps) => {
+const Keyboard = (props: KeyboardProps) => {
     const klavierRootRef = useRef<HTMLDivElement>(null);
     const {
         defaultActiveKeys,
-        activeKeys,
+        activeNotes,
         onKeyPress,
         onKeyRelease,
         onChange,
@@ -109,6 +110,11 @@ const Klavier = (props: KlavierProps) => {
         blackKeyHeight,
         components,
     } = props;
+
+    const activeKeys = activeNotes?.map((note) => note.midi) || [];
+
+    console.log("activeNotes =====>", activeNotes);
+
     const [first, last] = keyRange;
     const {
         state,
@@ -190,7 +196,7 @@ type InteractivitySettings = {
 };
 
 function determineInteractivitySettings(
-    prop: KlavierProps["interactive"],
+    prop: KeyboardProps["interactive"],
 ): InteractivitySettings {
     if (typeof prop === "boolean") {
         return {
@@ -230,5 +236,5 @@ function validateRange([first, last]: [number, number]) {
     }
 }
 
-export type { KlavierProps };
-export { Klavier };
+export type { KeyboardProps };
+export { Keyboard };

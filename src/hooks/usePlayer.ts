@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { Midi } from "@tonejs/midi";
 import * as Tone from "tone";
+import type { Note } from "src/hooks/useMidiNotes.ts";
 
-export const usePlayMidi = () => {
-    const [midi, setMidi] = useState<Midi | null>(null);
-    const [activeKeys, setActiveKeys] = useState<number[]>([]);
+export const usePlayer = (notes: Note[]) => {
+    // const [midi, setMidi] = useState<Midi | null>(null);
+    const [activeNotes, setActiveNotes] = useState<any[]>([]);
     const [audioDuration, setAudioDuration] = useState<number>(0);
 
     // keep these across renders
@@ -12,14 +12,14 @@ export const usePlayMidi = () => {
     const partRef = useRef<Tone.Part | null>(null);
     const synthRef = useRef<Tone.PolySynth | null>(null);
 
-    async function loadMidi() {
-        try {
-            const midi = await Midi.fromUrl("/pianolab/sample.mid");
-            setMidi(midi);
-        } catch (err) {
-            console.error("Failed to load MIDI:", err);
-        }
-    }
+    // async function loadMidi() {
+    //     try {
+    //         const midi = await Midi.fromUrl("/pianolab/sample.mid");
+    //         setMidi(midi);
+    //     } catch (err) {
+    //         console.error("Failed to load MIDI:", err);
+    //     }
+    // }
 
     const loadAudio = async (url = "/pianolab/body_and_soul.mp3") => {
         playerRef.current?.dispose(); // if re-loading
@@ -40,32 +40,29 @@ export const usePlayMidi = () => {
 
     /** build (or rebuild) a Part from the Midi object */
     const buildPart = () => {
-        if (!midi) return;
+        // if (!midi) return;
 
         // create a synth once
         synthRef.current ??= new Tone.PolySynth().toDestination();
 
-        // transform midi → Tone.Part-friendly events
-        const events = midi.tracks.flatMap((t) =>
-            t.notes.map((n) => ({
-                time: n.time, // seconds relative to start
-                note: n.name, // "C4", "F#3" …
-                dur: n.duration,
-                vel: n.velocity,
-                midi: n.midi, //  <-- add this line
-            })),
-        );
+        const events = notes.map((n) => ({
+            time: n.time,
+            note: Tone.Frequency(n.midi, "midi").toNote(), // "C4" etc.
+            dur: n.duration,
+            vel: n.velocity,
+            midi: n.midi,
+            hand: n.hand, // keep it if colouring during playback
+        }));
 
         // dispose the old part if we rebuild
         partRef.current?.dispose();
 
-        partRef.current = new Tone.Part((time, ev) => {
-            // console.log(
-            //     `Play ${ev.note} at ${Tone.getTransport().seconds.toFixed(2)}s`,
-            // );
-
+        partRef.current = new Tone.Part((_time, ev) => {
             // 🔵 GUI ─ mark key ON
-            setActiveKeys((keys) => [...keys, ev.midi]); // add without deduping for speed
+            setActiveNotes((keys) => [
+                ...keys,
+                { midi: ev.midi, hand: ev.midi > 75 ? "right" : "left" },
+            ]); // add without deduping for speed
 
             // 🔊 AUDIO ─ play the note
             // synthRef.current!.triggerAttackRelease(
@@ -77,7 +74,9 @@ export const usePlayMidi = () => {
 
             // 🔴 GUI ─ schedule key OFF
             Tone.getTransport().scheduleOnce(() => {
-                setActiveKeys((keys) => keys.filter((k) => k !== ev.midi));
+                setActiveNotes((keys) =>
+                    keys.filter((k) => k.midi !== ev.midi),
+                );
             }, ev.time + ev.dur);
         }, events).start(0); // start at t=0 on the transport
     };
@@ -101,7 +100,7 @@ export const usePlayMidi = () => {
     function pause() {
         Tone.getTransport().pause();
         synthRef.current?.releaseAll(0); // fade out anything already playing
-        setActiveKeys([]); // GUI reset
+        setActiveNotes([]); // GUI reset
     }
 
     function resume() {
@@ -115,7 +114,7 @@ export const usePlayMidi = () => {
         synthRef.current?.releaseAll(0); // fade out anything already playing
         partRef.current?.dispose();
         partRef.current = null;
-        setActiveKeys([]); // GUI reset
+        setActiveNotes([]); // GUI reset
     };
 
     /** tidy up when the component unmounts */
@@ -123,20 +122,20 @@ export const usePlayMidi = () => {
 
     function seek(time: number) {
         // 1 – silence and clear GUI
-        setActiveKeys([]);
+        setActiveNotes([]);
 
         // 2 – jump the transport
         Tone.getTransport().seconds = time;
     }
 
     return {
-        loadMidi,
+        // loadMidi,
         loadAudio,
         play,
         pause,
         resume,
         stop,
-        activeKeys,
+        activeNotes,
         audioDuration,
         seek,
     };

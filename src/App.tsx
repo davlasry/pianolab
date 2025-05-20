@@ -1,42 +1,45 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import { usePlayMidi } from "src/hooks/usePlayMidi";
-import { Klavier } from "src/Keyboard/components/Klavier";
+import { usePlayer } from "src/hooks/usePlayer.ts";
+import { Keyboard } from "src/Keyboard/components/Keyboard.tsx";
 import { Clock } from "src/components/Clock";
 import { Timeline } from "src/components/Timeline";
+import { useMidiNotes } from "src/hooks/useMidiNotes.ts";
+import { Toolbar } from "src/components/Toolbar.tsx";
 
 function App() {
     const [isReady, setReady] = useState(false);
+
     const {
-        loadMidi,
-        loadAudio,
-        play,
-        pause,
-        resume,
-        stop,
-        activeKeys,
-        audioDuration,
-        seek,
-    } = usePlayMidi();
+        notes,
+        loadMidi, // call this once, maybe in a “Load” button
+        // setHand,
+    } = useMidiNotes();
+
+    const player = usePlayer(notes); // hand the list down
 
     useEffect(() => {
-        Promise.all([loadMidi(), loadAudio()]).then(() => setReady(true));
+        Promise.all([loadMidi(), player.loadAudio()]).then(() =>
+            setReady(true),
+        );
     }, []);
 
     return (
         <div>
             <h1>PianoLab</h1>
-            <div>
-                <button onClick={() => play()} disabled={!isReady}>
-                    Play
-                </button>
-                <button onClick={pause}>Pause</button>
-                <button onClick={resume}>Resume</button>
-                <button onClick={stop}>Stop</button>
-            </div>
+
+            <Toolbar
+                onPlay={() => player.play()}
+                onPause={player.pause}
+                onStop={player.stop}
+                isReady={isReady}
+            />
+
             <Clock />
-            <Timeline duration={audioDuration} onSeek={seek} />
-            <Klavier activeKeys={activeKeys} />
+
+            <Timeline duration={player.audioDuration} onSeek={player.seek} />
+
+            <Keyboard activeNotes={player.activeNotes} />
         </div>
     );
 }
