@@ -7,8 +7,16 @@ import { Timeline } from "src/components/Timeline";
 
 function App() {
     const [isReady, setReady] = useState(false);
-    const { loadMidi, loadAudio, play, pause, resume, stop, activeKeys } =
-        usePlayMidi();
+    const {
+        loadMidi,
+        loadAudio,
+        play,
+        pause,
+        resume,
+        stop,
+        activeKeys,
+        audioDuration,
+    } = usePlayMidi();
 
     useEffect(() => {
         Promise.all([loadMidi(), loadAudio()]).then(() => setReady(true));
@@ -26,7 +34,7 @@ function App() {
                 <button onClick={stop}>Stop</button>
             </div>
             <Clock />
-            <Timeline />
+            <Timeline duration={audioDuration} />
             <Klavier activeKeys={activeKeys} />
         </div>
     );

@@ -5,6 +5,7 @@ import * as Tone from "tone";
 export const usePlayMidi = () => {
     const [midi, setMidi] = useState<Midi | null>(null);
     const [activeKeys, setActiveKeys] = useState<number[]>([]);
+    const [audioDuration, setAudioDuration] = useState<number>([]);
 
     // keep these across renders
     const playerRef = useRef<Tone.Player | null>(null);
@@ -20,12 +21,15 @@ export const usePlayMidi = () => {
         }
     }
 
-    const loadAudio = async (url = "/pianolab/body_and_soul.wav") => {
+    const loadAudio = async (url = "/pianolab/body_and_soul.mp3") => {
         playerRef.current?.dispose(); // if re-loading
         playerRef.current = new Tone.Player({
             url,
             autostart: false,
-            onload: () => console.log("Audio loaded"),
+            onload: () => {
+                setAudioDuration(playerRef.current!.buffer.duration);
+                console.log("Audio loaded");
+            },
         }).toDestination();
         playerRef.current.sync(); // follow the Transport
     };
@@ -121,5 +125,6 @@ export const usePlayMidi = () => {
         resume,
         stop,
         activeKeys,
+        audioDuration,
     };
 };
