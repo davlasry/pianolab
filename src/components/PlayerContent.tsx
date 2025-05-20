@@ -5,6 +5,7 @@ import { Timeline } from "src/components/Timeline";
 import { Toolbar } from "src/components/Toolbar";
 import { CurrentChord } from "src/components/CurrentChord";
 import { usePlayerContext } from "src/context/PlayerContext";
+import { realistic } from "src/presets/realistic";
 
 export const PlayerContent = () => {
     const [isReady, setReady] = useState(false);
@@ -62,7 +63,7 @@ export const PlayerContent = () => {
 
             <Timeline duration={audioDuration} onSeek={seek} />
 
-            <Keyboard activeNotes={activeNotes} />
+            <Keyboard activeNotes={activeNotes} components={realistic} />
         </>
     );
 };

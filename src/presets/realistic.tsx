@@ -1,4 +1,4 @@
-import "presets/realistic.css";
+import "src/Keyboard/presets/realistic.css";
 import type { KeyColor, CustomKeyProps } from "src/Keyboard/types.ts";
 
 const classNames = {
