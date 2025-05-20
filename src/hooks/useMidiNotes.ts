@@ -16,7 +16,9 @@ export const useMidiNotes = () => {
     const [notes, setNotes] = useState<Note[]>([]);
 
     /** load a MIDI file → editable Note[]  */
-    const loadMidi = async (url = "/pianolab/sample.mid") => {
+    const loadMidi = async (
+        url = "https://pianolab-midi.s3.us-east-2.amazonaws.com/00_2025-03-02+2230+(Sunday)+1924+notes%2C+527+seconds_Boddy-and-Soul_Daniel-Zamir.mid",
+    ) => {
         const midi = await Midi.fromUrl(url);
 
         const parsed: Note[] = midi.tracks.flatMap((t) =>

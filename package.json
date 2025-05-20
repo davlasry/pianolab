@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@tonejs/midi": "^2.0.28",
+    "@types/lodash-es": "^4.17.12",
+    "lodash-es": "^4.17.21",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "tonal": "^6.4.1",

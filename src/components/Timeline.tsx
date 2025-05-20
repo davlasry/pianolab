@@ -1,6 +1,10 @@
 import type { WheelEvent, MouseEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone";
+import { debounce } from "lodash-es";
+
+const STORAGE_KEY = "timeline-zoom-level";
+const DEBOUNCE_MS = 300;
 
 export function Timeline({
     duration,
@@ -15,7 +19,37 @@ export function Timeline({
 }) {
     const barRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+
     const [zoomLevel, setZoomLevel] = useState(1);
+
+    // Load saved zoom level on mount
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                setZoomLevel(parseFloat(saved));
+            }
+        } catch (error) {
+            console.error("Failed to load zoom level:", error);
+        }
+    }, []);
+
+    // Create debounced save function
+    const debouncedSave = useRef(
+        debounce((zoom: number) => {
+            try {
+                localStorage.setItem(STORAGE_KEY, zoom.toString());
+            } catch (error) {
+                console.error("Failed to save zoom level:", error);
+            }
+        }, DEBOUNCE_MS),
+    ).current;
+
+    // Update zoom level and trigger debounced save
+    const updateZoom = (newZoom: number) => {
+        setZoomLevel(newZoom);
+        debouncedSave(newZoom);
+    };
 
     useEffect(() => {
         // Derive a sensible length if none provided
@@ -55,7 +89,7 @@ export function Timeline({
     const handleWheel = (e: WheelEvent<HTMLDivElement>) => {
         e.preventDefault();
         const newZoom = Math.max(1, zoomLevel + e.deltaY * -0.001);
-        setZoomLevel(newZoom);
+        updateZoom(newZoom);
     };
 
     const handleClick = (e: MouseEvent<HTMLDivElement>) => {
@@ -80,8 +114,29 @@ export function Timeline({
         }
     };
 
+    // Clean up the debounced function
+    useEffect(() => {
+        return () => {
+            debouncedSave.cancel();
+        };
+    }, [debouncedSave]);
+
     return (
         <div className="relative w-full overflow-x-auto bg-muted">
+            <div className="absolute top-2 right-2 flex items-center gap-2 z-10 text-xs">
+                <span className="bg-black/20 px-2 py-1 rounded">
+                    {Math.round(zoomLevel * 100)}%
+                </span>
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        updateZoom(1);
+                    }}
+                    className="bg-black/20 hover:bg-black/30 px-2 py-1 rounded"
+                >
+                    Reset
+                </button>
+            </div>
             <div
                 ref={containerRef}
                 onWheel={handleWheel}
