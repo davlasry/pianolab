@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import { usePlayMidi } from "src/hooks/usePlayMidi";
-import { Klavier } from "src/klavier/components/Klavier.tsx";
+import { Klavier } from "src/klavier/components/Klavier";
+import { Clock } from "src/components/Clock";
+import { Timeline } from "src/components/Timeline";
 
 function App() {
     const [isReady, setReady] = useState(false);
@@ -23,6 +25,8 @@ function App() {
                 <button onClick={resume}>Resume</button>
                 <button onClick={stop}>Stop</button>
             </div>
+            <Clock />
+            <Timeline />
             <Klavier activeKeys={activeKeys} />
         </div>
     );
