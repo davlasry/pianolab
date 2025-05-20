@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import type { WheelEvent, MouseEvent } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone";
 
 export function Timeline({
@@ -14,6 +15,7 @@ export function Timeline({
 }) {
     const barRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const [zoomLevel, setZoomLevel] = useState(1);
 
     useEffect(() => {
         // Derive a sensible length if none provided
@@ -50,32 +52,53 @@ export function Timeline({
         return duration ?? length ?? loopLen;
     };
 
+    const handleWheel = (e: WheelEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        const newZoom = Math.max(1, zoomLevel + e.deltaY * -0.001);
+        setZoomLevel(newZoom);
+    };
+
     const handleClick = (e: MouseEvent<HTMLDivElement>) => {
         if (!containerRef.current) return;
+
         const rect = containerRef.current.getBoundingClientRect();
-        const clickX = e.clientX - rect.left; // px from left edge
-        const pct = clickX / rect.width; // 0‑1
+
+        // Simple approach: calculate percentage based on visible area only
+        const clickX = e.clientX - rect.left;
+        const pct = clickX / rect.width;
+
         const total = resolveTotal();
         const newTime = pct * total;
 
-        // Jump Transport; if negative / NaN guard
         if (Number.isFinite(newTime) && newTime >= 0) {
-            onSeek(newTime); // jump to new time
+            onSeek(newTime);
+
+            // Update progress bar position directly
+            if (barRef.current) {
+                barRef.current.style.left = `${pct * 100}%`;
+            }
         }
     };
 
     return (
-        <div
-            ref={containerRef}
-            onClick={handleClick}
-            className="relative w-full bg-muted overflow-hidden bg-blue-500"
-            style={{ height }}
-        >
+        <div className="relative w-full overflow-x-auto bg-muted">
             <div
-                ref={barRef}
-                className="absolute top-0 bottom-0 w-0.5 bg-rose-200"
-                style={{ translate: "0 0" }}
-            />
+                ref={containerRef}
+                onWheel={handleWheel}
+                onClick={handleClick}
+                className="relative w-full bg-muted overflow-hidden bg-blue-500"
+                style={{
+                    height,
+                    width: `${100 * zoomLevel}%`,
+                    minWidth: "100%",
+                }}
+            >
+                <div
+                    ref={barRef}
+                    className="absolute top-0 bottom-0 w-0.5 bg-rose-200"
+                    style={{ translate: "0 0" }}
+                />
+            </div>
         </div>
     );
 }
