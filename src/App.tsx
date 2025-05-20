@@ -6,6 +6,7 @@ import { Clock } from "src/components/Clock";
 import { Timeline } from "src/components/Timeline";
 import { useMidiNotes } from "src/hooks/useMidiNotes.ts";
 import { Toolbar } from "src/components/Toolbar.tsx";
+import { CurrentChord } from "src/components/CurrentChord.tsx";
 
 function App() {
     const [isReady, setReady] = useState(false);
@@ -16,10 +17,10 @@ function App() {
         // setHand,
     } = useMidiNotes();
 
-    const player = usePlayer(notes); // hand the list down
+    const Player = usePlayer(notes); // hand the list down
 
     useEffect(() => {
-        Promise.all([loadMidi(), player.loadAudio()]).then(() =>
+        Promise.all([loadMidi(), Player.loadAudio()]).then(() =>
             setReady(true),
         );
     }, []);
@@ -28,18 +29,20 @@ function App() {
         <div>
             <h1>PianoLab</h1>
 
+            <CurrentChord chord={Player.activeChord} />
+
             <Toolbar
-                onPlay={() => player.play()}
-                onPause={player.pause}
-                onStop={player.stop}
+                onPlay={() => Player.play()}
+                onPause={Player.pause}
+                onStop={Player.stop}
                 isReady={isReady}
             />
 
             <Clock />
 
-            <Timeline duration={player.audioDuration} onSeek={player.seek} />
+            <Timeline duration={Player.audioDuration} onSeek={Player.seek} />
 
-            <Keyboard activeNotes={player.activeNotes} />
+            <Keyboard activeNotes={Player.activeNotes} />
         </div>
     );
 }

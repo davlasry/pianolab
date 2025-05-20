@@ -113,8 +113,6 @@ const Keyboard = (props: KeyboardProps) => {
 
     const activeKeys = activeNotes?.map((note) => note.midi) || [];
 
-    console.log("activeNotes =====>", activeNotes);
-
     const [first, last] = keyRange;
     const {
         state,

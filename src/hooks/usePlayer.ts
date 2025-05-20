@@ -1,15 +1,18 @@
 import { useState, useRef, useEffect } from "react";
 import * as Tone from "tone";
 import type { Note } from "src/hooks/useMidiNotes.ts";
+import { chordProgression } from "src/hooks/useChordProgression.ts";
 
 export const usePlayer = (notes: Note[]) => {
     // const [midi, setMidi] = useState<Midi | null>(null);
     const [activeNotes, setActiveNotes] = useState<any[]>([]);
+    const [activeChord, setActiveChord] = useState<string>("");
     const [audioDuration, setAudioDuration] = useState<number>(0);
 
     // keep these across renders
     const playerRef = useRef<Tone.Player | null>(null);
-    const partRef = useRef<Tone.Part | null>(null);
+    const notesPartRef = useRef<Tone.Part | null>(null);
+    const chordPartRef = useRef<Tone.Part | null>(null);
     const synthRef = useRef<Tone.PolySynth | null>(null);
 
     // async function loadMidi() {
@@ -21,30 +24,22 @@ export const usePlayer = (notes: Note[]) => {
     //     }
     // }
 
-    const loadAudio = async (url = "/pianolab/body_and_soul.mp3") => {
+    const loadAudio = async (
+        url = "https://pianolab-audio.s3.us-east-2.amazonaws.com/body-and-soul.mp3",
+    ) => {
         playerRef.current?.dispose(); // if re-loading
         playerRef.current = new Tone.Player({
             url,
             autostart: false,
             onload: () => {
                 setAudioDuration(playerRef.current!.buffer.duration);
-                console.log(
-                    "playerRef.current!.buffer.duration =====>",
-                    playerRef.current!.buffer.duration,
-                );
                 console.log("Audio loaded");
             },
         }).toDestination();
         playerRef.current.sync(); // follow the Transport
     };
 
-    /** build (or rebuild) a Part from the Midi object */
-    const buildPart = () => {
-        // if (!midi) return;
-
-        // create a synth once
-        synthRef.current ??= new Tone.PolySynth().toDestination();
-
+    const buildNotesPart = () => {
         const events = notes.map((n) => ({
             time: n.time,
             note: Tone.Frequency(n.midi, "midi").toNote(), // "C4" etc.
@@ -55,9 +50,9 @@ export const usePlayer = (notes: Note[]) => {
         }));
 
         // dispose the old part if we rebuild
-        partRef.current?.dispose();
+        notesPartRef.current?.dispose();
 
-        partRef.current = new Tone.Part((_time, ev) => {
+        notesPartRef.current = new Tone.Part((_time, ev) => {
             // 🔵 GUI ─ mark key ON
             setActiveNotes((keys) => [
                 ...keys,
@@ -81,11 +76,36 @@ export const usePlayer = (notes: Note[]) => {
         }, events).start(0); // start at t=0 on the transport
     };
 
+    const buildChordProgressionPart = () => {
+        const events = chordProgression.map((n) => ({
+            time: n.time,
+            chord: n.chord,
+        }));
+
+        // dispose the old part if we rebuild
+        chordPartRef.current?.dispose();
+
+        chordPartRef.current = new Tone.Part((_time, ev) => {
+            setActiveChord(ev.chord); // add without deduping for speed
+        }, events).start(0); // start at t=0 on the transport
+    };
+
+    /** build (or rebuild) a Part from the Midi object */
+    const buildPart = () => {
+        // if (!midi) return;
+
+        // create a synth once
+        synthRef.current ??= new Tone.PolySynth().toDestination();
+
+        buildNotesPart();
+        buildChordProgressionPart();
+    };
+
     async function play(audioOffset = 0) {
         await Tone.start(); // unlock AudioContext
         await Tone.loaded(); // wait for Player + MIDI
 
-        if (!partRef.current) buildPart();
+        if (!notesPartRef.current || !chordPartRef) buildPart();
 
         const lookAhead = 0.05;
         // const startAt = Tone.now() + lookAhead; // single timestamp
@@ -112,9 +132,15 @@ export const usePlayer = (notes: Note[]) => {
         Tone.getTransport().cancel(); // clear all future MIDI events
 
         synthRef.current?.releaseAll(0); // fade out anything already playing
-        partRef.current?.dispose();
-        partRef.current = null;
+
+        notesPartRef.current?.dispose();
+        notesPartRef.current = null;
+
+        chordPartRef.current?.dispose();
+        chordPartRef.current = null;
+
         setActiveNotes([]); // GUI reset
+        setActiveChord(""); // GUI reset
     };
 
     /** tidy up when the component unmounts */
@@ -126,6 +152,13 @@ export const usePlayer = (notes: Note[]) => {
 
         // 2 – jump the transport
         Tone.getTransport().seconds = time;
+
+        const last = chordProgression
+            .slice()
+            .reverse()
+            .find((e) => e.time <= time);
+
+        if (last) setActiveChord(last.chord);
     }
 
     return {
@@ -136,6 +169,7 @@ export const usePlayer = (notes: Note[]) => {
         resume,
         stop,
         activeNotes,
+        activeChord,
         audioDuration,
         seek,
     };
