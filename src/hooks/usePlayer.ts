@@ -120,7 +120,6 @@ export const usePlayer = (notes: Note[]) => {
     function pause() {
         Tone.getTransport().pause();
         synthRef.current?.releaseAll(0); // fade out anything already playing
-        setActiveNotes([]); // GUI reset
     }
 
     function resume() {
