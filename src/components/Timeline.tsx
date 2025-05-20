@@ -5,6 +5,7 @@ import { debounce } from "lodash-es";
 
 const STORAGE_KEY = "timeline-zoom-level";
 const DEBOUNCE_MS = 300;
+const SCROLL_THRESHOLD = 0.9; // Start scrolling when bar is at 80% of visible width
 
 export function Timeline({
     duration,
@@ -19,6 +20,7 @@ export function Timeline({
 }) {
     const barRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const outerContainerRef = useRef<HTMLDivElement>(null);
 
     const [zoomLevel, setZoomLevel] = useState(1);
 
@@ -65,12 +67,40 @@ export function Timeline({
 
         let rafId: number;
         const tick = () => {
-            // const total = resolveTotal();
             const pos = Tone.getTransport().seconds;
             const pct = Math.min(pos / total, 1); // clamp 0‑1
-            if (barRef.current && containerRef.current) {
+
+            if (
+                barRef.current &&
+                containerRef.current &&
+                outerContainerRef.current
+            ) {
+                // Update progress bar position
                 barRef.current.style.left = `${pct * 100}%`;
+
+                // Auto-scroll if progress bar is near the right edge of visible area
+                const outerRect =
+                    outerContainerRef.current.getBoundingClientRect();
+                const barRect = barRef.current.getBoundingClientRect();
+
+                // Get the right edge position of the bar and container
+                const barRightEdge = barRect.left + barRect.width;
+                const containerRightThreshold =
+                    outerRect.left + outerRect.width * SCROLL_THRESHOLD;
+
+                // If bar is approaching right edge, scroll to follow it
+                if (barRightEdge >= containerRightThreshold) {
+                    // Calculate how much to scroll
+                    const scrollPos =
+                        pct * containerRef.current.scrollWidth -
+                        outerRect.width / 2;
+                    outerContainerRef.current.scrollLeft = Math.max(
+                        0,
+                        scrollPos,
+                    );
+                }
             }
+
             rafId = requestAnimationFrame(tick);
         };
 
@@ -122,7 +152,8 @@ export function Timeline({
     }, [debouncedSave]);
 
     return (
-        <div className="relative w-full overflow-x-auto bg-muted">
+        <div className="relative">
+            {/* Fixed position zoom controls */}
             <div className="absolute top-2 right-2 flex items-center gap-2 z-10 text-xs">
                 <span className="bg-black/20 px-2 py-1 rounded">
                     {Math.round(zoomLevel * 100)}%
@@ -137,22 +168,29 @@ export function Timeline({
                     Reset
                 </button>
             </div>
+
+            {/* Scrollable timeline container */}
             <div
-                ref={containerRef}
-                onWheel={handleWheel}
-                onClick={handleClick}
-                className="relative w-full bg-muted overflow-hidden bg-blue-500"
-                style={{
-                    height,
-                    width: `${100 * zoomLevel}%`,
-                    minWidth: "100%",
-                }}
+                ref={outerContainerRef}
+                className="relative w-full overflow-x-auto bg-muted"
             >
                 <div
-                    ref={barRef}
-                    className="absolute top-0 bottom-0 w-0.5 bg-rose-200"
-                    style={{ translate: "0 0" }}
-                />
+                    ref={containerRef}
+                    onWheel={handleWheel}
+                    onClick={handleClick}
+                    className="relative w-full bg-muted overflow-hidden bg-blue-500"
+                    style={{
+                        height,
+                        width: `${100 * zoomLevel}%`,
+                        minWidth: "100%",
+                    }}
+                >
+                    <div
+                        ref={barRef}
+                        className="absolute top-0 bottom-0 w-0.5 bg-rose-200"
+                        style={{ translate: "0 0" }}
+                    />
+                </div>
             </div>
         </div>
     );
