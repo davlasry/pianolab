@@ -34,21 +34,6 @@ export const Toolbar = ({ onPlay, onPause, onStop, isReady }: any) => {
                 </svg>
             </button>
             <button
-                onClick={onPlay}
-                aria-label="Resume"
-                className="p-2 bg-white text-gray-700 rounded hover:bg-gray-300 cursor-pointer"
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                >
-                    <path d="M8 5v14l11-7z" />
-                </svg>
-            </button>
-            <button
                 onClick={onStop}
                 disabled={!isReady}
                 aria-label="Stop"

@@ -161,7 +161,6 @@ export const usePlayer = (notes: Note[]) => {
     }
 
     return {
-        // loadMidi,
         loadAudio,
         play,
         pause,
