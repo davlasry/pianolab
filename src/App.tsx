@@ -1,24 +1,29 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import { usePlayMidi } from "src/hooks/usePlayMidi";
+import { Klavier } from "src/klavier/components/Klavier.tsx";
 
 function App() {
-    const { loadMidi, playMidi, pauseMidi, resumeMidi, stopMidi } =
+    const [isReady, setReady] = useState(false);
+    const { loadMidi, loadAudio, play, pause, resume, stop, activeKeys } =
         usePlayMidi();
 
     useEffect(() => {
-        loadMidi();
+        Promise.all([loadMidi(), loadAudio()]).then(() => setReady(true));
     }, []);
 
     return (
         <div>
             <h1>PianoLab</h1>
             <div>
-                <button onClick={playMidi}>Play</button>
-                <button onClick={pauseMidi}>Pause</button>
-                <button onClick={resumeMidi}>Resume</button>
-                <button onClick={stopMidi}>Stop</button>
+                <button onClick={() => play()} disabled={!isReady}>
+                    Play
+                </button>
+                <button onClick={pause}>Pause</button>
+                <button onClick={resume}>Resume</button>
+                <button onClick={stop}>Stop</button>
             </div>
+            <Klavier activeKeys={activeKeys} />
         </div>
     );
 }
