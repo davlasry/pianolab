@@ -146,6 +146,8 @@ const Keyboard = (props: KeyboardProps) => {
     });
     useTouch({
         enabled: interactivitySettings.touch,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
         klavierRootRef,
         pressKey,
         releaseKey,
