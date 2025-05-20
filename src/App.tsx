@@ -16,6 +16,7 @@ function App() {
         stop,
         activeKeys,
         audioDuration,
+        seek,
     } = usePlayMidi();
 
     useEffect(() => {
@@ -34,7 +35,7 @@ function App() {
                 <button onClick={stop}>Stop</button>
             </div>
             <Clock />
-            <Timeline duration={audioDuration} />
+            <Timeline duration={audioDuration} onSeek={seek} />
             <Klavier activeKeys={activeKeys} />
         </div>
     );

@@ -5,7 +5,7 @@ import * as Tone from "tone";
 export const usePlayMidi = () => {
     const [midi, setMidi] = useState<Midi | null>(null);
     const [activeKeys, setActiveKeys] = useState<number[]>([]);
-    const [audioDuration, setAudioDuration] = useState<number>([]);
+    const [audioDuration, setAudioDuration] = useState<number>(0);
 
     // keep these across renders
     const playerRef = useRef<Tone.Player | null>(null);
@@ -28,6 +28,10 @@ export const usePlayMidi = () => {
             autostart: false,
             onload: () => {
                 setAudioDuration(playerRef.current!.buffer.duration);
+                console.log(
+                    "playerRef.current!.buffer.duration =====>",
+                    playerRef.current!.buffer.duration,
+                );
                 console.log("Audio loaded");
             },
         }).toDestination();
@@ -117,6 +121,14 @@ export const usePlayMidi = () => {
     /** tidy up when the component unmounts */
     useEffect(() => () => stop(), []);
 
+    function seek(time: number) {
+        // 1 – silence and clear GUI
+        setActiveKeys([]);
+
+        // 2 – jump the transport
+        Tone.getTransport().seconds = time;
+    }
+
     return {
         loadMidi,
         loadAudio,
@@ -126,5 +138,6 @@ export const usePlayMidi = () => {
         stop,
         activeKeys,
         audioDuration,
+        seek,
     };
 };
