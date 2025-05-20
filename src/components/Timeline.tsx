@@ -5,7 +5,8 @@ import { debounce } from "lodash-es";
 
 const STORAGE_KEY = "timeline-zoom-level";
 const DEBOUNCE_MS = 300;
-const SCROLL_THRESHOLD = 0.9; // Start scrolling when bar is at 80% of visible width
+const SCROLL_THRESHOLD = 0.9; // Start scrolling when bar is at 90% of visible width
+const LEFT_MARGIN_RATIO = 0.1; // Position bar at 10% from the left edge after scrolling
 
 export function Timeline({
     duration,
@@ -91,9 +92,10 @@ export function Timeline({
                 // If bar is approaching right edge, scroll to follow it
                 if (barRightEdge >= containerRightThreshold) {
                     // Calculate how much to scroll
+                    // Position the bar at LEFT_MARGIN_RATIO from the left edge
+                    const leftMargin = outerRect.width * LEFT_MARGIN_RATIO;
                     const scrollPos =
-                        pct * containerRef.current.scrollWidth -
-                        outerRect.width / 2;
+                        pct * containerRef.current.scrollWidth - leftMargin;
                     outerContainerRef.current.scrollLeft = Math.max(
                         0,
                         scrollPos,
