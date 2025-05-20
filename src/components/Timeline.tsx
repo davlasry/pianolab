@@ -28,7 +28,6 @@ export function Timeline({
         let rafId: number;
         const tick = () => {
             const pos = Tone.getTransport().seconds;
-            console.log("pos =====>", pos);
             const pct = Math.min(pos / total, 1); // clamp 0‑1
             if (barRef.current && containerRef.current) {
                 barRef.current.style.left = `${pct * 100}%`;
