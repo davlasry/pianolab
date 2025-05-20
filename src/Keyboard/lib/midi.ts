@@ -1,11 +1,11 @@
-import type { Note } from "src/klavier/types";
+import type { Note } from "src/Keyboard/types";
 import {
     MIDI_NUMBER_MIN,
     MIDI_NUMBER_MAX,
     MIDI_NUMBER_C0,
     OCTAVE_LENGTH,
     BLACK_KEY_MIDI_NUMBERS,
-} from "src/klavier/lib/constants";
+} from "src/Keyboard/lib/constants";
 
 export function midiToNote(midiNumber: number): Note {
     if (!isMidiNumber(midiNumber)) {

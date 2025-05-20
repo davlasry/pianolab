@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from "react";
-import type { Keymap } from "src/klavier/types";
-import { noop } from "src/klavier/lib/noop";
+import type { Keymap } from "src/Keyboard/types";
+import { noop } from "src/Keyboard/lib/noop";
 
 type UseKeyboardProps = {
     enabled: boolean;

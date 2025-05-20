@@ -3,16 +3,16 @@ import type {
     Keymap,
     CustomKeyComponent,
     CustomLabelComponent,
-} from "src/klavier/types";
-import { DEFAULT_KEYMAP } from "src/klavier/keymap";
-import { DEFAULT_NOTE_RANGE } from "src/klavier/lib/constants";
-import { range } from "src/klavier/lib/range";
-import { Key } from "src/klavier/components/Key";
-import { isMidiNumber } from "src/klavier/lib/midi";
-import { useKlavier } from "src/klavier/state/useKlavier";
-import { useMouse } from "src/klavier/interactivity/useMouse";
-import { useKeyboard } from "src/klavier/interactivity/useKeyboard";
-import { useTouch } from "src/klavier/interactivity/useTouch";
+} from "src/Keyboard/types";
+import { DEFAULT_KEYMAP } from "src/Keyboard/keymap";
+import { DEFAULT_NOTE_RANGE } from "src/Keyboard/lib/constants";
+import { range } from "src/Keyboard/lib/range";
+import { Key } from "src/Keyboard/components/Key";
+import { isMidiNumber } from "src/Keyboard/lib/midi";
+import { useKlavier } from "src/Keyboard/state/useKlavier";
+import { useMouse } from "src/Keyboard/interactivity/useMouse";
+import { useKeyboard } from "src/Keyboard/interactivity/useKeyboard";
+import { useTouch } from "src/Keyboard/interactivity/useTouch";
 
 interface KlavierProps {
     /**

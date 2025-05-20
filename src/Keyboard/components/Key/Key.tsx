@@ -1,16 +1,16 @@
 import React, { useMemo } from "react";
-import { midiToNote } from "src/klavier/lib/midi";
+import { midiToNote } from "src/Keyboard/lib/midi";
 import type {
     CustomKeyComponent,
     CustomLabelComponent,
     KeyColor,
     Keymap,
-} from "src/klavier/types";
+} from "src/Keyboard/types";
 import {
     DEFAULT_BLACK_KEY_HEIGHT,
     MIDI_NUMBER_C0,
-} from "src/klavier/lib/constants";
-import { defaultKeyComponents } from "src/klavier/components/Key/defaultKeyComponents";
+} from "src/Keyboard/lib/constants";
+import { defaultKeyComponents } from "src/Keyboard/components/Key/defaultKeyComponents";
 
 type KeyProps = {
     midiNumber: number;
