@@ -19,6 +19,8 @@ export const PieceFormModal = ({
         composer: "",
         style: "",
         tags: [],
+        audio_url: "",
+        midi_url: "",
     });
     const [tagInput, setTagInput] = useState("");
     const { createPiece, isLoading, error } = useCreatePiece();
@@ -61,6 +63,8 @@ export const PieceFormModal = ({
             composer: formData.composer || null,
             style: formData.style || null,
             tags: formData.tags || null,
+            audio_url: formData.audio_url || null,
+            midi_url: formData.midi_url || null,
         };
 
         const result = await createPiece(piece);
@@ -71,6 +75,8 @@ export const PieceFormModal = ({
                 composer: "",
                 style: "",
                 tags: [],
+                audio_url: "",
+                midi_url: "",
             });
             onSuccess?.();
             onClose();
@@ -79,15 +85,15 @@ export const PieceFormModal = ({
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md text-gray-800 dark:text-gray-300">
                 <h2 className="text-xl font-bold mb-4">Add New Piece</h2>
 
                 <form onSubmit={handleSubmit}>
                     <div className="space-y-4">
-                        <div>
+                        <div className="text-left">
                             <label
                                 htmlFor="name"
-                                className="block text-sm font-medium mb-1"
+                                className="block text-sm font-medium mb-1 text-left"
                             >
                                 Name <span className="text-red-500">*</span>
                             </label>
@@ -102,10 +108,10 @@ export const PieceFormModal = ({
                             />
                         </div>
 
-                        <div>
+                        <div className="text-left">
                             <label
                                 htmlFor="composer"
-                                className="block text-sm font-medium mb-1"
+                                className="block text-sm font-medium mb-1 text-left"
                             >
                                 Composer
                             </label>
@@ -119,10 +125,10 @@ export const PieceFormModal = ({
                             />
                         </div>
 
-                        <div>
+                        <div className="text-left">
                             <label
                                 htmlFor="style"
-                                className="block text-sm font-medium mb-1"
+                                className="block text-sm font-medium mb-1 text-left"
                             >
                                 Style
                             </label>
@@ -136,10 +142,10 @@ export const PieceFormModal = ({
                             />
                         </div>
 
-                        <div>
+                        <div className="text-left">
                             <label
                                 htmlFor="tags"
-                                className="block text-sm font-medium mb-1"
+                                className="block text-sm font-medium mb-1 text-left"
                             >
                                 Tags
                             </label>
@@ -186,6 +192,42 @@ export const PieceFormModal = ({
                             )}
                         </div>
 
+                        <div className="text-left">
+                            <label
+                                htmlFor="audio_url"
+                                className="block text-sm font-medium mb-1 text-left"
+                            >
+                                Audio URL
+                            </label>
+                            <input
+                                id="audio_url"
+                                name="audio_url"
+                                type="text"
+                                value={formData.audio_url || ""}
+                                onChange={handleChange}
+                                className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                                placeholder="https://example.com/audio.mp3"
+                            />
+                        </div>
+
+                        <div className="text-left">
+                            <label
+                                htmlFor="midi_url"
+                                className="block text-sm font-medium mb-1 text-left"
+                            >
+                                Midi URL
+                            </label>
+                            <input
+                                id="midi_url"
+                                name="midi_url"
+                                type="text"
+                                value={formData.midi_url || ""}
+                                onChange={handleChange}
+                                className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                                placeholder="https://example.com/file.mid"
+                            />
+                        </div>
+
                         {error && (
                             <div className="text-red-500 text-sm">{error}</div>
                         )}
@@ -196,6 +238,7 @@ export const PieceFormModal = ({
                                 variant="outline"
                                 onClick={onClose}
                                 disabled={isLoading}
+                                className="bg-gray-400 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-600"
                             >
                                 Cancel
                             </Button>

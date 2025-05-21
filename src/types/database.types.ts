@@ -81,6 +81,8 @@ export type Database = {
                     name: string;
                     style: string | null;
                     tags: string[] | null;
+                    audio_url: string | null;
+                    midi_url: string | null;
                 };
                 Insert: {
                     composer?: string | null;
@@ -89,6 +91,8 @@ export type Database = {
                     name: string;
                     style?: string | null;
                     tags?: string[] | null;
+                    audio_url?: string | null;
+                    midi_url?: string | null;
                 };
                 Update: {
                     composer?: string | null;
@@ -97,6 +101,8 @@ export type Database = {
                     name?: string;
                     style?: string | null;
                     tags?: string[] | null;
+                    audio_url?: string | null;
+                    midi_url?: string | null;
                 };
                 Relationships: [];
             };
