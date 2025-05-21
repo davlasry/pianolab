@@ -62,10 +62,14 @@ const Key = React.memo((props: KeyProps) => {
         [midiNumber, keymap],
     );
 
+    // Determine if the key is in the left hand or right hand range (below or above middle C)
+    const handPosition = midiNumber < 60 ? "left-hand" : "right-hand";
+
     return (
         <div
             style={style}
             data-midi-number={midiNumber}
+            className={handPosition}
             onMouseDown={onMouseDown}
             onMouseUp={onMouseUp}
             onMouseEnter={onMouseEnter}

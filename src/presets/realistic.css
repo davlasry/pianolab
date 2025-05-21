@@ -17,3 +17,21 @@ div[data-midi-number]:has(.klavier-realistic-key-white:not(.active)) + div[data-
      https://github.com/facebook/react/issues/20483#issuecomment-1670926431 */
   pointer-events: none;
 }
+
+/* Color active keys red (middle C and above - right hand) */
+.right-hand > .klavier-realistic-key-white.active path {
+  fill: rgba(255, 0, 0, 0.8) !important;
+}
+
+.right-hand > .klavier-realistic-key-black.active path {
+  fill: rgba(200, 0, 0, 1) !important;
+}
+
+/* Color active keys blue (below middle C - left hand) */
+.left-hand > .klavier-realistic-key-white.active path {
+  fill: rgba(0, 0, 255, 0.8) !important;
+}
+
+.left-hand > .klavier-realistic-key-black.active path {
+  fill: rgba(0, 0, 200, 1) !important;
+}

@@ -43,7 +43,7 @@ export const PlayerContent = () => {
         return () => {
             isMounted = false;
         };
-    }, [loadMidi, loadAudio]); // Now we can safely include these dependencies
+    }, []); // Now we can safely include these dependencies
 
     return (
         <>
