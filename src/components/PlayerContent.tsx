@@ -47,21 +47,25 @@ export const PlayerContent = () => {
 
     return (
         <>
-            <CurrentChord chord={activeChord} />
+            <div className="flex items-center justify-between mb-4">
+                <CurrentChord chord={activeChord} />
 
-            <Toolbar
-                onPlay={() => play()}
-                onPause={pause}
-                onResume={resume}
-                onStop={stop}
-                isReady={isReady}
-                isPlaying={isPlaying}
-                isPaused={isPaused}
-            />
+                <Toolbar
+                    onPlay={() => play()}
+                    onPause={pause}
+                    onResume={resume}
+                    onStop={stop}
+                    isReady={isReady}
+                    isPlaying={isPlaying}
+                    isPaused={isPaused}
+                />
+            </div>
 
             <Clock />
 
-            <Timeline duration={audioDuration} onSeek={seek} />
+            <div className="mb-6">
+                <Timeline duration={audioDuration} onSeek={seek} />
+            </div>
 
             <Keyboard activeNotes={activeNotes} components={realistic} />
         </>
