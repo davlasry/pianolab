@@ -1,12 +1,10 @@
 import type { WheelEvent, MouseEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone";
-import { debounce } from "lodash-es";
 import { TimelineTicks } from "@/components/Timeline/TimelineTicks.tsx";
 import { TimelineChords } from "@/components/Timeline/TimelineChords.tsx";
+import { useTimelineZoom } from "@/components/Timeline/useTimelineZoom.ts";
 
-const STORAGE_KEY = "timeline-zoom-level";
-const DEBOUNCE_MS = 300;
 const SCROLL_THRESHOLD = 0.9; // Start scrolling when bar is at 90% of visible width
 const LEFT_MARGIN_RATIO = 0.1; // Position bar at 10% from the left edge after scrolling
 
@@ -33,37 +31,9 @@ export function Timeline({
     const containerRef = useRef<HTMLDivElement>(null);
     const outerContainerRef = useRef<HTMLDivElement>(null);
 
-    const [zoomLevel, setZoomLevel] = useState(1);
     const [totalDuration, setTotalDuration] = useState(0);
 
-    // Load saved zoom level on mount
-    useEffect(() => {
-        try {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                setZoomLevel(parseFloat(saved));
-            }
-        } catch (error) {
-            console.error("Failed to load zoom level:", error);
-        }
-    }, []);
-
-    // Create debounced save function
-    const debouncedSave = useRef(
-        debounce((zoom: number) => {
-            try {
-                localStorage.setItem(STORAGE_KEY, zoom.toString());
-            } catch (error) {
-                console.error("Failed to save zoom level:", error);
-            }
-        }, DEBOUNCE_MS),
-    ).current;
-
-    // Update zoom level and trigger debounced save
-    const updateZoom = (newZoom: number) => {
-        setZoomLevel(newZoom);
-        debouncedSave(newZoom);
-    };
+    const { updateZoom, zoomLevel } = useTimelineZoom();
 
     useEffect(() => {
         // Derive a sensible length if none provided
@@ -158,13 +128,6 @@ export function Timeline({
             }
         }
     };
-
-    // Clean up the debounced function
-    useEffect(() => {
-        return () => {
-            debouncedSave.cancel();
-        };
-    }, [debouncedSave]);
 
     return (
         <div className="relative">

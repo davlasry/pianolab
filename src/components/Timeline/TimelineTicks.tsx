@@ -25,9 +25,13 @@ export const TimelineTicks = ({ totalDuration }: Props) => {
                 className="absolute h-full"
                 style={{ left: `${percent}%` }}
             >
-                {/* Top tick */}
+                {/* Full-height tick with different colors based on importance */}
                 <div
-                    className={`absolute top-0 ${isMajorTick ? "w-px h-3" : "w-[0.5px] h-2"} bg-gray-400`}
+                    className={`absolute inset-0 ${
+                        isMajorTick
+                            ? "w-px bg-gray-400"
+                            : "w-px bg-gray-200 opacity-70"
+                    }`}
                 ></div>
 
                 {/* Only add label for major ticks */}
@@ -36,11 +40,6 @@ export const TimelineTicks = ({ totalDuration }: Props) => {
                         {formatTime(time)}
                     </div>
                 )}
-
-                {/* Bottom tick */}
-                <div
-                    className={`absolute bottom-0 ${isMajorTick ? "w-px h-3" : "w-[0.5px] h-2"} bg-gray-400`}
-                ></div>
             </div>,
         );
     }
