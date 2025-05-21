@@ -1,4 +1,3 @@
-import React from "react";
 import { Repeat } from "lucide-react";
 
 interface LoopControlsProps {
@@ -10,14 +9,14 @@ interface LoopControlsProps {
     onLoopEndChange: (time: string) => void;
 }
 
-const LoopControls: React.FC<LoopControlsProps> = ({
+const LoopControls = ({
     loopActive,
     loopStart,
     loopEnd,
     onToggleLoop,
     onLoopStartChange,
     onLoopEndChange,
-}) => {
+}: LoopControlsProps) => {
     return (
         <div className="flex items-center gap-4 mt-2">
             <button

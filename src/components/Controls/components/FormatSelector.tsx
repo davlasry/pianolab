@@ -1,14 +1,12 @@
-import React from "react";
-
 interface FormatSelectorProps {
     currentFormat: string;
     onFormatChange: (format: "smpte" | "bars" | "seconds") => void;
 }
 
-const FormatSelector: React.FC<FormatSelectorProps> = ({
+const FormatSelector = ({
     currentFormat,
     onFormatChange,
-}) => {
+}: FormatSelectorProps) => {
     return (
         <div className="flex items-center gap-1">
             <button
