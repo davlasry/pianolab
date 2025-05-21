@@ -2,8 +2,8 @@ import type { WheelEvent, MouseEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone";
 import { debounce } from "lodash-es";
-import { chordProgression } from "src/hooks/useChordProgression.ts";
 import { TimelineTicks } from "@/components/Timeline/TimelineTicks.tsx";
+import { TimelineChords } from "@/components/Timeline/TimelineChords.tsx";
 
 const STORAGE_KEY = "timeline-zoom-level";
 const DEBOUNCE_MS = 300;
@@ -159,29 +159,6 @@ export function Timeline({
         }
     };
 
-    // Render chord markers on the timeline
-    const renderChords = () => {
-        if (totalDuration <= 0) return null;
-
-        return chordProgression.map((chord, index) => {
-            if (!chord.chord) return null; // Skip empty chords
-
-            const percent = (chord.time / totalDuration) * 100;
-
-            return (
-                <div
-                    key={`chord-${index}`}
-                    className="absolute top-1/2 transform -translate-y-1/2"
-                    style={{ left: `${percent}%` }}
-                >
-                    <div className="bg-emerald-500 text-white px-2 py-1 rounded text-xs whitespace-nowrap">
-                        {chord.chord}
-                    </div>
-                </div>
-            );
-        });
-    };
-
     // Clean up the debounced function
     useEffect(() => {
         return () => {
@@ -224,7 +201,7 @@ export function Timeline({
                     }}
                 >
                     <TimelineTicks totalDuration={totalDuration} />
-                    {renderChords()}
+                    <TimelineChords totalDuration={totalDuration} />
 
                     <div
                         ref={barRef}
