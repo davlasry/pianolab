@@ -1,5 +1,11 @@
 import type { WheelEvent, MouseEvent } from "react";
-import { useEffect, useRef, useState } from "react";
+import {
+    useEffect,
+    useRef,
+    useState,
+    forwardRef,
+    useImperativeHandle,
+} from "react";
 import * as Tone from "tone";
 import { TimelineTicks } from "@/components/Timeline/TimelineTicks.tsx";
 import { TimelineChords } from "@/components/Timeline/TimelineChords.tsx";
@@ -17,17 +23,19 @@ export const formatTime = (seconds: number): string => {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
 };
 
-export function Timeline({
-    duration,
-    length,
-    height = 80,
-    onSeek,
-}: {
-    duration?: number; // preferred – pass player.buffer.duration
-    length?: number;
-    height?: number;
-    onSeek: (newTime: number) => void; // callback to seek
-}) {
+export type TimelineHandle = {
+    scrollToBeginning: () => void;
+};
+
+export const Timeline = forwardRef<
+    TimelineHandle,
+    {
+        duration?: number;
+        length?: number;
+        height?: number;
+        onSeek: (newTime: number) => void;
+    }
+>(function Timeline({ duration, length, height = 80, onSeek }, ref) {
     const barRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const outerContainerRef = useRef<HTMLDivElement>(null);
@@ -35,6 +43,15 @@ export function Timeline({
     const [totalDuration, setTotalDuration] = useState(0);
 
     const { updateZoom, zoomLevel } = useTimelineZoom();
+
+    // Expose the scrollToBeginning function to parent components
+    useImperativeHandle(ref, () => ({
+        scrollToBeginning: () => {
+            if (outerContainerRef.current) {
+                outerContainerRef.current.scrollLeft = 0;
+            }
+        },
+    }));
 
     useEffect(() => {
         // Derive a sensible length if none provided
@@ -165,4 +182,4 @@ export function Timeline({
             </div>
         </div>
     );
-}
+});

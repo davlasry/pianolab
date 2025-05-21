@@ -3,13 +3,19 @@ import * as Tone from "tone";
 import type { Note } from "@/hooks/useMidiNotes.ts";
 import { chordProgression } from "@/hooks/useChordProgression.ts";
 
+type ActiveNote = {
+    midi: number;
+    hand: "left" | "right";
+};
+
 export const usePlayer = (notes: Note[]) => {
     // const [midi, setMidi] = useState<Midi | null>(null);
-    const [activeNotes, setActiveNotes] = useState<any[]>([]);
+    const [activeNotes, setActiveNotes] = useState<ActiveNote[]>([]);
     const [activeChord, setActiveChord] = useState<string>("");
     const [audioDuration, setAudioDuration] = useState<number>(0);
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [isPaused, setIsPaused] = useState<boolean>(false);
+    const [isStopped, setIsStopped] = useState<boolean>(true);
 
     // keep these across renders
     const playerRef = useRef<Tone.Player | null>(null);
@@ -23,6 +29,7 @@ export const usePlayer = (notes: Note[]) => {
             const transportState = Tone.getTransport().state;
             setIsPlaying(transportState === "started");
             setIsPaused(transportState === "paused");
+            setIsStopped(transportState === "stopped");
         };
 
         // Initial state
@@ -187,6 +194,19 @@ export const usePlayer = (notes: Note[]) => {
         if (last) setActiveChord(last.chord);
     }
 
+    function seekToBeginning() {
+        // Seek to the beginning
+        seek(0);
+        
+        // Make sure isStopped is set to false
+        setIsStopped(false);
+        
+        // Rebuild parts if they were disposed
+        if (!notesPartRef.current || !chordPartRef.current) {
+            buildPart();
+        }
+    }
+
     return {
         loadAudio,
         play,
@@ -197,7 +217,9 @@ export const usePlayer = (notes: Note[]) => {
         activeChord,
         audioDuration,
         seek,
+        seekToBeginning,
         isPlaying,
         isPaused,
+        isStopped,
     };
 };
