@@ -4,6 +4,7 @@ import * as Tone from "tone";
 import { TimelineTicks } from "@/components/Timeline/TimelineTicks.tsx";
 import { TimelineChords } from "@/components/Timeline/TimelineChords.tsx";
 import { useTimelineZoom } from "@/components/Timeline/useTimelineZoom.ts";
+import { TimelineZoomControls } from "@/components/Timeline/TimelineZoomControls.tsx";
 
 const SCROLL_THRESHOLD = 0.9; // Start scrolling when bar is at 90% of visible width
 const LEFT_MARGIN_RATIO = 0.1; // Position bar at 10% from the left edge after scrolling
@@ -131,21 +132,10 @@ export function Timeline({
 
     return (
         <div className="relative">
-            {/* Fixed position zoom controls */}
-            <div className="absolute top-2 right-2 flex items-center gap-2 z-10 text-xs">
-                <span className="bg-black/20 px-2 py-1 rounded">
-                    {Math.round(zoomLevel * 100)}%
-                </span>
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        updateZoom(1);
-                    }}
-                    className="bg-black/20 hover:bg-black/30 px-2 py-1 rounded"
-                >
-                    Reset
-                </button>
-            </div>
+            <TimelineZoomControls
+                updateZoom={updateZoom}
+                zoomLevel={zoomLevel}
+            />
 
             {/* Scrollable timeline container */}
             <div

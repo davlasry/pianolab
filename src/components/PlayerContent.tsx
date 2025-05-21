@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Keyboard } from "src/Keyboard/components/Keyboard";
-import { Clock } from "src/components/Clock";
+import { Clock } from "@/components/Toolbar/Clock.tsx";
 import { Timeline } from "@/components/Timeline/Timeline.tsx";
-import { Toolbar } from "src/components/Toolbar";
-import { CurrentChord } from "src/components/CurrentChord";
+import { Toolbar } from "@/components/Toolbar/Toolbar.tsx";
+import { CurrentChord } from "@/components/Toolbar/CurrentChord.tsx";
 import { usePlayerContext } from "src/context/PlayerContext";
 import { realistic } from "src/presets/realistic";
 
