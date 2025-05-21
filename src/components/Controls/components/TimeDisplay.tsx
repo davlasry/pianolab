@@ -1,16 +1,14 @@
-import React from "react";
-
 interface TimeDisplayProps {
     currentTime: string;
     currentFormat: string;
     isPlaying: boolean;
 }
 
-const TimeDisplay: React.FC<TimeDisplayProps> = ({
+const TimeDisplay = ({
     currentTime,
     currentFormat,
     isPlaying,
-}) => {
+}: TimeDisplayProps) => {
     return (
         <div className="bg-zinc-900 rounded-lg p-4 w-full md:w-70 shadow-inner">
             <div className="text-center">
