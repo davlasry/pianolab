@@ -1,6 +1,6 @@
 import "./App.css";
 import { PlayerProvider } from "@/context/PlayerContext.tsx";
-import { Pieces } from "@/components/Pieces.tsx";
+import { Pieces } from "@/components/Pieces/Pieces.tsx";
 import { PlayerContent } from "@/components/PlayerContent.tsx";
 
 function App() {

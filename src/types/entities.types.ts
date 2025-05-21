@@ -7,3 +7,4 @@ export type UpdateRecording =
     Database["public"]["Tables"]["recordings"]["Update"];
 
 export type Piece = Database["public"]["Tables"]["pieces"]["Row"];
+export type InsertPiece = Database["public"]["Tables"]["pieces"]["Insert"];
