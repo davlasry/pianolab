@@ -4,13 +4,19 @@ import { usePlayerContext } from "@/context/PlayerContext.tsx";
 
 function Controls({
     handleMoveToBeginning,
-    isReady,
 }: {
     handleMoveToBeginning: () => void;
-    isReady: boolean;
 }) {
-    const { isPlaying, isPaused, play, stop, getTransport, resume, pause } =
-        usePlayerContext();
+    const {
+        isPlaying,
+        isPaused,
+        play,
+        stop,
+        getTransport,
+        resume,
+        pause,
+        isReady,
+    } = usePlayerContext();
 
     return (
         <div className="bg-zinc-900 flex items-center justify-center p-4">

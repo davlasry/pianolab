@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useRef } from "react";
 import { Keyboard } from "src/Keyboard/components/Keyboard";
 import {
     Timeline,
@@ -8,49 +8,12 @@ import { CurrentChord } from "@/components/Toolbar/CurrentChord.tsx";
 import { usePlayerContext } from "src/context/PlayerContext";
 import { realistic } from "src/presets/realistic";
 import Controls from "@/components/Controls/Controls.tsx";
-import { PlayerControls } from "@/components/Toolbar/PlayerControls.tsx";
 
 export const PlayerContent = () => {
-    const [isReady, setReady] = useState(false);
     const timelineRef = useRef<TimelineHandle>(null);
 
-    const {
-        activeChord,
-        activeNotes,
-        play,
-        pause,
-        resume,
-        stop,
-        isPlaying,
-        isPaused,
-        isStopped,
-        audioDuration,
-        seek,
-        seekToBeginning,
-        loadAudio,
-        loadMidi,
-    } = usePlayerContext();
-
-    useEffect(() => {
-        let isMounted = true;
-
-        const loadAssets = async () => {
-            try {
-                await Promise.all([loadMidi(), loadAudio()]);
-                if (isMounted) {
-                    setReady(true);
-                }
-            } catch (error) {
-                console.error("Failed to load assets:", error);
-            }
-        };
-
-        loadAssets();
-
-        return () => {
-            isMounted = false;
-        };
-    }, []);
+    const { activeChord, activeNotes, audioDuration, seek, seekToBeginning } =
+        usePlayerContext();
 
     const handleMoveToBeginning = () => {
         // Call the seekToBeginning function from the player context
@@ -62,23 +25,8 @@ export const PlayerContent = () => {
     return (
         <>
             <div className="flex items-center mb-4">
-                <Controls
-                    handleMoveToBeginning={handleMoveToBeginning}
-                    isReady={isReady}
-                />
+                <Controls handleMoveToBeginning={handleMoveToBeginning} />
                 <CurrentChord chord={activeChord} />
-
-                <PlayerControls
-                    onPlay={() => play()}
-                    onPause={pause}
-                    onResume={resume}
-                    onStop={stop}
-                    onMoveToBeginning={handleMoveToBeginning}
-                    isReady={isReady}
-                    isPlaying={isPlaying}
-                    isPaused={isPaused}
-                    isStopped={isStopped}
-                />
             </div>
 
             <div className="mb-6">
