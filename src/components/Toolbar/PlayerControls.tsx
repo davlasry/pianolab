@@ -44,7 +44,7 @@ const useSpaceBarControl = ({
     }, [isPlaying, isPaused, isReady, onPlay, onPause, onResume]);
 };
 
-export const Toolbar = ({
+export const PlayerControls = ({
     onPlay,
     onPause,
     onResume,

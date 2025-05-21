@@ -5,7 +5,7 @@ import {
     Timeline,
     type TimelineHandle,
 } from "@/components/Timeline/Timeline.tsx";
-import { Toolbar } from "@/components/Toolbar/Toolbar.tsx";
+import { PlayerControls } from "@/components/Toolbar/PlayerControls.tsx";
 import { CurrentChord } from "@/components/Toolbar/CurrentChord.tsx";
 import { usePlayerContext } from "src/context/PlayerContext";
 import { realistic } from "src/presets/realistic";
@@ -65,7 +65,7 @@ export const PlayerContent = () => {
             <div className="flex items-center justify-between mb-4">
                 <CurrentChord chord={activeChord} />
 
-                <Toolbar
+                <PlayerControls
                     onPlay={() => play()}
                     onPause={pause}
                     onResume={resume}

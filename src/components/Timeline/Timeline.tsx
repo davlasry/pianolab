@@ -63,7 +63,6 @@ export const Timeline = forwardRef<
                 ? Tone.Time(Tone.getTransport().loopEnd).toSeconds()
                 : Tone.getTransport().seconds);
         if (!total || total <= 0) total = 1; // avoid divide‑by‑zero
-        console.log("total =====>", total);
 
         setTotalDuration(total);
 
