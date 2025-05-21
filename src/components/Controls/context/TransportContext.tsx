@@ -89,13 +89,12 @@ export const TransportProvider = ({
     }, []);
 
     const handlePlay = useCallback(() => {
-        console.log("isPaused =====>", isPaused);
         if (isPaused) {
             resume();
         } else {
             play();
         }
-    }, []);
+    }, [isPaused, play, resume]);
 
     useSpaceBarControl({
         isReady,
@@ -215,7 +214,7 @@ export const TransportProvider = ({
         }
 
         handlePlay();
-    }, [handlePlay, isPlaying, pause]);
+    }, [isPlaying, handlePlay, pause]);
 
     return (
         <TransportContext.Provider

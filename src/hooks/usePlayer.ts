@@ -131,7 +131,6 @@ export const usePlayer = (notes: Note[]) => {
         // create a synth once
         synthRef.current ??= new Tone.PolySynth().toDestination();
 
-        debugger;
         buildNotesPart();
         buildChordProgressionPart();
     };
