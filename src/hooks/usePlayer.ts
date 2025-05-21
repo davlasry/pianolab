@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import * as Tone from "tone";
-import type { Note } from "src/hooks/useMidiNotes.ts";
-import { chordProgression } from "src/hooks/useChordProgression.ts";
+import type { Note } from "@/hooks/useMidiNotes.ts";
+import { chordProgression } from "@/hooks/useChordProgression.ts";
 
 export const usePlayer = (notes: Note[]) => {
     // const [midi, setMidi] = useState<Midi | null>(null);
