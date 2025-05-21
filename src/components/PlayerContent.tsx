@@ -1,14 +1,14 @@
 import { useEffect, useState, useRef } from "react";
 import { Keyboard } from "src/Keyboard/components/Keyboard";
-import { Clock } from "@/components/Toolbar/Clock.tsx";
 import {
     Timeline,
     type TimelineHandle,
 } from "@/components/Timeline/Timeline.tsx";
-import { PlayerControls } from "@/components/Toolbar/PlayerControls.tsx";
 import { CurrentChord } from "@/components/Toolbar/CurrentChord.tsx";
 import { usePlayerContext } from "src/context/PlayerContext";
 import { realistic } from "src/presets/realistic";
+import Controls from "@/components/Controls/Controls.tsx";
+import { PlayerControls } from "@/components/Toolbar/PlayerControls.tsx";
 
 export const PlayerContent = () => {
     const [isReady, setReady] = useState(false);
@@ -50,19 +50,22 @@ export const PlayerContent = () => {
         return () => {
             isMounted = false;
         };
-    }, []); // Now we can safely include these dependencies
+    }, []);
 
     const handleMoveToBeginning = () => {
         // Call the seekToBeginning function from the player context
         seekToBeginning();
-
         // Scroll the timeline to the beginning
         timelineRef.current?.scrollToBeginning();
     };
 
     return (
         <>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center mb-4">
+                <Controls
+                    handleMoveToBeginning={handleMoveToBeginning}
+                    isReady={isReady}
+                />
                 <CurrentChord chord={activeChord} />
 
                 <PlayerControls
@@ -77,8 +80,6 @@ export const PlayerContent = () => {
                     isStopped={isStopped}
                 />
             </div>
-
-            <Clock />
 
             <div className="mb-6">
                 <Timeline

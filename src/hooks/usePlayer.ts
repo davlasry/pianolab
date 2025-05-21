@@ -131,6 +131,7 @@ export const usePlayer = (notes: Note[]) => {
         // create a synth once
         synthRef.current ??= new Tone.PolySynth().toDestination();
 
+        debugger;
         buildNotesPart();
         buildChordProgressionPart();
     };
@@ -195,12 +196,8 @@ export const usePlayer = (notes: Note[]) => {
     }
 
     function seekToBeginning() {
-        // Seek to the beginning
         seek(0);
-        
-        // Make sure isStopped is set to false
         setIsStopped(false);
-        
         // Rebuild parts if they were disposed
         if (!notesPartRef.current || !chordPartRef.current) {
             buildPart();
@@ -221,5 +218,6 @@ export const usePlayer = (notes: Note[]) => {
         isPlaying,
         isPaused,
         isStopped,
+        getTransport: () => Tone.getTransport(),
     };
 };
