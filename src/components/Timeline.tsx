@@ -7,6 +7,16 @@ const STORAGE_KEY = "timeline-zoom-level";
 const DEBOUNCE_MS = 300;
 const SCROLL_THRESHOLD = 0.9; // Start scrolling when bar is at 90% of visible width
 const LEFT_MARGIN_RATIO = 0.1; // Position bar at 10% from the left edge after scrolling
+const MAJOR_TICK_INTERVAL = 30; // Major time ticks every 30 seconds
+const MINOR_TICK_INTERVAL = 5; // Minor time ticks every 5 seconds
+
+// Format seconds to mm:ss format
+const formatTime = (seconds: number): string => {
+    if (!Number.isFinite(seconds)) return "00:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+};
 
 export function Timeline({
     duration,
@@ -24,6 +34,7 @@ export function Timeline({
     const outerContainerRef = useRef<HTMLDivElement>(null);
 
     const [zoomLevel, setZoomLevel] = useState(1);
+    const [totalDuration, setTotalDuration] = useState(0);
 
     // Load saved zoom level on mount
     useEffect(() => {
@@ -65,6 +76,8 @@ export function Timeline({
                 : Tone.getTransport().seconds);
         if (!total || total <= 0) total = 1; // avoid divide‑by‑zero
         console.log("total =====>", total);
+
+        setTotalDuration(total);
 
         let rafId: number;
         const tick = () => {
@@ -146,6 +159,48 @@ export function Timeline({
         }
     };
 
+    // Generate tick marks
+    const renderTicks = () => {
+        if (totalDuration <= 0) return null;
+
+        const ticks = [];
+
+        // Add all ticks (major and minor)
+        for (let time = 0; time <= totalDuration; time += MINOR_TICK_INTERVAL) {
+            if (time === 0) continue; // Skip the first tick at 0
+
+            const percent = (time / totalDuration) * 100;
+            const isMajorTick = time % MAJOR_TICK_INTERVAL === 0;
+
+            ticks.push(
+                <div
+                    key={time}
+                    className="absolute h-full"
+                    style={{ left: `${percent}%` }}
+                >
+                    {/* Top tick */}
+                    <div
+                        className={`absolute top-0 ${isMajorTick ? "w-px h-3" : "w-[0.5px] h-2"} bg-gray-400`}
+                    ></div>
+
+                    {/* Only add label for major ticks */}
+                    {isMajorTick && (
+                        <div className="absolute top-3 transform -translate-x-1/2 text-xs text-gray-600">
+                            {formatTime(time)}
+                        </div>
+                    )}
+
+                    {/* Bottom tick */}
+                    <div
+                        className={`absolute bottom-0 ${isMajorTick ? "w-px h-3" : "w-[0.5px] h-2"} bg-gray-400`}
+                    ></div>
+                </div>,
+            );
+        }
+
+        return ticks;
+    };
+
     // Clean up the debounced function
     useEffect(() => {
         return () => {
@@ -187,6 +242,8 @@ export function Timeline({
                         minWidth: "100%",
                     }}
                 >
+                    {renderTicks()}
+
                     <div
                         ref={barRef}
                         className="absolute top-0 bottom-0 w-0.5 bg-rose-200"
