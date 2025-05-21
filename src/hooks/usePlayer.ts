@@ -51,7 +51,8 @@ export const usePlayer = (notes: Note[]) => {
     // }
 
     const loadAudio = async (
-        url = "https://pianolab-audio.s3.us-east-2.amazonaws.com/body-and-soul.mp3",
+        // url = "https://pianolab-audio.s3.us-east-2.amazonaws.com/body-and-soul.mp3",
+        url = "/pianolab/body_and_soul.mp3",
     ) => {
         playerRef.current?.dispose(); // if re-loading
         playerRef.current = new Tone.Player({

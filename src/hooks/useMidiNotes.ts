@@ -17,7 +17,8 @@ export const useMidiNotes = () => {
 
     /** load a MIDI file → editable Note[]  */
     const loadMidi = async (
-        url = "https://pianolab-midi.s3.us-east-2.amazonaws.com/00_2025-03-02+2230+(Sunday)+1924+notes%2C+527+seconds_Boddy-and-Soul_Daniel-Zamir.mid",
+        // url = "https://pianolab-midi.s3.us-east-2.amazonaws.com/00_2025-03-02+2230+(Sunday)+1924+notes%2C+527+seconds_Boddy-and-Soul_Daniel-Zamir.mid",
+        url = "/pianolab/sample.mid",
     ) => {
         const midi = await Midi.fromUrl(url);
 

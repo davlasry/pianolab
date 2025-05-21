@@ -1,3 +1,49 @@
+import React from "react";
+
+const useSpaceBarControl = ({
+    isReady,
+    isPlaying,
+    isPaused,
+    onPlay,
+    onPause,
+    onResume,
+}: {
+    isReady: boolean;
+    isPlaying: boolean;
+    isPaused: boolean;
+    onPlay: () => void;
+    onPause: () => void;
+    onResume: () => void;
+}) => {
+    React.useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (
+                e.code === "Space" &&
+                isReady &&
+                !e.repeat &&
+                !(
+                    e.target instanceof HTMLInputElement ||
+                    e.target instanceof HTMLTextAreaElement
+                )
+            ) {
+                e.preventDefault();
+                if (isPlaying) {
+                    onPause();
+                } else if (isPaused) {
+                    onResume();
+                } else {
+                    onPlay();
+                }
+            }
+        };
+
+        document.addEventListener("keydown", handleKeyDown);
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [isPlaying, isPaused, isReady, onPlay, onPause, onResume]);
+};
+
 export const Toolbar = ({
     onPlay,
     onPause,
@@ -15,6 +61,15 @@ export const Toolbar = ({
     isPlaying: boolean;
     isPaused: boolean;
 }) => {
+    useSpaceBarControl({
+        isReady,
+        isPlaying,
+        isPaused,
+        onPlay,
+        onPause,
+        onResume,
+    });
+
     return (
         <div className="flex gap-4">
             {!isPlaying ? (
