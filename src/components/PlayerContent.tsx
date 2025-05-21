@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Keyboard } from "src/Keyboard/components/Keyboard";
 import { Clock } from "src/components/Clock";
-import { Timeline } from "src/components/Timeline";
+import { Timeline } from "@/components/Timeline/Timeline.tsx";
 import { Toolbar } from "src/components/Toolbar";
 import { CurrentChord } from "src/components/CurrentChord";
 import { usePlayerContext } from "src/context/PlayerContext";

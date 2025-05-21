@@ -2,16 +2,16 @@ import type { WheelEvent, MouseEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone";
 import { debounce } from "lodash-es";
+import { chordProgression } from "src/hooks/useChordProgression.ts";
+import { TimelineTicks } from "@/components/Timeline/TimelineTicks.tsx";
 
 const STORAGE_KEY = "timeline-zoom-level";
 const DEBOUNCE_MS = 300;
 const SCROLL_THRESHOLD = 0.9; // Start scrolling when bar is at 90% of visible width
 const LEFT_MARGIN_RATIO = 0.1; // Position bar at 10% from the left edge after scrolling
-const MAJOR_TICK_INTERVAL = 30; // Major time ticks every 30 seconds
-const MINOR_TICK_INTERVAL = 5; // Minor time ticks every 5 seconds
 
 // Format seconds to mm:ss format
-const formatTime = (seconds: number): string => {
+export const formatTime = (seconds: number): string => {
     if (!Number.isFinite(seconds)) return "00:00";
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -159,46 +159,27 @@ export function Timeline({
         }
     };
 
-    // Generate tick marks
-    const renderTicks = () => {
+    // Render chord markers on the timeline
+    const renderChords = () => {
         if (totalDuration <= 0) return null;
 
-        const ticks = [];
+        return chordProgression.map((chord, index) => {
+            if (!chord.chord) return null; // Skip empty chords
 
-        // Add all ticks (major and minor)
-        for (let time = 0; time <= totalDuration; time += MINOR_TICK_INTERVAL) {
-            if (time === 0) continue; // Skip the first tick at 0
+            const percent = (chord.time / totalDuration) * 100;
 
-            const percent = (time / totalDuration) * 100;
-            const isMajorTick = time % MAJOR_TICK_INTERVAL === 0;
-
-            ticks.push(
+            return (
                 <div
-                    key={time}
-                    className="absolute h-full"
+                    key={`chord-${index}`}
+                    className="absolute top-1/2 transform -translate-y-1/2"
                     style={{ left: `${percent}%` }}
                 >
-                    {/* Top tick */}
-                    <div
-                        className={`absolute top-0 ${isMajorTick ? "w-px h-3" : "w-[0.5px] h-2"} bg-gray-400`}
-                    ></div>
-
-                    {/* Only add label for major ticks */}
-                    {isMajorTick && (
-                        <div className="absolute top-3 transform -translate-x-1/2 text-xs text-gray-600">
-                            {formatTime(time)}
-                        </div>
-                    )}
-
-                    {/* Bottom tick */}
-                    <div
-                        className={`absolute bottom-0 ${isMajorTick ? "w-px h-3" : "w-[0.5px] h-2"} bg-gray-400`}
-                    ></div>
-                </div>,
+                    <div className="bg-emerald-500 text-white px-2 py-1 rounded text-xs whitespace-nowrap">
+                        {chord.chord}
+                    </div>
+                </div>
             );
-        }
-
-        return ticks;
+        });
     };
 
     // Clean up the debounced function
@@ -242,7 +223,8 @@ export function Timeline({
                         minWidth: "100%",
                     }}
                 >
-                    {renderTicks()}
+                    <TimelineTicks totalDuration={totalDuration} />
+                    {renderChords()}
 
                     <div
                         ref={barRef}
