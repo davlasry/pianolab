@@ -9,9 +9,10 @@ function App() {
         <div>
             <h1>PianoLab</h1>
 
-            <Pieces />
-
-            <Recordings />
+            <div>
+                <Pieces />
+                <Recordings />
+            </div>
 
             <PlayerProvider>
                 <PlayerContent />

@@ -15,6 +15,12 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog.tsx";
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export const Recordings = () => {
     const { recordings, loading, refresh } = useFetchRecordings();
@@ -64,25 +70,32 @@ export const Recordings = () => {
     };
 
     return (
-        <div className="p-4">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold">Recordings</h2>
-                <Button onClick={openCreateModal}>Add Recording</Button>
-            </div>
-
-            {loading ? (
-                <p>Loading recordings...</p>
-            ) : recordings.length === 0 ? (
-                <p className="text-gray-500">
-                    No recordings found. Create your first recording!
-                </p>
-            ) : (
-                <RecordingsList
-                    recordings={recordings}
-                    onEdit={openEditModal}
-                    onDelete={handleDeleteRecording}
-                />
-            )}
+        <Accordion type="single" collapsible className="p-4">
+            <AccordionItem value="recordings">
+                <div className="flex justify-between items-center">
+                    <AccordionTrigger>
+                        <h2 className="text-2xl font-bold">Recordings</h2>
+                    </AccordionTrigger>
+                    <Button onClick={openCreateModal} className="mr-4">
+                        Add Recording
+                    </Button>
+                </div>
+                <AccordionContent>
+                    {loading ? (
+                        <p>Loading recordings...</p>
+                    ) : recordings.length === 0 ? (
+                        <p className="text-gray-500">
+                            No recordings found. Create your first recording!
+                        </p>
+                    ) : (
+                        <RecordingsList
+                            recordings={recordings}
+                            onEdit={openEditModal}
+                            onDelete={handleDeleteRecording}
+                        />
+                    )}
+                </AccordionContent>
+            </AccordionItem>
 
             <RecordingFormModal
                 isOpen={isModalOpen}
@@ -123,6 +136,6 @@ export const Recordings = () => {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </div>
+        </Accordion>
     );
 };

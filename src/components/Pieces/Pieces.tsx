@@ -15,6 +15,12 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog.tsx";
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export const Pieces = () => {
     const { pieces, loading, refresh } = useFetchPieces();
@@ -63,25 +69,32 @@ export const Pieces = () => {
     };
 
     return (
-        <div className="p-4">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold">Pieces</h2>
-                <Button onClick={openCreateModal}>Add Piece</Button>
-            </div>
-
-            {loading ? (
-                <p>Loading pieces...</p>
-            ) : pieces.length === 0 ? (
-                <p className="text-gray-500">
-                    No pieces found. Create your first piece!
-                </p>
-            ) : (
-                <PiecesList
-                    pieces={pieces}
-                    onEdit={openEditModal}
-                    onDelete={handleDeletePiece}
-                />
-            )}
+        <Accordion type="single" collapsible className="p-4">
+            <AccordionItem value="pieces">
+                <div className="flex justify-between items-center">
+                    <AccordionTrigger>
+                        <h2 className="text-2xl font-bold">Pieces</h2>
+                    </AccordionTrigger>
+                    <Button onClick={openCreateModal} className="mr-4">
+                        Add Piece
+                    </Button>
+                </div>
+                <AccordionContent>
+                    {loading ? (
+                        <p>Loading pieces...</p>
+                    ) : pieces.length === 0 ? (
+                        <p className="text-gray-500">
+                            No pieces found. Create your first piece!
+                        </p>
+                    ) : (
+                        <PiecesList
+                            pieces={pieces}
+                            onEdit={openEditModal}
+                            onDelete={handleDeletePiece}
+                        />
+                    )}
+                </AccordionContent>
+            </AccordionItem>
 
             <PieceFormModal
                 isOpen={isModalOpen}
@@ -121,6 +134,6 @@ export const Pieces = () => {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </div>
+        </Accordion>
     );
 };
