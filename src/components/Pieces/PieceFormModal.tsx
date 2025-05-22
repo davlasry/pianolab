@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button.tsx";
 import { useCreatePiece } from "@/hooks/useCreatePiece.ts";
+import { useUploadFile } from "@/hooks/useUploadFile.ts";
 import type { InsertPiece } from "@/types/entities.types.ts";
 
 interface PieceFormModalProps {
@@ -23,7 +24,14 @@ export const PieceFormModal = ({
         midi_url: "",
     });
     const [tagInput, setTagInput] = useState("");
+    const [audioFile, setAudioFile] = useState<File | null>(null);
+    const [midiFile, setMidiFile] = useState<File | null>(null);
+    const audioInputRef = useRef<HTMLInputElement>(null);
+    const midiInputRef = useRef<HTMLInputElement>(null);
+
     const { createPiece, isLoading, error } = useCreatePiece();
+    const { uploadFile, isUploading, uploadError, uploadProgress, uploadToS3 } =
+        useUploadFile();
 
     if (!isOpen) return null;
 
@@ -51,6 +59,36 @@ export const PieceFormModal = ({
         }));
     };
 
+    const handleAudioFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            setAudioFile(e.target.files[0]);
+            // Clear the URL input when a file is selected
+            setFormData((prev) => ({ ...prev, audio_url: "" }));
+        }
+    };
+
+    const handleMidiFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            setMidiFile(e.target.files[0]);
+            // Clear the URL input when a file is selected
+            setFormData((prev) => ({ ...prev, midi_url: "" }));
+        }
+    };
+
+    const handleClearAudioFile = () => {
+        setAudioFile(null);
+        if (audioInputRef.current) {
+            audioInputRef.current.value = "";
+        }
+    };
+
+    const handleClearMidiFile = () => {
+        setMidiFile(null);
+        if (midiInputRef.current) {
+            midiInputRef.current.value = "";
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -58,13 +96,41 @@ export const PieceFormModal = ({
             return; // Name is required
         }
 
+        let audioUrl = formData.audio_url;
+        const midiUrl = formData.midi_url;
+
+        // Upload audio file if provided
+        if (audioFile) {
+            const uploadedAudioUrl = await uploadFile({
+                file: audioFile,
+                bucket: "pieces",
+                folder: "audio",
+            });
+            if (uploadedAudioUrl) {
+                audioUrl = uploadedAudioUrl;
+            }
+        }
+
+        // Upload midi file if provided
+        if (midiFile) {
+            // const uploadedMidiUrl = await uploadFile({
+            //     file: midiFile,
+            //     bucket: "pianolab-midi-2",
+            //     folder: "uploads",
+            // });
+            await uploadToS3(midiFile);
+            // if (uploadedMidiUrl) {
+            //     midiUrl = uploadedMidiUrl;
+            // }
+        }
+
         const piece: InsertPiece = {
             name: formData.name,
             composer: formData.composer || null,
             style: formData.style || null,
             tags: formData.tags || null,
-            audio_url: formData.audio_url || null,
-            midi_url: formData.midi_url || null,
+            audio_url: audioUrl || null,
+            midi_url: midiUrl || null,
         };
 
         const result = await createPiece(piece);
@@ -78,6 +144,8 @@ export const PieceFormModal = ({
                 audio_url: "",
                 midi_url: "",
             });
+            setAudioFile(null);
+            setMidiFile(null);
             onSuccess?.();
             onClose();
         }
@@ -194,42 +262,122 @@ export const PieceFormModal = ({
 
                         <div className="text-left">
                             <label
-                                htmlFor="audio_url"
+                                htmlFor="audio_file"
                                 className="block text-sm font-medium mb-1 text-left"
                             >
-                                Audio URL
+                                Audio File
                             </label>
-                            <input
-                                id="audio_url"
-                                name="audio_url"
-                                type="text"
-                                value={formData.audio_url || ""}
-                                onChange={handleChange}
-                                className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
-                                placeholder="https://example.com/audio.mp3"
-                            />
+                            <div className="flex flex-col gap-2">
+                                <input
+                                    id="audio_file"
+                                    type="file"
+                                    ref={audioInputRef}
+                                    accept="audio/*"
+                                    onChange={handleAudioFileChange}
+                                    className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                                />
+                                {audioFile && (
+                                    <div className="flex items-center justify-between bg-blue-50 dark:bg-blue-900 p-2 rounded">
+                                        <span className="text-sm truncate">
+                                            {audioFile.name}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={handleClearAudioFile}
+                                            className="ml-2 text-red-500 hover:text-red-700"
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                )}
+                                <span className="text-xs text-gray-500">
+                                    Or provide a URL:
+                                </span>
+                                <input
+                                    id="audio_url"
+                                    name="audio_url"
+                                    type="text"
+                                    value={formData.audio_url || ""}
+                                    onChange={handleChange}
+                                    disabled={!!audioFile}
+                                    className={`w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 ${
+                                        audioFile ? "opacity-50" : ""
+                                    }`}
+                                    placeholder="https://example.com/audio.mp3"
+                                />
+                            </div>
                         </div>
 
                         <div className="text-left">
                             <label
-                                htmlFor="midi_url"
+                                htmlFor="midi_file"
                                 className="block text-sm font-medium mb-1 text-left"
                             >
-                                Midi URL
+                                MIDI File
                             </label>
-                            <input
-                                id="midi_url"
-                                name="midi_url"
-                                type="text"
-                                value={formData.midi_url || ""}
-                                onChange={handleChange}
-                                className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
-                                placeholder="https://example.com/file.mid"
-                            />
+                            <div className="flex flex-col gap-2">
+                                <input
+                                    id="midi_file"
+                                    type="file"
+                                    ref={midiInputRef}
+                                    accept=".mid,.midi"
+                                    onChange={handleMidiFileChange}
+                                    className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                                />
+                                {midiFile && (
+                                    <div className="flex items-center justify-between bg-blue-50 dark:bg-blue-900 p-2 rounded">
+                                        <span className="text-sm truncate">
+                                            {midiFile.name}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={handleClearMidiFile}
+                                            className="ml-2 text-red-500 hover:text-red-700"
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                )}
+                                <span className="text-xs text-gray-500">
+                                    Or provide a URL:
+                                </span>
+                                <input
+                                    id="midi_url"
+                                    name="midi_url"
+                                    type="text"
+                                    value={formData.midi_url || ""}
+                                    onChange={handleChange}
+                                    disabled={!!midiFile}
+                                    className={`w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 ${
+                                        midiFile ? "opacity-50" : ""
+                                    }`}
+                                    placeholder="https://example.com/file.mid"
+                                />
+                            </div>
                         </div>
 
-                        {error && (
-                            <div className="text-red-500 text-sm">{error}</div>
+                        {isUploading && (
+                            <div className="mt-4 mb-2">
+                                <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                    <div
+                                        className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                                        style={{ width: `${uploadProgress}%` }}
+                                    ></div>
+                                </div>
+                                <p className="text-sm text-center mt-1">
+                                    Uploading... {Math.round(uploadProgress)}%
+                                </p>
+                                <p className="text-xs text-center text-gray-500 mt-1">
+                                    Please wait while your files are being
+                                    uploaded
+                                </p>
+                            </div>
+                        )}
+
+                        {(error || uploadError) && (
+                            <div className="text-red-500 text-sm">
+                                {error || uploadError}
+                            </div>
                         )}
 
                         <div className="flex justify-end space-x-2 pt-4">
@@ -237,16 +385,20 @@ export const PieceFormModal = ({
                                 type="button"
                                 variant="outline"
                                 onClick={onClose}
-                                disabled={isLoading}
+                                disabled={isLoading || isUploading}
                                 className="bg-gray-400 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-600"
                             >
                                 Cancel
                             </Button>
                             <Button
                                 type="submit"
-                                disabled={isLoading || !formData.name}
+                                disabled={
+                                    isLoading || isUploading || !formData.name
+                                }
                             >
-                                {isLoading ? "Saving..." : "Save Piece"}
+                                {isLoading || isUploading
+                                    ? "Saving..."
+                                    : "Save Piece"}
                             </Button>
                         </div>
                     </div>
