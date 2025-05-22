@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { supabase } from "src/supabase.ts";
 import { v4 as uuidv4 } from "uuid";
 
 interface UploadOptions {
     file: File;
-    bucket: string;
+    bucket?: string; // Now optional since we're not using Supabase buckets
     folder?: string;
     fileName?: string;
+    fileType?: "audio" | "midi" | "other";
 }
 
 export const useUploadFile = () => {
@@ -14,103 +14,90 @@ export const useUploadFile = () => {
     const [uploadError, setUploadError] = useState<string | null>(null);
     const [uploadProgress, setUploadProgress] = useState(0);
 
-    const ensureBucketExists = async (bucketName: string): Promise<boolean> => {
-        try {
-            // Check if bucket exists
-            const { data: buckets } = await supabase.storage.listBuckets();
-            const bucketExists = buckets?.some(
-                (bucket) => bucket.name === bucketName,
-            );
-
-            if (!bucketExists) {
-                // Create the bucket if it doesn't exist
-                const { error } = await supabase.storage.createBucket(
-                    bucketName,
-                    {
-                        public: true, // Make the bucket public
-                    },
-                );
-
-                if (error) throw error;
-            }
-
-            return true;
-        } catch (err) {
-            console.error("Error ensuring bucket exists:", err);
-            return false;
-        }
-    };
-
-    const uploadToS3 = async (file: File) => {
-        const fileName = encodeURIComponent(file.name);
-        const url = `${import.meta.env.VITE_S3_BUCKET_URL}${fileName}`;
-
-        await fetch(url, {
-            method: "PUT",
-            headers: {
-                "Content-Type": file.type,
-            },
-            body: file,
-        });
-
-        console.log("Upload successful:", { url });
-        return url;
-    };
-
-    const uploadFile = async (
-        options: UploadOptions,
-    ): Promise<string | null> => {
-        const { file, bucket, folder = "", fileName } = options;
-
-        if (!file) return null;
-
+    const uploadToS3 = async (
+        file: File,
+        fileType: "audio" | "midi" | "other" = "other",
+    ) => {
         setIsUploading(true);
         setUploadError(null);
         setUploadProgress(0);
 
         try {
-            // Ensure the bucket exists
-            const bucketExists = await ensureBucketExists(bucket);
-            if (!bucketExists) {
-                throw new Error(`Failed to create or access bucket: ${bucket}`);
-            }
-
             // Create a unique file name
             const fileExt = file.name.split(".").pop();
-            const finalFileName = fileName || `${uuidv4()}.${fileExt}`;
-            const filePath = folder
-                ? `${folder}/${finalFileName}`
-                : finalFileName;
+            const uniqueFileName = `${uuidv4()}.${fileExt}`;
 
-            // Upload file to Supabase Storage
-            const { error } = await supabase.storage
-                .from(bucket)
-                .upload(filePath, file, {
-                    cacheControl: "3600",
-                    // contentType: "audio/midi",
-                    upsert: false,
+            // Determine the S3 bucket URL based on file type
+            let s3BucketUrl = import.meta.env.VITE_S3_BUCKET_URL || "";
+
+            // Use different bucket for audio files
+            if (fileType === "audio") {
+                s3BucketUrl =
+                    import.meta.env.VITE_AUDIO_BUCKET_URL ||
+                    import.meta.env.VITE_S3_BUCKET_URL ||
+                    "";
+            }
+
+            // Construct the final URL
+            const url = `${s3BucketUrl}${uniqueFileName}`;
+
+            // Upload progress simulation (actual progress tracking would require a different API)
+            const progressInterval = setInterval(() => {
+                setUploadProgress((prev) => {
+                    const nextProgress = prev + 10;
+                    return nextProgress > 90 ? 90 : nextProgress;
                 });
+            }, 300);
 
-            if (error) throw error;
+            // Perform the upload
+            const response = await fetch(url, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": file.type,
+                },
+                body: file,
+            });
 
-            // Update progress to 100% when upload is complete
+            clearInterval(progressInterval);
+
+            if (!response.ok) {
+                throw new Error(
+                    `Upload failed with status: ${response.status}`,
+                );
+            }
+
+            // Set progress to 100% when done
             setUploadProgress(100);
 
-            // Get public URL
-            const { data: publicUrlData } = supabase.storage
-                .from(bucket)
-                .getPublicUrl(filePath);
+            console.log("Upload successful to:", url);
 
-            return publicUrlData.publicUrl;
+            // Return the URL where the file can be accessed
+            // For S3, this is typically the URL without the query parameters
+            const publicUrl = url.split("?")[0];
+            return publicUrl;
         } catch (err) {
             const errorMessage =
-                err instanceof Error ? err.message : "Failed to upload file";
+                err instanceof Error
+                    ? err.message
+                    : "Failed to upload file to S3";
             setUploadError(errorMessage);
+            console.error("S3 upload error:", errorMessage);
             return null;
         } finally {
             setIsUploading(false);
         }
     };
 
-    return { uploadFile, isUploading, uploadError, uploadProgress, uploadToS3 };
+    const uploadFile = async (
+        options: UploadOptions,
+    ): Promise<string | null> => {
+        const { file, fileType = "other" } = options;
+
+        if (!file) return null;
+
+        // Now we always use direct S3 upload for all files
+        return uploadToS3(file, fileType);
+    };
+
+    return { uploadFile, isUploading, uploadError, uploadProgress };
 };

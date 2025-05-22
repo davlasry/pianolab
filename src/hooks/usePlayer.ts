@@ -58,19 +58,39 @@ export const usePlayer = (notes: Note[]) => {
     // }
 
     const loadAudio = async (
-        // url = "https://pianolab-audio.s3.us-east-2.amazonaws.com/body-and-soul.mp3",
+        // Default local file as fallback
         url = "/pianolab/body_and_soul.mp3",
     ) => {
         playerRef.current?.dispose(); // if re-loading
-        playerRef.current = new Tone.Player({
-            url,
-            autostart: false,
-            onload: () => {
-                setAudioDuration(playerRef.current!.buffer.duration);
-                console.log("Audio loaded");
-            },
-        }).toDestination();
-        playerRef.current.sync(); // follow the Transport
+        
+        try {
+            console.log("Loading audio from:", url);
+            
+            playerRef.current = new Tone.Player({
+                url,
+                autostart: false,
+                onload: () => {
+                    setAudioDuration(playerRef.current!.buffer.duration);
+                    console.log("Audio loaded successfully");
+                },
+                onerror: (err) => {
+                    console.error("Error loading audio:", err);
+                    // If URL is remote and fails, try the local fallback
+                    if (url !== "/pianolab/body_and_soul.mp3") {
+                        console.warn("Falling back to local audio file");
+                        loadAudio("/pianolab/body_and_soul.mp3");
+                    }
+                }
+            }).toDestination();
+            
+            playerRef.current.sync(); // follow the Transport
+        } catch (error) {
+            console.error("Failed to load audio:", error);
+            // If there's an error and we're not already using the fallback, try the fallback
+            if (url !== "/pianolab/body_and_soul.mp3") {
+                loadAudio("/pianolab/body_and_soul.mp3");
+            }
+        }
     };
 
     const buildNotesPart = () => {
@@ -144,8 +164,16 @@ export const usePlayer = (notes: Note[]) => {
         const lookAhead = 0.05;
         // const startAt = Tone.now() + lookAhead; // single timestamp
 
+        // Check if player is initialized before using it
+        if (!playerRef.current) {
+            console.warn("Audio player not initialized. Make sure to call loadAudio first.");
+            // Start the transport even without audio
+            Tone.getTransport().start();
+            return;
+        }
+
         playerRef
-            .current!.sync() // ← re-attach
+            .current.sync() // ← re-attach
             .start(lookAhead, audioOffset); // schedule at the same time
 
         Tone.getTransport().start();

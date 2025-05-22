@@ -17,28 +17,45 @@ export const useMidiNotes = () => {
 
     /** load a MIDI file → editable Note[]  */
     const loadMidi = async (
-        // url = "https://pianolab-midi.s3.us-east-2.amazonaws.com/00_2025-03-02+2230+(Sunday)+1924+notes%2C+527+seconds_Boddy-and-Soul_Daniel-Zamir.mid",
+        // Default local file as fallback
         url = "/pianolab/sample.mid",
     ) => {
-        const midi = await Midi.fromUrl(url);
+        try {
+            console.log("Loading MIDI from:", url);
+            const midi = await Midi.fromUrl(url);
 
-        const parsed: Note[] = midi.tracks.flatMap((t) =>
-            t.notes.map((n) => ({
-                id: `${n.ticks}_${n.midi}`,
-                midi: n.midi,
-                ticks: n.ticks,
-                time: n.time,
-                duration: n.duration,
-                velocity: n.velocity,
-                hand: null,
-            })),
-        );
+            const parsed: Note[] = midi.tracks.flatMap((t) =>
+                t.notes.map((n) => ({
+                    id: `${n.ticks}_${n.midi}`,
+                    midi: n.midi,
+                    ticks: n.ticks,
+                    time: n.time,
+                    duration: n.duration,
+                    velocity: n.velocity,
+                    hand: null,
+                })),
+            );
 
-        setNotes(parsed);
-        return midi; // return raw Midi in case you still need it
+            setNotes(parsed);
+            return midi; // return raw Midi in case you still need it
+        } catch (error) {
+            console.error("Failed to load MIDI file:", error);
+            
+            // If the URL isn't the fallback already, try the fallback
+            if (url !== "/pianolab/sample.mid") {
+                console.warn("Falling back to local MIDI file");
+                return loadMidi("/pianolab/sample.mid");
+            }
+            
+            // If even the fallback fails, return an empty Midi object
+            console.error("Failed to load fallback MIDI as well");
+            const emptyMidi = new Midi();
+            setNotes([]);
+            return emptyMidi;
+        }
     };
 
-    /** UI helper: change one note’s hand */
+    /** UI helper: change one note's hand */
     const setHand = (id: string, hand: "L" | "R" | null) =>
         setNotes((ns) => ns.map((n) => (n.id === id ? { ...n, hand } : n)));
 

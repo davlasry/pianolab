@@ -39,7 +39,7 @@ export const RecordingFormModal = ({
         isLoading: isUpdating,
         error: updateError,
     } = useUpdateRecording();
-    const { uploadFile, isUploading, uploadError, uploadProgress, uploadToS3 } =
+    const { uploadFile, isUploading, uploadError, uploadProgress } =
         useUploadFile();
 
     const isLoading = isCreating || isUpdating;
@@ -109,14 +109,16 @@ export const RecordingFormModal = ({
         if (audioFile) {
             audioUrl = await uploadFile({
                 file: audioFile,
-                bucket: "recordings",
-                folder: "audio",
+                fileType: "audio",
             });
         }
 
         // Upload midi file if provided
         if (midiFile) {
-            midiUrl = await uploadToS3(midiFile);
+            midiUrl = await uploadFile({
+                file: midiFile,
+                fileType: "midi",
+            });
         }
 
         const recordingData: Partial<Recording> = {
