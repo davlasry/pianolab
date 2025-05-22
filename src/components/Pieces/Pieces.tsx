@@ -1,21 +1,72 @@
 import { useState } from "react";
 import { useFetchPieces } from "@/hooks/useFetchPieces.ts";
+import { useDeletePiece } from "@/hooks/useDeletePiece.ts";
 import { PieceFormModal } from "@/components/Pieces/PieceFormModal.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { PiecesList } from "@/components/Pieces/PiecesList.tsx";
+import type { Piece } from "@/types/entities.types.ts";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog.tsx";
 
 export const Pieces = () => {
     const { pieces, loading, refresh } = useFetchPieces();
+    const { deletePiece, isLoading: isDeleting } = useDeletePiece();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalMode, setModalMode] = useState<"create" | "edit">("create");
+    const [selectedPiece, setSelectedPiece] = useState<Piece | undefined>(
+        undefined,
+    );
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [pieceToDelete, setPieceToDelete] = useState<Piece | null>(null);
 
-    const openModal = () => setIsModalOpen(true);
+    const openCreateModal = () => {
+        setModalMode("create");
+        setSelectedPiece(undefined);
+        setIsModalOpen(true);
+    };
+
+    const openEditModal = (piece: Piece) => {
+        setModalMode("edit");
+        setSelectedPiece(piece);
+        setIsModalOpen(true);
+    };
+
     const closeModal = () => setIsModalOpen(false);
+
+    const handleDeletePiece = (piece: Piece) => {
+        setPieceToDelete(piece);
+        setDeleteDialogOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (pieceToDelete) {
+            const success = await deletePiece(pieceToDelete.id);
+            if (success) {
+                refresh();
+            }
+        }
+        setDeleteDialogOpen(false);
+        setPieceToDelete(null);
+    };
+
+    const cancelDelete = () => {
+        setDeleteDialogOpen(false);
+        setPieceToDelete(null);
+    };
 
     return (
         <div className="p-4">
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold">Pieces</h2>
-                <Button onClick={openModal}>Add Piece</Button>
+                <Button onClick={openCreateModal}>Add Piece</Button>
             </div>
 
             {loading ? (
@@ -25,14 +76,51 @@ export const Pieces = () => {
                     No pieces found. Create your first piece!
                 </p>
             ) : (
-                <PiecesList pieces={pieces} />
+                <PiecesList
+                    pieces={pieces}
+                    onEdit={openEditModal}
+                    onDelete={handleDeletePiece}
+                />
             )}
 
             <PieceFormModal
                 isOpen={isModalOpen}
                 onClose={closeModal}
                 onSuccess={refresh}
+                piece={selectedPiece}
+                mode={modalMode}
             />
+
+            <AlertDialog
+                open={deleteDialogOpen}
+                onOpenChange={setDeleteDialogOpen}
+            >
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This will permanently delete the piece "
+                            {pieceToDelete?.name}". This action cannot be
+                            undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel
+                            onClick={cancelDelete}
+                            disabled={isDeleting}
+                        >
+                            Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={confirmDelete}
+                            disabled={isDeleting}
+                            className="bg-red-500 hover:bg-red-600"
+                        >
+                            {isDeleting ? "Deleting..." : "Delete"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 };
