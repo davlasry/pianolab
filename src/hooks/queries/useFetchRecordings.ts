@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/supabase.ts";
-import type { Recording } from "@/types/entities.types.ts";
+import type { RecordingWithPieces } from "@/types/entities.types.ts";
 
 export const useFetchRecordings = () => {
-    const [recordings, setRecordings] = useState<Recording[]>([]);
+    const [recordings, setRecordings] = useState<RecordingWithPieces[]>([]);
     const [loading, setLoading] = useState(false);
 
     const fetchRecordings = useCallback(async () => {
@@ -11,8 +11,16 @@ export const useFetchRecordings = () => {
         try {
             const { data, error } = await supabase
                 .from("recordings")
-                .select("*")
+                .select(
+                    `
+                      *,
+                      recording_pieces (
+                        pieces (*)
+                      )
+                    `,
+                )
                 .order("created_at", { ascending: false });
+            console.log("data =====>", data);
 
             if (error) throw error;
 
