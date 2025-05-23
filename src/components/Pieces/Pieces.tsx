@@ -70,7 +70,7 @@ export const Pieces = () => {
     };
 
     return (
-        <Accordion type="single" collapsible>
+        <Accordion type="single" collapsible defaultValue="pieces">
             <AccordionItem value="pieces">
                 <div className="flex justify-between items-center">
                     <AccordionTrigger>
