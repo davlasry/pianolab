@@ -9,7 +9,6 @@ type ActiveNote = {
 };
 
 export const usePlayer = (notes: Note[]) => {
-    // const [midi, setMidi] = useState<Midi | null>(null);
     const [activeNotes, setActiveNotes] = useState<ActiveNote[]>([]);
     const [activeChord, setActiveChord] = useState<string>("");
     const [audioDuration, setAudioDuration] = useState<number>(0);
@@ -62,10 +61,10 @@ export const usePlayer = (notes: Note[]) => {
         url = "/pianolab/body_and_soul.mp3",
     ) => {
         playerRef.current?.dispose(); // if re-loading
-        
+
         try {
             console.log("Loading audio from:", url);
-            
+
             playerRef.current = new Tone.Player({
                 url,
                 autostart: false,
@@ -80,9 +79,9 @@ export const usePlayer = (notes: Note[]) => {
                         console.warn("Falling back to local audio file");
                         loadAudio("/pianolab/body_and_soul.mp3");
                     }
-                }
+                },
             }).toDestination();
-            
+
             playerRef.current.sync(); // follow the Transport
         } catch (error) {
             console.error("Failed to load audio:", error);
@@ -166,14 +165,16 @@ export const usePlayer = (notes: Note[]) => {
 
         // Check if player is initialized before using it
         if (!playerRef.current) {
-            console.warn("Audio player not initialized. Make sure to call loadAudio first.");
+            console.warn(
+                "Audio player not initialized. Make sure to call loadAudio first.",
+            );
             // Start the transport even without audio
             Tone.getTransport().start();
             return;
         }
 
-        playerRef
-            .current.sync() // ← re-attach
+        playerRef.current
+            .sync() // ← re-attach
             .start(lookAhead, audioOffset); // schedule at the same time
 
         Tone.getTransport().start();
@@ -205,7 +206,25 @@ export const usePlayer = (notes: Note[]) => {
     };
 
     /** tidy up when the component unmounts */
-    useEffect(() => () => stop(), []);
+    useEffect(
+        () => () => {
+            stop(); // This already handles notesPartRef and chordPartRef disposal
+
+            // Additionally dispose of player and synth
+            playerRef.current?.dispose();
+            playerRef.current = null;
+
+            synthRef.current?.dispose();
+            synthRef.current = null;
+
+            // Reset all state
+            setAudioDuration(0);
+            setIsPlaying(false);
+            setIsPaused(false);
+            setIsStopped(true);
+        },
+        [],
+    );
 
     function seek(time: number) {
         // 1 – silence and clear GUI
