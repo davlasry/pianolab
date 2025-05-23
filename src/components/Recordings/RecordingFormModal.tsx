@@ -23,6 +23,9 @@ export const RecordingFormModal = ({
     const [formData, setFormData] = useState<Partial<InsertRecording>>({
         performer: "",
         key: "",
+        name: "",
+        audio_url: "",
+        midi_url: "",
     });
     const [audioFile, setAudioFile] = useState<File | null>(null);
     const [midiFile, setMidiFile] = useState<File | null>(null);
@@ -51,12 +54,18 @@ export const RecordingFormModal = ({
             setFormData({
                 performer: recording.performer || "",
                 key: recording.key || "",
+                name: recording.name || "",
+                audio_url: recording.audio_url || "",
+                midi_url: recording.midi_url || "",
             });
         } else {
             // Reset form in create mode
             setFormData({
                 performer: "",
                 key: "",
+                name: "",
+                audio_url: "",
+                midi_url: "",
             });
         }
     }, [mode, recording]);
@@ -111,6 +120,9 @@ export const RecordingFormModal = ({
                 file: audioFile,
                 fileType: "audio",
             });
+        } else if (mode === "edit" && recording) {
+            // Preserve existing audio URL in edit mode if no new file provided
+            audioUrl = recording.audio_url;
         }
 
         // Upload midi file if provided
@@ -119,11 +131,15 @@ export const RecordingFormModal = ({
                 file: midiFile,
                 fileType: "midi",
             });
+        } else if (mode === "edit" && recording) {
+            // Preserve existing MIDI URL in edit mode if no new file provided
+            midiUrl = recording.midi_url;
         }
 
         const recordingData: Partial<Recording> = {
             performer: formData.performer || null,
             key: formData.key || null,
+            name: formData.name || null,
             audio_url: audioUrl || null,
             midi_url: midiUrl || null,
         };
@@ -140,6 +156,9 @@ export const RecordingFormModal = ({
             setFormData({
                 performer: "",
                 key: "",
+                name: "",
+                audio_url: "",
+                midi_url: "",
             });
             setAudioFile(null);
             setMidiFile(null);
@@ -176,6 +195,23 @@ export const RecordingFormModal = ({
 
                         <div className="text-left">
                             <label
+                                htmlFor="name"
+                                className="block text-sm font-medium mb-1 text-left"
+                            >
+                                Recording Name
+                            </label>
+                            <input
+                                id="name"
+                                name="name"
+                                type="text"
+                                value={formData.name || ""}
+                                onChange={handleChange}
+                                className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                            />
+                        </div>
+
+                        <div className="text-left">
+                            <label
                                 htmlFor="key"
                                 className="block text-sm font-medium mb-1 text-left"
                             >
@@ -197,8 +233,65 @@ export const RecordingFormModal = ({
                                 className="block text-sm font-medium mb-1 text-left"
                             >
                                 Audio File
+                                {mode === "edit" && recording?.audio_url && (
+                                    <span className="ml-2 text-xs text-green-600 font-semibold dark:text-green-400">
+                                        (File Attached)
+                                    </span>
+                                )}
                             </label>
                             <div className="flex flex-col gap-2">
+                                {mode === "edit" &&
+                                    recording?.audio_url &&
+                                    !audioFile && (
+                                        <div className="flex flex-col bg-green-50 dark:bg-green-900/40 p-3 rounded mb-2 border border-green-200 dark:border-green-800">
+                                            <div className="flex items-center">
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    className="h-5 w-5 text-green-600 dark:text-green-400 mr-2"
+                                                    viewBox="0 0 20 20"
+                                                    fill="currentColor"
+                                                >
+                                                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12z" />
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        d="M10 4a6 6 0 100 12 6 6 0 000-12zm0 10a4 4 0 110-8 4 4 0 010 8z"
+                                                        clipRule="evenodd"
+                                                    />
+                                                    <path d="M8 8.5a.5.5 0 01.5-.5h3a.5.5 0 010 1h-3a.5.5 0 01-.5-.5zM8 10.5a.5.5 0 01.5-.5h3a.5.5 0 010 1h-3a.5.5 0 01-.5-.5z" />
+                                                </svg>
+                                                <span className="font-medium text-green-700 dark:text-green-300">
+                                                    This recording has an audio
+                                                    file
+                                                </span>
+                                            </div>
+                                            <div className="mt-2 flex justify-between items-center">
+                                                <a
+                                                    href={recording.audio_url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-500 hover:text-blue-700 underline flex items-center"
+                                                >
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        className="h-4 w-4 mr-1"
+                                                        viewBox="0 0 20 20"
+                                                        fill="currentColor"
+                                                    >
+                                                        <path
+                                                            fillRule="evenodd"
+                                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                                                            clipRule="evenodd"
+                                                        />
+                                                    </svg>
+                                                    Listen to current audio
+                                                </a>
+                                            </div>
+                                            <p className="text-xs text-gray-500 mt-2">
+                                                Upload a new file below to
+                                                replace the existing one
+                                            </p>
+                                        </div>
+                                    )}
                                 <input
                                     id="audio_file"
                                     type="file"
@@ -230,8 +323,64 @@ export const RecordingFormModal = ({
                                 className="block text-sm font-medium mb-1 text-left"
                             >
                                 MIDI File
+                                {mode === "edit" && recording?.midi_url && (
+                                    <span className="ml-2 text-xs text-green-600 font-semibold dark:text-green-400">
+                                        (File Attached)
+                                    </span>
+                                )}
                             </label>
                             <div className="flex flex-col gap-2">
+                                {mode === "edit" &&
+                                    recording?.midi_url &&
+                                    !midiFile && (
+                                        <div className="flex flex-col bg-green-50 dark:bg-green-900/40 p-3 rounded mb-2 border border-green-200 dark:border-green-800">
+                                            <div className="flex items-center">
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    className="h-5 w-5 text-green-600 dark:text-green-400 mr-2"
+                                                    viewBox="0 0 20 20"
+                                                    fill="currentColor"
+                                                >
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0v12h8V4H6z"
+                                                        clipRule="evenodd"
+                                                    />
+                                                    <path d="M8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" />
+                                                </svg>
+                                                <span className="font-medium text-green-700 dark:text-green-300">
+                                                    This recording has a MIDI
+                                                    file
+                                                </span>
+                                            </div>
+                                            <div className="mt-2 flex justify-between items-center">
+                                                <a
+                                                    href={recording.midi_url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-500 hover:text-blue-700 underline flex items-center"
+                                                >
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        className="h-4 w-4 mr-1"
+                                                        viewBox="0 0 20 20"
+                                                        fill="currentColor"
+                                                    >
+                                                        <path
+                                                            fillRule="evenodd"
+                                                            d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                                                            clipRule="evenodd"
+                                                        />
+                                                    </svg>
+                                                    Download current MIDI
+                                                </a>
+                                            </div>
+                                            <p className="text-xs text-gray-500 mt-2">
+                                                Upload a new file below to
+                                                replace the existing one
+                                            </p>
+                                        </div>
+                                    )}
                                 <input
                                     id="midi_file"
                                     type="file"

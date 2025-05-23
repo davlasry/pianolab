@@ -1,10 +1,29 @@
 import { useParams } from "react-router-dom";
-import { PlayerProvider } from "@/context/PlayerContext.tsx";
+import { PlayerProvider, usePlayerContext } from "@/context/PlayerContext.tsx";
 import { PlayerContent } from "@/components/PlayerContent.tsx";
-import { usePlayerContext } from "@/context/PlayerContext.tsx";
+import { useState } from "react";
+import { Button } from "@/components/ui/button.tsx";
+import { Pencil } from "lucide-react";
+import { RecordingFormModal } from "@/components/Recordings/RecordingFormModal.tsx";
 
 const RecordingContent = () => {
     const { isLoading, recording, isReady, error } = usePlayerContext();
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+    const handleOpenEditModal = () => {
+        setIsEditModalOpen(true);
+    };
+
+    const handleCloseEditModal = () => {
+        setIsEditModalOpen(false);
+    };
+
+    // Handle successful edit
+    const handleEditSuccess = () => {
+        setIsEditModalOpen(false);
+        // Reload the page to show updated recording data
+        window.location.reload();
+    };
 
     if (isLoading) {
         return (
@@ -52,13 +71,32 @@ const RecordingContent = () => {
 
     return (
         <div>
-            <h1 className="text-2xl font-bold mb-4 px-4">
-                {recording.performer
-                    ? `${recording.performer}'s Recording`
-                    : "Recording"}
-                {recording.key && ` in ${recording.key}`}
-            </h1>
+            <div className="flex justify-between items-center px-4 mb-4">
+                <h1 className="text-2xl font-bold">
+                    {recording.name ||
+                        (recording.performer
+                            ? `${recording.performer}'s Recording`
+                            : "Recording")}
+                </h1>
+                <Button
+                    onClick={handleOpenEditModal}
+                    size="sm"
+                    className="flex items-center gap-1"
+                >
+                    <Pencil className="h-4 w-4" />
+                    Edit
+                </Button>
+            </div>
             <PlayerContent />
+
+            {/* Edit Modal */}
+            <RecordingFormModal
+                isOpen={isEditModalOpen}
+                onClose={handleCloseEditModal}
+                onSuccess={handleEditSuccess}
+                recording={recording}
+                mode="edit"
+            />
         </div>
     );
 };

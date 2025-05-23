@@ -144,6 +144,7 @@ export type Database = {
                     id: string;
                     key: string | null;
                     midi_url: string | null;
+                    name: string | null;
                     performer: string | null;
                 };
                 Insert: {
@@ -153,6 +154,7 @@ export type Database = {
                     id?: string;
                     key?: string | null;
                     midi_url?: string | null;
+                    name?: string | null;
                     performer?: string | null;
                 };
                 Update: {
@@ -162,6 +164,7 @@ export type Database = {
                     id?: string;
                     key?: string | null;
                     midi_url?: string | null;
+                    name?: string | null;
                     performer?: string | null;
                 };
                 Relationships: [];

@@ -26,9 +26,10 @@ export const RecordingsList = ({ recordings, onEdit, onDelete }: Props) => {
                 >
                     <div className="flex justify-between">
                         <h3 className="font-bold text-lg">
-                            {recording.performer
-                                ? `${recording.performer}'s Recording`
-                                : "Recording"}
+                            {recording.name ||
+                                (recording.performer
+                                    ? `${recording.performer}'s Recording`
+                                    : "Recording")}
                         </h3>
                         <div className="flex space-x-2">
                             <Button
@@ -57,6 +58,9 @@ export const RecordingsList = ({ recordings, onEdit, onDelete }: Props) => {
                             </Button>
                         </div>
                     </div>
+                    {recording.name && (
+                        <p className="text-gray-600">Name: {recording.name}</p>
+                    )}
                     {recording.performer && (
                         <p className="text-gray-600">
                             Performer: {recording.performer}
