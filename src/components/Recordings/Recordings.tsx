@@ -3,7 +3,6 @@ import { useFetchRecordings } from "@/hooks/useFetchRecordings.ts";
 import { useDeleteRecording } from "@/hooks/useDeleteRecording.ts";
 import { RecordingFormModal } from "@/components/Recordings/RecordingFormModal.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { RecordingsList } from "@/components/Recordings/RecordingsList.tsx";
 import type { Recording } from "@/types/entities.types.ts";
 import {
     AlertDialog,
@@ -21,8 +20,11 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion";
+import RecordingsList from "@/components/Recordings/RecordingsList.tsx";
+import { useNavigate } from "react-router-dom";
 
 export const Recordings = () => {
+    const navigate = useNavigate();
     const { recordings, loading, refresh } = useFetchRecordings();
     const { deleteRecording, isLoading: isDeleting } = useDeleteRecording();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -69,8 +71,17 @@ export const Recordings = () => {
         setRecordingToDelete(null);
     };
 
+    const handleRecordingClick = (recording: Recording) => {
+        navigate(`/recording/${recording.id}`);
+    };
+
     return (
-        <Accordion type="single" collapsible className="p-4">
+        <Accordion
+            type="single"
+            collapsible
+            className="p-4"
+            defaultValue="recordings"
+        >
             <AccordionItem value="recordings">
                 <div className="flex justify-between items-center">
                     <AccordionTrigger>
@@ -89,7 +100,7 @@ export const Recordings = () => {
                         </p>
                     ) : (
                         <RecordingsList
-                            recordings={recordings}
+                            onOpenRecording={handleRecordingClick}
                             onEdit={openEditModal}
                             onDelete={handleDeleteRecording}
                         />
