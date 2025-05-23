@@ -42,7 +42,7 @@ export const PieceFormModal = ({
         isLoading: isUpdating,
         error: updateError,
     } = useUpdatePiece();
-    const { uploadFile, isUploading, uploadError, uploadProgress, uploadToS3 } =
+    const { uploadFile, isUploading, uploadError, uploadProgress } =
         useUploadFile();
 
     const isLoading = isCreating || isUpdating;
@@ -146,7 +146,11 @@ export const PieceFormModal = ({
 
         // Upload midi file if provided
         if (midiFile) {
-            midiUrl = await uploadToS3(midiFile);
+            midiUrl = await uploadFile({
+                file: midiFile,
+                bucket: "pieces",
+                folder: "audio",
+            });
         }
 
         const pieceData: Partial<Piece> = {

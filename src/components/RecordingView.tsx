@@ -1,14 +1,67 @@
 import { useParams } from "react-router-dom";
 import { PlayerProvider, usePlayerContext } from "@/context/PlayerContext.tsx";
 import { PlayerContent } from "@/components/PlayerContent.tsx";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button.tsx";
-import { Pencil } from "lucide-react";
+import { Pencil, Music } from "lucide-react";
 import { RecordingFormModal } from "@/components/Recordings/RecordingFormModal.tsx";
+import { supabase } from "@/supabase.ts";
+import type { Piece } from "@/types/entities.types.ts";
 
 const RecordingContent = () => {
     const { isLoading, recording, isReady, error } = usePlayerContext();
+    const { recordingId } = useParams();
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [linkedPieces, setLinkedPieces] = useState<Piece[]>([]);
+    const [piecesLoading, setPiecesLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchLinkedPieces = async () => {
+            if (recordingId) {
+                setPiecesLoading(true);
+                try {
+                    // Fetch piece_ids linked to the recording
+                    const {
+                        data: recordingPiecesData,
+                        error: recordingPiecesError,
+                    } = await supabase
+                        .from("recording_pieces")
+                        .select("piece_id")
+                        .eq("recording_id", recordingId);
+
+                    if (recordingPiecesError) throw recordingPiecesError;
+
+                    if (recordingPiecesData && recordingPiecesData.length > 0) {
+                        const pieceIds = recordingPiecesData.map(
+                            (rp) => rp.piece_id,
+                        );
+                        // Fetch details for those pieces
+                        const { data: piecesData, error: piecesError } =
+                            await supabase
+                                .from("pieces")
+                                .select(
+                                    "*" /* Select all piece columns or specify needed ones */,
+                                )
+                                .in("id", pieceIds);
+
+                        if (piecesError) throw piecesError;
+                        setLinkedPieces(piecesData || []);
+                    } else {
+                        setLinkedPieces([]); // No pieces linked
+                    }
+                } catch (e) {
+                    console.error("Error fetching linked pieces:", e);
+                    setLinkedPieces([]); // Set to empty or handle error state
+                } finally {
+                    setPiecesLoading(false);
+                }
+            }
+        };
+
+        if (recordingId) {
+            fetchLinkedPieces();
+        }
+    }, [recordingId]);
 
     const handleOpenEditModal = () => {
         setIsEditModalOpen(true);
@@ -87,6 +140,44 @@ const RecordingContent = () => {
                     Edit
                 </Button>
             </div>
+
+            {/* Display Linked Pieces - MOVED & RESTYLED */}
+            {piecesLoading ? (
+                <div className="px-4 mb-4 text-sm text-gray-500">
+                    <p>Loading linked pieces...</p>
+                </div>
+            ) : linkedPieces.length > 0 ? (
+                <div className="px-4 mb-4">
+                    <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1 flex items-center">
+                        <Music className="h-4 w-4 mr-1.5 text-gray-500 dark:text-gray-400" />{" "}
+                        Linked Pieces:
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                        {linkedPieces.map((piece) => (
+                            <div
+                                key={piece.id}
+                                className="bg-gray-100 dark:bg-gray-700 text-xs text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full shadow-sm"
+                            >
+                                {piece.name}
+                                {piece.composer && (
+                                    <span className="ml-1 text-gray-500 dark:text-gray-400">
+                                        ({piece.composer})
+                                    </span>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ) : (
+                <div className="px-4 mb-4 text-sm text-gray-500">
+                    <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1 flex items-center">
+                        <Music className="h-4 w-4 mr-1.5 text-gray-500 dark:text-gray-400" />{" "}
+                        Linked Pieces:
+                    </h3>
+                    <p>None</p>
+                </div>
+            )}
+
             <PlayerContent />
 
             {/* Edit Modal */}

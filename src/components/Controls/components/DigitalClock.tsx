@@ -74,11 +74,6 @@ const DigitalClock: React.FC = () => {
                     </div>
                 </div>
             </div>
-
-            <div className="bg-zinc-900 px-6 py-3 flex justify-between items-center text-xs text-zinc-500">
-                <span>DAW Clock v1.0</span>
-                <span>24-bit • 48kHz</span>
-            </div>
         </div>
     );
 };

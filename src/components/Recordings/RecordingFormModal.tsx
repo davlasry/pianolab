@@ -4,6 +4,9 @@ import { useCreateRecording } from "@/hooks/useCreateRecording.ts";
 import { useUpdateRecording } from "@/hooks/useUpdateRecording.ts";
 import { useUploadFile } from "@/hooks/useUploadFile.ts";
 import type { InsertRecording, Recording } from "@/types/entities.types.ts";
+import { useFetchPieces } from "@/hooks/useFetchPieces.ts";
+import { supabase } from "@/supabase.ts";
+import { MultiSelect } from "@/components/ui/multi-select";
 
 interface RecordingFormModalProps {
     isOpen: boolean;
@@ -20,12 +23,15 @@ export const RecordingFormModal = ({
     recording,
     mode = "create",
 }: RecordingFormModalProps) => {
-    const [formData, setFormData] = useState<Partial<InsertRecording>>({
+    const [formData, setFormData] = useState<
+        Partial<InsertRecording> & { piece_ids?: string[] }
+    >({
         performer: "",
         key: "",
         name: "",
         audio_url: "",
         midi_url: "",
+        piece_ids: [],
     });
     const [audioFile, setAudioFile] = useState<File | null>(null);
     const [midiFile, setMidiFile] = useState<File | null>(null);
@@ -45,6 +51,8 @@ export const RecordingFormModal = ({
     const { uploadFile, isUploading, uploadError, uploadProgress } =
         useUploadFile();
 
+    const { pieces, loading: piecesLoading } = useFetchPieces();
+
     const isLoading = isCreating || isUpdating;
     const error = createError || updateError;
 
@@ -57,7 +65,29 @@ export const RecordingFormModal = ({
                 name: recording.name || "",
                 audio_url: recording.audio_url || "",
                 midi_url: recording.midi_url || "",
+                piece_ids: [], // Initialize as empty, will be populated by fetchAssociatedPieces
             });
+            // Fetch associated pieces for the recording in edit mode
+            const fetchAssociatedPieces = async () => {
+                if (recording?.id) {
+                    const { data, error: fetchError } = await supabase
+                        .from("recording_pieces")
+                        .select("piece_id")
+                        .eq("recording_id", recording.id);
+                    if (fetchError) {
+                        console.error(
+                            "Error fetching associated pieces:",
+                            fetchError,
+                        );
+                    } else {
+                        setFormData((prev) => ({
+                            ...prev,
+                            piece_ids: data.map((rp) => rp.piece_id),
+                        }));
+                    }
+                }
+            };
+            fetchAssociatedPieces();
         } else {
             // Reset form in create mode
             setFormData({
@@ -66,6 +96,7 @@ export const RecordingFormModal = ({
                 name: "",
                 audio_url: "",
                 midi_url: "",
+                piece_ids: [],
             });
         }
     }, [mode, recording]);
@@ -76,10 +107,12 @@ export const RecordingFormModal = ({
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     ) => {
         const { name, value } = e.target;
-        setFormData((prev: Partial<InsertRecording>) => ({
-            ...prev,
-            [name]: value,
-        }));
+        setFormData(
+            (prev: Partial<InsertRecording> & { piece_ids?: string[] }) => ({
+                ...prev,
+                [name]: value,
+            }),
+        );
     };
 
     const handleAudioFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -145,20 +178,55 @@ export const RecordingFormModal = ({
         };
 
         let result;
+        let recordingIdToLink = "";
 
         if (mode === "edit" && recording) {
             result = await updateRecording(recording.id, recordingData);
+            if (result) recordingIdToLink = result.id;
         } else {
             result = await createRecording(recordingData as InsertRecording);
+            if (result) recordingIdToLink = result.id;
         }
 
-        if (result) {
+        if (result && recordingIdToLink) {
+            // Handle piece linking
+            // 1. Delete existing links for this recording (important for edit mode)
+            const { error: deleteError } = await supabase
+                .from("recording_pieces")
+                .delete()
+                .eq("recording_id", recordingIdToLink);
+
+            if (deleteError) {
+                console.error(
+                    "Error deleting existing piece links:",
+                    deleteError,
+                );
+                // Optionally, set an error state here to inform the user and potentially stop execution
+                // For now, we'll proceed to attempt inserting new links
+            }
+
+            // 2. Insert new links
+            if (formData.piece_ids && formData.piece_ids.length > 0) {
+                const linksToInsert = formData.piece_ids.map((piece_id) => ({
+                    recording_id: recordingIdToLink,
+                    piece_id: piece_id,
+                }));
+                const { error: linkError } = await supabase
+                    .from("recording_pieces")
+                    .insert(linksToInsert);
+                if (linkError) {
+                    console.error("Error linking pieces:", linkError);
+                    // Optionally, set an error state here to inform the user
+                }
+            }
+
             setFormData({
                 performer: "",
                 key: "",
                 name: "",
                 audio_url: "",
                 midi_url: "",
+                piece_ids: [],
             });
             setAudioFile(null);
             setMidiFile(null);
@@ -225,6 +293,36 @@ export const RecordingFormModal = ({
                                 onChange={handleChange}
                                 className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
                             />
+                        </div>
+
+                        <div className="text-left">
+                            <label
+                                htmlFor="pieces"
+                                className="block text-sm font-medium mb-1 text-left"
+                            >
+                                Linked Pieces
+                            </label>
+                            <MultiSelect
+                                options={pieces.map((p) => ({
+                                    value: p.id,
+                                    label: `${p.name}${p.composer ? ` by ${p.composer}` : ""}`,
+                                }))}
+                                defaultValue={formData.piece_ids || []}
+                                onValueChange={(selected: string[]) =>
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        piece_ids: selected,
+                                    }))
+                                }
+                                placeholder="Select pieces..."
+                                disabled={piecesLoading}
+                                className="w-full dark:bg-gray-700 dark:border-gray-600"
+                            />
+                            {piecesLoading && (
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Loading pieces...
+                                </p>
+                            )}
                         </div>
 
                         <div className="text-left">

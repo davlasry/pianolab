@@ -19,21 +19,19 @@ function Controls({
     } = usePlayerContext();
 
     return (
-        <div className="bg-zinc-900 flex items-center justify-center p-4">
-            <TransportProvider
-                isPlaying={isPlaying}
-                isPaused={isPaused}
-                getTransport={getTransport}
-                play={() => play()}
-                stop={stop}
-                resume={resume}
-                pause={pause}
-                handleMoveToBeginning={handleMoveToBeginning}
-                isReady={isReady}
-            >
-                <DigitalClock />
-            </TransportProvider>
-        </div>
+        <TransportProvider
+            isPlaying={isPlaying}
+            isPaused={isPaused}
+            getTransport={getTransport}
+            play={() => play()}
+            stop={stop}
+            resume={resume}
+            pause={pause}
+            handleMoveToBeginning={handleMoveToBeginning}
+            isReady={isReady}
+        >
+            <DigitalClock />
+        </TransportProvider>
     );
 }
 

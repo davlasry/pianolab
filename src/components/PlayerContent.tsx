@@ -24,7 +24,7 @@ export const PlayerContent = () => {
 
     return (
         <>
-            <div className="flex items-center mb-4">
+            <div className="flex items-center mb-4 gap-2">
                 <Controls handleMoveToBeginning={handleMoveToBeginning} />
                 <CurrentChord chord={activeChord} />
             </div>
