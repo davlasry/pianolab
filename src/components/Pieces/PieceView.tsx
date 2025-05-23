@@ -1,22 +1,31 @@
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Music2, Calendar, Tag } from "lucide-react";
 import { useFetchPieceDetails } from "@/hooks/useFetchPieceDetails";
+import { Card } from "@/components/ui/card";
 
 export const PieceView = () => {
     const { pieceId } = useParams();
     const { piece, recordings, loading } = useFetchPieceDetails(pieceId);
 
     if (loading) {
-        return <div>Loading...</div>;
+        return (
+            <div className="flex items-center justify-center min-h-[200px]">
+                <div className="text-gray-500">Loading...</div>
+            </div>
+        );
     }
 
     if (!piece) {
-        return <div>Piece not found</div>;
+        return (
+            <div className="flex items-center justify-center min-h-[200px]">
+                <div className="text-gray-500">Piece not found</div>
+            </div>
+        );
     }
 
     return (
-        <div className="container mx-auto py-6">
+        <div className="container mx-auto py-6 px-4">
             <div className="mb-6">
                 <Link to="/">
                     <Button variant="ghost" className="pl-0">
@@ -26,34 +35,123 @@ export const PieceView = () => {
                 </Link>
             </div>
 
-            <div className="space-y-6">
-                <div>
-                    <h1 className="text-3xl font-bold">{piece.name}</h1>
-                    <p className="text-gray-600 mt-2">{piece.composer}</p>
+            <div className="space-y-8">
+                {/* Piece Header */}
+                <div className="space-y-4">
+                    <h1 className="text-4xl font-bold text-white">
+                        {piece.name}
+                    </h1>
+                    {piece.composer && (
+                        <div className="flex items-center text-lg text-zinc-200">
+                            <Music2 className="h-5 w-5 mr-2" />
+                            {piece.composer}
+                        </div>
+                    )}
                 </div>
 
-                <div>
-                    <h2 className="text-2xl font-semibold mb-4">Recordings</h2>
+                {/* Piece Details */}
+                <Card className="p-6 bg-zinc-900/50">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {piece.style && (
+                            <div className="flex items-center">
+                                <Tag className="h-5 w-5 mr-2 text-zinc-400" />
+                                <div>
+                                    <div className="text-sm text-zinc-400">
+                                        Style
+                                    </div>
+                                    <div className="text-zinc-100">
+                                        {piece.style}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        {piece.created_at && (
+                            <div className="flex items-center">
+                                <Calendar className="h-5 w-5 mr-2 text-zinc-400" />
+                                <div>
+                                    <div className="text-sm text-zinc-400">
+                                        Added on
+                                    </div>
+                                    <div className="text-zinc-100">
+                                        {new Date(
+                                            piece.created_at,
+                                        ).toLocaleDateString(undefined, {
+                                            year: "numeric",
+                                            month: "long",
+                                            day: "numeric",
+                                        })}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        {piece.tags && piece.tags.length > 0 && (
+                            <div className="flex items-center col-span-2">
+                                <div className="flex flex-wrap gap-2">
+                                    {piece.tags.map((tag, index) => (
+                                        <span
+                                            key={index}
+                                            className="px-2 py-1 bg-zinc-800 rounded-md text-sm text-zinc-200"
+                                        >
+                                            {tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </Card>
+
+                {/* Recordings Section */}
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-2xl font-semibold text-white">
+                            Recordings
+                        </h2>
+                        <div className="text-sm text-zinc-400">
+                            {recordings.length}{" "}
+                            {recordings.length === 1
+                                ? "recording"
+                                : "recordings"}
+                        </div>
+                    </div>
+
                     {recordings.length === 0 ? (
-                        <p className="text-gray-500">
+                        <Card className="p-6 bg-zinc-900/50 text-zinc-300 text-center">
                             No recordings yet for this piece.
-                        </p>
+                        </Card>
                     ) : (
                         <div className="grid gap-4">
                             {recordings.map((recording) => (
                                 <Link
                                     key={recording.id}
                                     to={`/recording/${recording.id}`}
-                                    className="block p-4 rounded-lg border hover:border-primary transition-colors"
+                                    className="block"
                                 >
-                                    <div className="font-medium">
-                                        {recording.name}
-                                    </div>
-                                    <div className="text-sm text-gray-500">
-                                        {new Date(
-                                            recording.created_at || "",
-                                        ).toLocaleDateString()}
-                                    </div>
+                                    <Card className="p-4 bg-zinc-900/50 hover:bg-zinc-800 transition-colors">
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <div className="font-medium text-lg text-zinc-100">
+                                                    {recording.name}
+                                                </div>
+                                                {recording.performer && (
+                                                    <div className="text-sm text-zinc-300 mt-1">
+                                                        Performed by{" "}
+                                                        {recording.performer}
+                                                    </div>
+                                                )}
+                                                {recording.key && (
+                                                    <div className="text-sm text-zinc-300 mt-1">
+                                                        Key: {recording.key}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="text-sm text-zinc-400">
+                                                {new Date(
+                                                    recording.created_at || "",
+                                                ).toLocaleDateString()}
+                                            </div>
+                                        </div>
+                                    </Card>
                                 </Link>
                             ))}
                         </div>
