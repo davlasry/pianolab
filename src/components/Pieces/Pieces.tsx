@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useFetchPieces } from "@/hooks/useFetchPieces.ts";
-import { useDeletePiece } from "@/hooks/useDeletePiece.ts";
+import { useFetchPieces } from "@/hooks/queries/useFetchPieces.ts";
+import { useDeletePiece } from "@/hooks/queries/useDeletePiece.ts";
 import { PieceFormModal } from "@/components/Pieces/PieceFormModal.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { PiecesList } from "@/components/Pieces/PiecesList.tsx";

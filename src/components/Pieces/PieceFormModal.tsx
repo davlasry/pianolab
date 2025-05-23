@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button.tsx";
-import { useCreatePiece } from "@/hooks/useCreatePiece.ts";
-import { useUpdatePiece } from "@/hooks/useUpdatePiece.ts";
+import { useCreatePiece } from "@/hooks/queries/useCreatePiece.ts";
+import { useUpdatePiece } from "@/hooks/queries/useUpdatePiece.ts";
 import type { InsertPiece, Piece } from "@/types/entities.types.ts";
 
 interface PieceFormModalProps {

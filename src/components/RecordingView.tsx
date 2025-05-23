@@ -1,5 +1,8 @@
 import { useParams, Link } from "react-router-dom";
-import { PlayerProvider, usePlayerContext } from "@/context/PlayerContext.tsx";
+import {
+    PlayerProvider,
+    usePlayerContext,
+} from "@/components/SessionView/context/PlayerContext.tsx";
 import { PlayerContent } from "@/components/PlayerContent.tsx";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button.tsx";

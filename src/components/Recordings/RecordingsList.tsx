@@ -1,5 +1,5 @@
 import { Clock, Edit, Trash2, Play } from "lucide-react";
-import { useFetchRecordings } from "@/hooks/useFetchRecordings.ts";
+import { useFetchRecordings } from "@/hooks/queries/useFetchRecordings.ts";
 import type { Recording } from "@/types/entities.types.ts";
 import { ItemCard } from "@/components/shared/ItemCard.tsx";
 

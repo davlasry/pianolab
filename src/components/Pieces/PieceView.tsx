@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button.tsx";
 import { Card } from "@/components/ui/card.tsx";
 import { ArrowLeft, Calendar, Music2, Tag } from "lucide-react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { useFetchPieceDetails } from "@/hooks/useFetchPieceDetails.ts";
+import { useFetchPieceDetails } from "@/hooks/queries/useFetchPieceDetails.ts";
 import { ItemCard } from "@/components/shared/ItemCard.tsx";
 
 export const PieceView = () => {

@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button.tsx";
-import { useCreateRecording } from "@/hooks/useCreateRecording.ts";
-import { useUpdateRecording } from "@/hooks/useUpdateRecording.ts";
-import { useUploadFile } from "@/hooks/useUploadFile.ts";
+import { useCreateRecording } from "@/hooks/queries/useCreateRecording.ts";
+import { useUpdateRecording } from "@/hooks/queries/useUpdateRecording.ts";
+import { useUploadFile } from "@/hooks/queries/useUploadFile.ts";
 import type { InsertRecording, Recording } from "@/types/entities.types.ts";
-import { useFetchPieces } from "@/hooks/useFetchPieces.ts";
+import { useFetchPieces } from "@/hooks/queries/useFetchPieces.ts";
 import { supabase } from "@/supabase.ts";
 import { MultiSelect } from "@/components/ui/multi-select";
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useFetchRecordings } from "@/hooks/useFetchRecordings.ts";
-import { useDeleteRecording } from "@/hooks/useDeleteRecording.ts";
+import { useFetchRecordings } from "@/hooks/queries/useFetchRecordings.ts";
+import { useDeleteRecording } from "@/hooks/queries/useDeleteRecording.ts";
 import { RecordingFormModal } from "@/components/Recordings/RecordingFormModal.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import type { Recording } from "@/types/entities.types.ts";
