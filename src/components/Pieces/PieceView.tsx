@@ -1,11 +1,13 @@
-import { useParams, Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Music2, Calendar, Tag } from "lucide-react";
-import { useFetchPieceDetails } from "@/hooks/useFetchPieceDetails";
-import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button.tsx";
+import { Card } from "@/components/ui/card.tsx";
+import { ArrowLeft, Calendar, Music2, Tag } from "lucide-react";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { useFetchPieceDetails } from "@/hooks/useFetchPieceDetails.ts";
+import { ItemCard } from "@/components/shared/ItemCard.tsx";
 
 export const PieceView = () => {
     const { pieceId } = useParams();
+    const navigate = useNavigate();
     const { piece, recordings, loading } = useFetchPieceDetails(pieceId);
 
     if (loading) {
@@ -120,39 +122,33 @@ export const PieceView = () => {
                             No recordings yet for this piece.
                         </Card>
                     ) : (
-                        <div className="grid gap-4">
+                        <div className="grid gap-2">
                             {recordings.map((recording) => (
-                                <Link
+                                <ItemCard
                                     key={recording.id}
-                                    to={`/recording/${recording.id}`}
-                                    className="block"
-                                >
-                                    <Card className="p-4 bg-zinc-900/50 hover:bg-zinc-800 transition-colors">
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <div className="font-medium text-lg text-zinc-100">
-                                                    {recording.name}
-                                                </div>
-                                                {recording.performer && (
-                                                    <div className="text-sm text-zinc-300 mt-1">
-                                                        Performed by{" "}
-                                                        {recording.performer}
-                                                    </div>
-                                                )}
-                                                {recording.key && (
-                                                    <div className="text-sm text-zinc-300 mt-1">
-                                                        Key: {recording.key}
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="text-sm text-zinc-400">
-                                                {new Date(
-                                                    recording.created_at || "",
-                                                ).toLocaleDateString()}
-                                            </div>
+                                    title={recording.name || "Untitled"}
+                                    subtitle={
+                                        recording.performer
+                                            ? `Performed by ${recording.performer}`
+                                            : undefined
+                                    }
+                                    tags={
+                                        recording.key
+                                            ? [{ text: recording.key }]
+                                            : []
+                                    }
+                                    centerContent={
+                                        <div className="text-sm text-zinc-400">
+                                            {new Date(
+                                                recording.created_at || "",
+                                            ).toLocaleDateString()}
                                         </div>
-                                    </Card>
-                                </Link>
+                                    }
+                                    actions={[]}
+                                    onClick={() =>
+                                        navigate(`/recording/${recording.id}`)
+                                    }
+                                />
                             ))}
                         </div>
                     )}
