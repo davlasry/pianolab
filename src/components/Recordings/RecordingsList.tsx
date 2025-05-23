@@ -85,7 +85,7 @@ export default function RecordingsList({
     };
 
     return (
-        <div className="container mx-auto max-w-5xl">
+        <div>
             <div className="grid gap-2">
                 {recordings.map((recording) => (
                     <ItemCard

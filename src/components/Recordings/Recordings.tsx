@@ -15,12 +15,6 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog.tsx";
-import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from "@/components/ui/accordion";
 import RecordingsList from "@/components/Recordings/RecordingsList.tsx";
 import { useNavigate } from "react-router-dom";
 
@@ -77,38 +71,31 @@ export const Recordings = () => {
     };
 
     return (
-        <Accordion type="single" collapsible defaultValue="recordings">
-            <AccordionItem value="recordings">
-                <div className="flex justify-between items-center">
-                    <AccordionTrigger>
-                        <h2 className="text-2xl font-bold">Recordings</h2>
-                    </AccordionTrigger>
-                    <Button
-                        onClick={openCreateModal}
-                        className="mr-4"
-                        size="icon"
-                        variant="secondary"
-                    >
-                        <Plus className="h-5 w-5" />
-                        <span className="sr-only">Add Recording</span>
-                    </Button>
-                </div>
-                <AccordionContent>
-                    {loading ? (
-                        <p>Loading recordings...</p>
-                    ) : recordings.length === 0 ? (
-                        <p className="text-gray-500">
-                            No recordings found. Create your first recording!
-                        </p>
-                    ) : (
-                        <RecordingsList
-                            onOpenRecording={handleRecordingClick}
-                            onEdit={openEditModal}
-                            onDelete={handleDeleteRecording}
-                        />
-                    )}
-                </AccordionContent>
-            </AccordionItem>
+        <div>
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold">Recordings</h2>
+                <Button
+                    onClick={openCreateModal}
+                    size="icon"
+                    variant="secondary"
+                >
+                    <Plus className="h-5 w-5" />
+                    <span className="sr-only">Add Recording</span>
+                </Button>
+            </div>
+            {loading ? (
+                <p>Loading recordings...</p>
+            ) : recordings.length === 0 ? (
+                <p className="text-gray-500">
+                    No recordings found. Create your first recording!
+                </p>
+            ) : (
+                <RecordingsList
+                    onOpenRecording={handleRecordingClick}
+                    onEdit={openEditModal}
+                    onDelete={handleDeleteRecording}
+                />
+            )}
 
             <RecordingFormModal
                 isOpen={isModalOpen}
@@ -149,6 +136,6 @@ export const Recordings = () => {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </Accordion>
+        </div>
     );
 };

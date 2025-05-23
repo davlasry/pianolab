@@ -1,11 +1,20 @@
-import { Pieces } from "@/components/Pieces/Pieces.tsx";
-import { Recordings } from "@/components/Recordings/Recordings.tsx";
+import { Link } from "react-router-dom";
 
 export const Home = () => {
     return (
-        <div>
-            <Pieces />
-            <Recordings />
+        <div className="container mx-auto py-8 text-center">
+            <h1 className="text-4xl font-bold mb-8">Welcome to PianoLab</h1>
+            <div className="space-x-4">
+                <Link to="/pieces" className="text-blue-500 hover:underline">
+                    View Pieces
+                </Link>
+                <Link
+                    to="/recordings"
+                    className="text-blue-500 hover:underline"
+                >
+                    View Recordings
+                </Link>
+            </div>
         </div>
     );
 };

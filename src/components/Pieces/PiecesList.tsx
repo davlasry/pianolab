@@ -27,7 +27,7 @@ export const PiecesList = ({ pieces, onEdit, onDelete }: Props) => {
     };
 
     return (
-        <div className="container mx-auto max-w-5xl">
+        <div>
             <div className="grid gap-2">
                 {pieces.map((piece) => (
                     <ItemCard
