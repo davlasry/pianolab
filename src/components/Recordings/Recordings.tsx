@@ -76,12 +76,7 @@ export const Recordings = () => {
     };
 
     return (
-        <Accordion
-            type="single"
-            collapsible
-            className="p-4"
-            defaultValue="recordings"
-        >
+        <Accordion type="single" collapsible defaultValue="recordings">
             <AccordionItem value="recordings">
                 <div className="flex justify-between items-center">
                     <AccordionTrigger>
