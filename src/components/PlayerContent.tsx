@@ -1,14 +1,14 @@
 import { useRef } from "react";
-import { Keyboard } from "@/components/SessionView/Keyboard/components/Keyboard";
+import { Keyboard } from "@/components/Player/Keyboard/components/Keyboard";
 import {
     Timeline,
     type TimelineHandle,
-} from "@/components/SessionView/Timeline/Timeline.tsx";
-import { CurrentChord } from "@/components/SessionView/CurrentChord.tsx";
-import { usePlayerContext } from "@/components/SessionView/context/PlayerContext";
+} from "@/components/Player/Timeline/Timeline.tsx";
+import { CurrentChord } from "@/components/Player/CurrentChord.tsx";
+import { usePlayerContext } from "@/components/Player/context/PlayerContext";
 
-import Controls from "@/components/SessionView/Controls/Controls.tsx";
-import { realistic } from "@/components/SessionView/Keyboard/presets";
+import Controls from "@/components/Player/Controls/Controls.tsx";
+import { realistic } from "@/components/Player/Keyboard/presets";
 
 export const PlayerContent = () => {
     const timelineRef = useRef<TimelineHandle>(null);
