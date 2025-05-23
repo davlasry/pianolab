@@ -1,4 +1,4 @@
-import { Clock, Edit, Trash2, Play, Plus } from "lucide-react";
+import { Clock, Edit, Trash2, Plus } from "lucide-react";
 import { useFetchRecordings } from "@/hooks/queries/useFetchRecordings.ts";
 import type { Recording, Piece } from "@/types/entities.types.ts";
 import { ItemCard } from "@/components/shared/ItemCard.tsx";
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/tooltip.tsx";
 
 function PiecesList({ pieces }: { pieces: Piece[] }) {
-    const maxVisible = 3;
+    const maxVisible = 1;
     const visiblePieces = pieces.slice(0, maxVisible);
     const remainingCount = pieces.length - maxVisible;
 
@@ -36,7 +36,7 @@ function PiecesList({ pieces }: { pieces: Piece[] }) {
                         <TooltipTrigger asChild>
                             <Badge
                                 variant="secondary"
-                                className="text-xs bg-gray-600 text-gray-300 hover:bg-gray-500 px-2 py-0.5"
+                                className="text-xs bg-zinc-600 text-gray-300 hover:bg-zinc-500 px-2 py-0.5"
                             >
                                 <Plus className="w-3 h-3 mr-1" />
                                 {remainingCount}
@@ -107,16 +107,16 @@ export default function RecordingsList({
                         }
                         tags={recording.key ? [{ text: recording.key }] : []}
                         actions={[
-                            {
-                                icon: <Play className="h-4 w-4 ml-0.5" />,
-                                label: "Play",
-                                onClick: (e) => {
-                                    e.stopPropagation();
-                                    onOpenRecording(recording);
-                                },
-                                className:
-                                    "bg-green-500 hover:bg-green-400 text-black hover:scale-105",
-                            },
+                            // {
+                            //     icon: <Play className="h-4 w-4 ml-0.5" />,
+                            //     label: "Play",
+                            //     onClick: (e) => {
+                            //         e.stopPropagation();
+                            //         onOpenRecording(recording);
+                            //     },
+                            //     className:
+                            //         "bg-green-500 hover:bg-green-400 text-black hover:scale-105",
+                            // },
                             {
                                 icon: <Edit className="h-4 w-4" />,
                                 label: "Edit",

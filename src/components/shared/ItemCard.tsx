@@ -42,7 +42,7 @@ export function ItemCard({
                     {leftContent || <Music className="h-6 w-6 text-zinc-400" />}
                 </div>
 
-                <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-y-1 gap-x-4">
+                <div className="flex-1 items-center grid grid-cols-2 md:grid-cols-4 gap-y-1 gap-x-4">
                     <div className="col-span-2 md:col-span-1">
                         <h3 className="font-medium text-base text-white line-clamp-1">
                             {title}
