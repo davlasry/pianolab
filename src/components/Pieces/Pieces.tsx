@@ -5,6 +5,7 @@ import { PieceFormModal } from "@/components/Pieces/PieceFormModal.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { PiecesList } from "@/components/Pieces/PiecesList.tsx";
 import type { Piece } from "@/types/entities.types.ts";
+import { Plus } from "lucide-react";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -75,8 +76,14 @@ export const Pieces = () => {
                     <AccordionTrigger>
                         <h2 className="text-2xl font-bold">Pieces</h2>
                     </AccordionTrigger>
-                    <Button onClick={openCreateModal} className="mr-4">
-                        Add Piece
+                    <Button
+                        onClick={openCreateModal}
+                        className="mr-4"
+                        size="icon"
+                        variant="secondary"
+                    >
+                        <Plus className="h-5 w-5" />
+                        <span className="sr-only">Add Piece</span>
                     </Button>
                 </div>
                 <AccordionContent>

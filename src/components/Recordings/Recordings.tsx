@@ -4,6 +4,7 @@ import { useDeleteRecording } from "@/hooks/useDeleteRecording.ts";
 import { RecordingFormModal } from "@/components/Recordings/RecordingFormModal.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import type { Recording } from "@/types/entities.types.ts";
+import { Plus } from "lucide-react";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -82,8 +83,14 @@ export const Recordings = () => {
                     <AccordionTrigger>
                         <h2 className="text-2xl font-bold">Recordings</h2>
                     </AccordionTrigger>
-                    <Button onClick={openCreateModal} className="mr-4">
-                        Add Recording
+                    <Button
+                        onClick={openCreateModal}
+                        className="mr-4"
+                        size="icon"
+                        variant="secondary"
+                    >
+                        <Plus className="h-5 w-5" />
+                        <span className="sr-only">Add Recording</span>
                     </Button>
                 </div>
                 <AccordionContent>
