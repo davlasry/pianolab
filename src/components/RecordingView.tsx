@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { PlayerProvider, usePlayerContext } from "@/context/PlayerContext.tsx";
 import { PlayerContent } from "@/components/PlayerContent.tsx";
 import { useState, useEffect } from "react";
@@ -124,7 +124,7 @@ const RecordingContent = () => {
 
     return (
         <div>
-            <div className="flex justify-between items-center px-4 mb-4">
+            <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-bold">
                     {recording.name ||
                         (recording.performer
@@ -141,22 +141,23 @@ const RecordingContent = () => {
                 </Button>
             </div>
 
-            {/* Display Linked Pieces - MOVED & RESTYLED */}
+            {/* Display Linked Pieces */}
             {piecesLoading ? (
                 <div className="px-4 mb-4 text-sm text-gray-500">
                     <p>Loading linked pieces...</p>
                 </div>
             ) : linkedPieces.length > 0 ? (
-                <div className="px-4 mb-4">
+                <div className="mb-6">
                     <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1 flex items-center">
                         <Music className="h-4 w-4 mr-1.5 text-gray-500 dark:text-gray-400" />{" "}
                         Linked Pieces:
                     </h3>
                     <div className="flex flex-wrap gap-2">
                         {linkedPieces.map((piece) => (
-                            <div
+                            <Link
                                 key={piece.id}
-                                className="bg-gray-100 dark:bg-gray-700 text-xs text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full shadow-sm"
+                                to={`/piece/${piece.id}`}
+                                className="bg-gray-100 hover:bg-gray-200 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 text-xs text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full shadow-sm cursor-pointer"
                             >
                                 {piece.name}
                                 {piece.composer && (
@@ -164,7 +165,7 @@ const RecordingContent = () => {
                                         ({piece.composer})
                                     </span>
                                 )}
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 </div>
