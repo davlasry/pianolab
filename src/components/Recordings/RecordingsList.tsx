@@ -91,6 +91,7 @@ export default function RecordingsList({
                     <ItemCard
                         key={recording.id}
                         title={recording.name || "Untitled"}
+                        subtitle={recording.performer || "—"}
                         centerContent={
                             <div className="flex gap-6">
                                 <div className="flex items-center">
