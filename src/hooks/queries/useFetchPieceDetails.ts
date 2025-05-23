@@ -32,7 +32,6 @@ export const useFetchPieceDetails = (
                     )
                     .eq("id", pieceId)
                     .single();
-                console.log("data =====>", data);
 
                 if (error) throw error;
 

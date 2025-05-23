@@ -20,7 +20,6 @@ export const useFetchRecordings = () => {
                     `,
                 )
                 .order("created_at", { ascending: false });
-            console.log("data =====>", data);
 
             if (error) throw error;
 
