@@ -222,6 +222,7 @@ export const usePlayer = (notes: Note[]) => {
         isPlaying,
         isPaused,
         isStopped,
+        transportState,
         getTransport: () => Tone.getTransport(),
     };
 };

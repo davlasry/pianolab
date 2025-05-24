@@ -1,4 +1,4 @@
-import { formatTime } from "@/components/Player/Timeline/Timeline.tsx";
+import { formatTime } from "@/utils/formatTime.ts";
 
 const MAJOR_TICK_INTERVAL = 30; // Major time ticks every 30 seconds
 const MINOR_TICK_INTERVAL = 5; // Minor time ticks every 5 seconds

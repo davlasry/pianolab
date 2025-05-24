@@ -46,5 +46,6 @@ export const useTimelineZoom = () => {
     return {
         zoomLevel,
         updateZoom,
+        resetZoom: () => updateZoom(1),
     };
 };

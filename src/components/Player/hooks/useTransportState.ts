@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import * as Tone from "tone";
 
-type TransportState = "started" | "paused" | "stopped";
+export type TransportState = "started" | "paused" | "stopped";
 
 export function useTransportState() {
     const transport = Tone.getTransport();
