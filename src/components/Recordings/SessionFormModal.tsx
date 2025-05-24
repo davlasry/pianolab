@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button.tsx";
+import { Badge } from "@/components/ui/badge.tsx";
 import { useCreateRecording } from "@/hooks/queries/useCreateRecording.ts";
 import { useUpdateSession } from "@/hooks/queries/useUpdateSession.ts";
 import { useUploadFile } from "@/hooks/queries/useUploadFile.ts";
@@ -236,8 +237,8 @@ export const RecordingFormModal = ({
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md text-gray-800 dark:text-gray-300">
+        <div className="fixed inset-0 bg-background/50 flex items-center justify-center z-50">
+            <div className="bg-card text-card-foreground p-6 rounded-lg shadow-lg w-full max-w-md">
                 <h2 className="text-xl font-bold mb-4">
                     {mode === "edit" ? "Edit Recording" : "Add New Recording"}
                 </h2>
@@ -257,7 +258,7 @@ export const RecordingFormModal = ({
                                 type="text"
                                 value={formData.performer || ""}
                                 onChange={handleChange}
-                                className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                                className="w-full p-2 border rounded bg-input text-foreground"
                             />
                         </div>
 
@@ -274,7 +275,7 @@ export const RecordingFormModal = ({
                                 type="text"
                                 value={formData.name || ""}
                                 onChange={handleChange}
-                                className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                                className="w-full p-2 border rounded bg-input text-foreground"
                             />
                         </div>
 
@@ -291,7 +292,7 @@ export const RecordingFormModal = ({
                                 type="text"
                                 value={formData.key || ""}
                                 onChange={handleChange}
-                                className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                                className="w-full p-2 border rounded bg-input text-foreground"
                             />
                         </div>
 
@@ -316,10 +317,10 @@ export const RecordingFormModal = ({
                                 }
                                 placeholder="Select pieces..."
                                 disabled={piecesLoading}
-                                className="w-full dark:bg-gray-700 dark:border-gray-600"
+                                className="w-full bg-input text-foreground"
                             />
                             {piecesLoading && (
-                                <p className="text-xs text-gray-500 mt-1">
+                                <p className="text-xs text-muted-foreground mt-1">
                                     Loading pieces...
                                 </p>
                             )}
@@ -332,20 +333,23 @@ export const RecordingFormModal = ({
                             >
                                 Audio File
                                 {mode === "edit" && session?.audio_url && (
-                                    <span className="ml-2 text-xs text-green-600 font-semibold dark:text-green-400">
-                                        (File Attached)
-                                    </span>
+                                    <Badge variant="success" className="ml-2">
+                                        File Attached
+                                    </Badge>
                                 )}
                             </label>
                             <div className="flex flex-col gap-2">
                                 {mode === "edit" &&
                                     session?.audio_url &&
                                     !audioFile && (
-                                        <div className="flex flex-col bg-green-50 dark:bg-green-900/40 p-3 rounded mb-2 border border-green-200 dark:border-green-800">
-                                            <div className="flex items-center">
+                                        <div className="flex flex-col p-3 rounded mb-2">
+                                            <Badge
+                                                variant="success"
+                                                className="w-fit"
+                                            >
                                                 <svg
                                                     xmlns="http://www.w3.org/2000/svg"
-                                                    className="h-5 w-5 text-green-600 dark:text-green-400 mr-2"
+                                                    className="h-5 w-5 mr-2"
                                                     viewBox="0 0 20 20"
                                                     fill="currentColor"
                                                 >
@@ -357,17 +361,14 @@ export const RecordingFormModal = ({
                                                     />
                                                     <path d="M8 8.5a.5.5 0 01.5-.5h3a.5.5 0 010 1h-3a.5.5 0 01-.5-.5zM8 10.5a.5.5 0 01.5-.5h3a.5.5 0 010 1h-3a.5.5 0 01-.5-.5z" />
                                                 </svg>
-                                                <span className="font-medium text-green-700 dark:text-green-300">
-                                                    This session has an audio
-                                                    file
-                                                </span>
-                                            </div>
+                                                This session has an audio file
+                                            </Badge>
                                             <div className="mt-2 flex justify-between items-center">
                                                 <a
                                                     href={session.audio_url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="text-blue-500 hover:text-blue-700 underline flex items-center"
+                                                    className="text-primary hover:text-primary/90 underline flex items-center"
                                                 >
                                                     <svg
                                                         xmlns="http://www.w3.org/2000/svg"
@@ -377,14 +378,14 @@ export const RecordingFormModal = ({
                                                     >
                                                         <path
                                                             fillRule="evenodd"
-                                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                                                            d="M10 18a8 8 0 100-16 8 8 0 000-16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
                                                             clipRule="evenodd"
                                                         />
                                                     </svg>
                                                     Listen to current audio
                                                 </a>
                                             </div>
-                                            <p className="text-xs text-gray-500 mt-2">
+                                            <p className="text-xs text-muted-foreground mt-2">
                                                 Upload a new file below to
                                                 replace the existing one
                                             </p>
@@ -396,21 +397,24 @@ export const RecordingFormModal = ({
                                     ref={audioInputRef}
                                     accept="audio/*"
                                     onChange={handleAudioFileChange}
-                                    className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                                    className="w-full p-2 border rounded bg-input text-foreground"
                                 />
                                 {audioFile && (
-                                    <div className="flex items-center justify-between bg-blue-50 dark:bg-blue-900 p-2 rounded">
+                                    <Badge
+                                        variant="info"
+                                        className="w-full justify-between"
+                                    >
                                         <span className="text-sm truncate">
                                             {audioFile.name}
                                         </span>
                                         <button
                                             type="button"
                                             onClick={handleClearAudioFile}
-                                            className="ml-2 text-red-500 hover:text-red-700"
+                                            className="text-destructive hover:text-destructive/90"
                                         >
                                             ×
                                         </button>
-                                    </div>
+                                    </Badge>
                                 )}
                             </div>
                         </div>
@@ -422,20 +426,23 @@ export const RecordingFormModal = ({
                             >
                                 MIDI File
                                 {mode === "edit" && session?.midi_url && (
-                                    <span className="ml-2 text-xs text-green-600 font-semibold dark:text-green-400">
-                                        (File Attached)
-                                    </span>
+                                    <Badge variant="success" className="ml-2">
+                                        File Attached
+                                    </Badge>
                                 )}
                             </label>
                             <div className="flex flex-col gap-2">
                                 {mode === "edit" &&
                                     session?.midi_url &&
                                     !midiFile && (
-                                        <div className="flex flex-col bg-green-50 dark:bg-green-900/40 p-3 rounded mb-2 border border-green-200 dark:border-green-800">
-                                            <div className="flex items-center">
+                                        <div className="flex flex-col p-3 rounded mb-2">
+                                            <Badge
+                                                variant="success"
+                                                className="w-fit"
+                                            >
                                                 <svg
                                                     xmlns="http://www.w3.org/2000/svg"
-                                                    className="h-5 w-5 text-green-600 dark:text-green-400 mr-2"
+                                                    className="h-5 w-5 mr-2"
                                                     viewBox="0 0 20 20"
                                                     fill="currentColor"
                                                 >
@@ -446,16 +453,14 @@ export const RecordingFormModal = ({
                                                     />
                                                     <path d="M8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" />
                                                 </svg>
-                                                <span className="font-medium text-green-700 dark:text-green-300">
-                                                    This session has a MIDI file
-                                                </span>
-                                            </div>
+                                                This session has a MIDI file
+                                            </Badge>
                                             <div className="mt-2 flex justify-between items-center">
                                                 <a
                                                     href={session.midi_url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="text-blue-500 hover:text-blue-700 underline flex items-center"
+                                                    className="text-primary hover:text-primary/90 underline flex items-center"
                                                 >
                                                     <svg
                                                         xmlns="http://www.w3.org/2000/svg"
@@ -472,7 +477,7 @@ export const RecordingFormModal = ({
                                                     Download current MIDI
                                                 </a>
                                             </div>
-                                            <p className="text-xs text-gray-500 mt-2">
+                                            <p className="text-xs text-muted-foreground mt-2">
                                                 Upload a new file below to
                                                 replace the existing one
                                             </p>
@@ -484,28 +489,31 @@ export const RecordingFormModal = ({
                                     ref={midiInputRef}
                                     accept=".mid,.midi"
                                     onChange={handleMidiFileChange}
-                                    className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                                    className="w-full p-2 border rounded bg-input text-foreground"
                                 />
                                 {midiFile && (
-                                    <div className="flex items-center justify-between bg-blue-50 dark:bg-blue-900 p-2 rounded">
+                                    <Badge
+                                        variant="info"
+                                        className="w-full justify-between"
+                                    >
                                         <span className="text-sm truncate">
                                             {midiFile.name}
                                         </span>
                                         <button
                                             type="button"
                                             onClick={handleClearMidiFile}
-                                            className="ml-2 text-red-500 hover:text-red-700"
+                                            className="text-destructive hover:text-destructive/90"
                                         >
                                             ×
                                         </button>
-                                    </div>
+                                    </Badge>
                                 )}
                             </div>
                         </div>
 
                         {isUploading && (
                             <div className="mt-4 mb-2">
-                                <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                <div className="w-full bg-gray-200 rounded-full h-2.5">
                                     <div
                                         className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
                                         style={{ width: `${uploadProgress}%` }}
@@ -514,26 +522,24 @@ export const RecordingFormModal = ({
                                 <p className="text-sm text-center mt-1">
                                     Uploading... {Math.round(uploadProgress)}%
                                 </p>
-                                <p className="text-xs text-center text-gray-500 mt-1">
+                                <p className="text-xs text-center text-muted-foreground mt-1">
                                     Please wait while your files are being
                                     uploaded
                                 </p>
                             </div>
                         )}
 
-                        {(error || uploadError) && (
-                            <div className="text-red-500 text-sm">
-                                {error || uploadError}
+                        {error && (
+                            <div className="text-destructive text-sm mt-2">
+                                {error}
                             </div>
                         )}
 
-                        <div className="flex justify-end space-x-2 pt-4">
+                        <div className="flex justify-end gap-2 mt-6">
                             <Button
                                 type="button"
                                 variant="outline"
                                 onClick={onClose}
-                                disabled={isLoading || isUploading}
-                                className="bg-gray-400 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-600"
                             >
                                 Cancel
                             </Button>
@@ -543,9 +549,7 @@ export const RecordingFormModal = ({
                             >
                                 {isLoading || isUploading
                                     ? "Saving..."
-                                    : mode === "edit"
-                                      ? "Save Changes"
-                                      : "Save Recording"}
+                                    : "Save"}
                             </Button>
                         </div>
                     </div>
