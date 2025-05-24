@@ -6,10 +6,11 @@ import { Navbar } from "@/components/Navbar.tsx";
 import { PieceView } from "@/components/Pieces/PieceView.tsx";
 import { PiecesPage } from "@/pages/PiecesPage";
 import { SessionsPage } from "@/pages/SessionsPage.tsx";
+import { ThemeProvider } from "@/components/theme-provider";
 
 function App() {
     return (
-        <>
+        <ThemeProvider defaultTheme="dark" storageKey="pianolab-theme">
             <Navbar />
             <div className="content">
                 <Routes>
@@ -23,7 +24,7 @@ function App() {
                     <Route path="/piece/:pieceId" element={<PieceView />} />
                 </Routes>
             </div>
-        </>
+        </ThemeProvider>
     );
 }
 

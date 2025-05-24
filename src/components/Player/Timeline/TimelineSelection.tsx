@@ -13,7 +13,7 @@ export function TimelineSelection({
 
     return (
         <div
-            className="absolute top-0 bottom-0 bg-blue-400/20"
+            className="absolute top-0 bottom-0 bg-primary/20"
             style={{
                 left: `${(selectionStart / duration) * 100}%`,
                 width:

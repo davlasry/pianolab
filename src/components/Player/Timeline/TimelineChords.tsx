@@ -18,7 +18,7 @@ export const TimelineChords = ({ totalDuration }: Props) => {
                 className="absolute top-1/2 transform -translate-y-1/2"
                 style={{ left: `${percent}%` }}
             >
-                <div className="bg-emerald-500 text-white px-2 py-1 rounded text-xs whitespace-nowrap">
+                <div className="bg-accent text-accent-foreground px-2 py-1 rounded text-xs whitespace-nowrap">
                     {chord.chord}
                 </div>
             </div>

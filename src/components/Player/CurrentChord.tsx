@@ -7,23 +7,14 @@ interface ChordDisplayProps {
 }
 
 export const CurrentChord = ({ chord }: ChordDisplayProps) => {
-    // const keyData = Key.minorKey(CURRENT_KEY);
-    // const chordDegreeIndex = keyData.natural.chords.indexOf(chord);
-    // const triadDegreeIndex = keyData.natural.triads.indexOf(chord);
-    // console.log("keyData.natural =====>", keyData.natural);
-    // console.log("chord =====>", chord);
-    // console.log("triadDegreeIndex =====>", triadDegreeIndex);
-    // const degreeIndex =
-    //     chordDegreeIndex > -1 ? chordDegreeIndex : triadDegreeIndex;
-
     const [degreeIndex] = Progression.toRomanNumerals(CURRENT_KEY, [chord]);
 
     return (
-        <div className="w-28  flex flex-col items-center justify-center bg-white shadow-md rounded-xl px-3 py-2 border border-gray-200">
-            <span className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">
+        <div className="w-28 flex flex-col items-center justify-center bg-card shadow-md rounded-xl px-3 py-2 border border-input">
+            <span className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
                 Chord
             </span>
-            <span className="text-xl font-semibold text-indigo-600 truncate">
+            <span className="text-xl font-semibold text-primary truncate">
                 {chord || "-"}
             </span>
             <span>{degreeIndex}</span>

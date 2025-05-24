@@ -28,15 +28,13 @@ export const TimelineTicks = ({ totalDuration }: Props) => {
                 {/* Full-height tick with different colors based on importance */}
                 <div
                     className={`absolute inset-0 ${
-                        isMajorTick
-                            ? "w-px bg-gray-400"
-                            : "w-px bg-gray-200 opacity-70"
+                        isMajorTick ? "w-px bg-border" : "w-px bg-border/50"
                     }`}
                 ></div>
 
                 {/* Only add label for major ticks */}
                 {isMajorTick && (
-                    <div className="absolute top-3 transform -translate-x-1/2 text-xs text-gray-600">
+                    <div className="absolute top-3 transform -translate-x-1/2 text-xs text-muted-foreground">
                         {formatTime(time)}
                     </div>
                 )}
