@@ -31,7 +31,7 @@ const DigitalClock: React.FC = () => {
 
     return (
         <div
-            className={`w-full max-w-3xl bg-zinc-800 rounded-xl shadow-2xl overflow-hidden border border-zinc-700 transition-all duration-300 ${isPlaying ? "shadow-blue-900/20" : ""}`}
+            className={`w-full max-w-3xl bg-muted rounded-xl shadow-2xl overflow-hidden border border-muted transition-all duration-300 ${isPlaying ? "shadow-primary/20" : ""}`}
         >
             <div className="p-6">
                 <div className="flex flex-col md:flex-row items-center gap-6">

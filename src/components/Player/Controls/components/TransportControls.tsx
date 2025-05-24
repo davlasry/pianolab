@@ -22,7 +22,7 @@ const TransportControls: React.FC<TransportControlsProps> = ({
         <div className="flex items-center justify-center gap-2 md:gap-4">
             <button
                 onClick={onRewind}
-                className="p-2 md:p-3 text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-zinc-700 active:bg-zinc-600"
+                className="p-2 md:p-3 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted active:bg-muted/80"
                 aria-label="Rewind"
             >
                 <Rewind size={20} />
@@ -33,8 +33,8 @@ const TransportControls: React.FC<TransportControlsProps> = ({
                 disabled={!isReady}
                 className={`p-4 rounded-full transition-all duration-300 ${
                     isPlaying
-                        ? "bg-orange-600 hover:bg-orange-500 text-white"
-                        : "bg-blue-600 hover:bg-blue-500 text-white"
+                        ? "bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                        : "bg-primary hover:bg-primary/90 text-primary-foreground"
                 }`}
                 aria-label={isPlaying ? "Pause" : "Play"}
             >
@@ -47,7 +47,7 @@ const TransportControls: React.FC<TransportControlsProps> = ({
 
             <button
                 onClick={onStop}
-                className="p-2 md:p-3 text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-zinc-700 active:bg-zinc-600"
+                className="p-2 md:p-3 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted active:bg-muted/80"
                 aria-label="Stop"
             >
                 <Square size={20} />
@@ -55,7 +55,7 @@ const TransportControls: React.FC<TransportControlsProps> = ({
 
             <button
                 onClick={onFastForward}
-                className="p-2 md:p-3 text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-zinc-700 active:bg-zinc-600"
+                className="p-2 md:p-3 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted active:bg-muted/80"
                 aria-label="Fast Forward"
             >
                 <SkipForward size={20} />

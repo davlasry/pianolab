@@ -13,8 +13,8 @@ const FormatSelector = ({
                 onClick={() => onFormatChange("smpte")}
                 className={`text-xs px-3 py-1 rounded-md transition-colors ${
                     currentFormat === "smpte"
-                        ? "bg-blue-600 text-white"
-                        : "bg-zinc-700 text-zinc-300 hover:bg-zinc-600"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
                 }`}
             >
                 SMPTE
@@ -23,8 +23,8 @@ const FormatSelector = ({
                 onClick={() => onFormatChange("bars")}
                 className={`text-xs px-3 py-1 rounded-md transition-colors ${
                     currentFormat === "bars"
-                        ? "bg-blue-600 text-white"
-                        : "bg-zinc-700 text-zinc-300 hover:bg-zinc-600"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
                 }`}
             >
                 BARS
@@ -33,8 +33,8 @@ const FormatSelector = ({
                 onClick={() => onFormatChange("seconds")}
                 className={`text-xs px-3 py-1 rounded-md transition-colors ${
                     currentFormat === "seconds"
-                        ? "bg-blue-600 text-white"
-                        : "bg-zinc-700 text-zinc-300 hover:bg-zinc-600"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
                 }`}
             >
                 SEC

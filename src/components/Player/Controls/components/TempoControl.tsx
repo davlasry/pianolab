@@ -33,21 +33,21 @@ const TempoControl: React.FC<TempoControlProps> = ({
     return (
         <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-                <Clock size={18} className="text-zinc-400" />
+                <Clock size={18} className="text-muted-foreground" />
                 <input
                     type="text"
                     value={tempTempo}
                     onChange={handleTempoChange}
-                    className="w-16 bg-zinc-900 text-white border border-zinc-700 rounded-md py-1 px-2 text-center focus:border-blue-500 focus:outline-none"
+                    className="w-16 bg-muted/50 text-foreground border border-input rounded-md py-1 px-2 text-center focus:border-primary focus:outline-none"
                     aria-label="Tempo BPM"
                 />
-                <span className="text-zinc-400 text-sm">BPM</span>
+                <span className="text-muted-foreground text-sm">BPM</span>
             </div>
 
             <select
                 value={timeSignature}
                 onChange={(e) => onSignatureChange(e.target.value)}
-                className="bg-zinc-900 text-white border border-zinc-700 rounded-md py-1 px-2 focus:border-blue-500 focus:outline-none"
+                className="bg-muted/50 text-foreground border border-input rounded-md py-1 px-2 focus:border-primary focus:outline-none"
                 aria-label="Time Signature"
             >
                 <option value="4/4">4/4</option>
