@@ -84,7 +84,7 @@ export function ItemCard({
                             variant="ghost"
                             size="icon"
                             onClick={action.onClick}
-                            className={`h-8 w-8 rounded-full ${action.className || "bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground"} transition-all`}
+                            className={`h-8 w-8 ${action.className} text-muted-foreground transition-all`}
                         >
                             {action.icon}
                             <span className="sr-only">{action.label}</span>
