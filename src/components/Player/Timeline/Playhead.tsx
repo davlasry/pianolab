@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import * as Tone from "tone";
-import { useProgressLoop } from "@/components/Player/Timeline/useProgressLoop";
+import { useProgressLoop } from "@/components/Player/Timeline/useProgressLoop.ts";
 import type { TransportState } from "@/components/Player/hooks/useTransportState";
 
 const SCROLL_THRESHOLD = 0.95;

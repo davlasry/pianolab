@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import * as Tone from "tone";
-import type { TransportState } from "@/components/Player/hooks/useTransportState";
+import type { TransportState } from "@/components/Player/hooks/useTransportState.ts";
 
 export function useProgressLoop(
     transportState: TransportState | undefined,
