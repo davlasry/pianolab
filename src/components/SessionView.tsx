@@ -160,7 +160,7 @@ const SessionContent = () => {
                             <Link
                                 key={piece.id}
                                 to={`/piece/${piece.id}`}
-                                className="bg-gray-100 hover:bg-gray-200 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 text-xs text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full shadow-sm cursor-pointer"
+                                className="bg-muted hover:bg-muted/80 text-muted-foreground text-xs px-2 py-1 rounded-full shadow-sm cursor-pointer"
                             >
                                 {piece.name}
                                 {piece.composer && (

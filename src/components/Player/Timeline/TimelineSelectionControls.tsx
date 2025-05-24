@@ -17,23 +17,22 @@ export function TimelineSelectionControls({
 }: TimelineSelectionControlsProps) {
     return (
         <div className="flex items-center gap-2">
-            <Button onClick={onSetStartAtPlayhead} variant="secondary">
-                Set Start at Playhead
+            <Button
+                onClick={
+                    selectionStart === null
+                        ? onSetStartAtPlayhead
+                        : onSubmitSelection
+                }
+                variant="secondary"
+                disabled={selectionStart !== null && !isSelectionComplete}
+            >
+                {selectionStart === null ? "Start Loop" : "End Loop"}
             </Button>
 
             {selectionStart !== null && (
-                <>
-                    <Button
-                        onClick={onSubmitSelection}
-                        disabled={!isSelectionComplete}
-                        variant="default"
-                    >
-                        Submit Selection
-                    </Button>
-                    <Button onClick={onResetSelection} variant="outline">
-                        Reset
-                    </Button>
-                </>
+                <Button onClick={onResetSelection} variant="outline">
+                    Reset
+                </Button>
             )}
         </div>
     );
