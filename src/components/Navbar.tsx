@@ -24,8 +24,14 @@ export const Navbar = () => {
                             setTheme(theme === "light" ? "dark" : "light")
                         }
                     >
-                        <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                        <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                        <Sun
+                            className="h-5 w-5 absolute transition-transform scale-100 rotate-0 data-[theme=dark]:scale-0 data-[theme=dark]:-rotate-90"
+                            data-theme={theme}
+                        />
+                        <Moon
+                            className="h-5 w-5 absolute transition-transform scale-0 rotate-90 data-[theme=dark]:scale-100 data-[theme=dark]:rotate-0"
+                            data-theme={theme}
+                        />
                         <span className="sr-only">Toggle theme</span>
                     </Button>
                 </div>

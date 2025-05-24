@@ -128,7 +128,7 @@ export const PieceFormModal = ({
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md text-gray-800 dark:text-gray-300">
+            <div className="bg-background p-6 rounded-lg shadow-lg w-full max-w-md text-foreground">
                 <h2 className="text-xl font-bold mb-4">
                     {mode === "edit" ? "Edit Piece" : "Add New Piece"}
                 </h2>
@@ -140,7 +140,7 @@ export const PieceFormModal = ({
                                 htmlFor="name"
                                 className="block text-sm font-medium mb-1 text-left"
                             >
-                                Name <span className="text-red-500">*</span>
+                                Name <span className="text-destructive">*</span>
                             </label>
                             <input
                                 id="name"
@@ -149,7 +149,7 @@ export const PieceFormModal = ({
                                 required
                                 value={formData.name}
                                 onChange={handleChange}
-                                className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                                className="w-full p-2 border rounded bg-input text-foreground"
                             />
                         </div>
 
@@ -166,7 +166,7 @@ export const PieceFormModal = ({
                                 type="text"
                                 value={formData.composer || ""}
                                 onChange={handleChange}
-                                className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                                className="w-full p-2 border rounded bg-input text-foreground"
                             />
                         </div>
 
@@ -183,87 +183,78 @@ export const PieceFormModal = ({
                                 type="text"
                                 value={formData.style || ""}
                                 onChange={handleChange}
-                                className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                                className="w-full p-2 border rounded bg-input text-foreground"
                             />
                         </div>
 
                         <div className="text-left">
-                            <label
-                                htmlFor="tags"
-                                className="block text-sm font-medium mb-1 text-left"
-                            >
+                            <label className="block text-sm font-medium mb-1 text-left">
                                 Tags
                             </label>
-                            <div className="flex">
+                            <div className="flex gap-2 mb-2">
                                 <input
-                                    id="tags"
                                     type="text"
                                     value={tagInput}
                                     onChange={(e) =>
                                         setTagInput(e.target.value)
                                     }
-                                    className="flex-1 p-2 border rounded-l dark:bg-gray-700 dark:border-gray-600"
+                                    className="flex-1 p-2 border rounded-l bg-input text-foreground"
                                     placeholder="Add a tag"
                                 />
                                 <button
                                     type="button"
                                     onClick={handleAddTag}
-                                    className="px-3 py-2 bg-blue-500 text-white rounded-r hover:bg-blue-600"
+                                    className="bg-primary text-primary-foreground px-4 rounded-r hover:bg-primary/90"
                                 >
                                     Add
                                 </button>
                             </div>
-
-                            {formData.tags && formData.tags.length > 0 && (
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                    {formData.tags.map(
-                                        (tag: string, index: number) => (
-                                            <div
-                                                key={index}
-                                                className="bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded flex items-center"
-                                            >
-                                                <span>{tag}</span>
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        handleRemoveTag(tag)
-                                                    }
-                                                    className="ml-2 text-red-500 hover:text-red-700"
-                                                >
-                                                    ×
-                                                </button>
-                                            </div>
-                                        ),
-                                    )}
-                                </div>
-                            )}
+                            <div className="flex flex-wrap gap-2">
+                                {formData.tags?.map((tag, index) => (
+                                    <div
+                                        key={index}
+                                        className="bg-accent text-accent-foreground px-2 py-1 rounded flex items-center"
+                                    >
+                                        <span>{tag}</span>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleRemoveTag(tag)}
+                                            className="ml-2 text-accent-foreground/70 hover:text-accent-foreground"
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
+                    </div>
 
-                        {error && (
-                            <div className="text-red-500 text-sm">{error}</div>
-                        )}
-
-                        <div className="flex justify-end space-x-2 pt-4">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={onClose}
-                                disabled={isLoading}
-                                className="bg-gray-400 hover:bg-gray-500 dark:bg-gray-700 dark:hover:bg-gray-600"
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                type="submit"
-                                disabled={isLoading || !formData.name}
-                            >
-                                {isLoading
-                                    ? "Saving..."
-                                    : mode === "edit"
-                                      ? "Save Changes"
-                                      : "Save Piece"}
-                            </Button>
+                    {error && (
+                        <div className="text-destructive text-sm mt-2">
+                            {error}
                         </div>
+                    )}
+
+                    <div className="flex justify-end gap-2 mt-6">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            disabled={isLoading}
+                            className="bg-muted text-muted-foreground hover:bg-muted/90 px-4 py-2 rounded"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded"
+                        >
+                            {isLoading
+                                ? "Saving..."
+                                : mode === "edit"
+                                  ? "Save Changes"
+                                  : "Create"}
+                        </button>
                     </div>
                 </form>
             </div>
