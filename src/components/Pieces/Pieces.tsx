@@ -71,6 +71,7 @@ export const Pieces = () => {
                     onClick={openCreateModal}
                     size="icon"
                     variant="secondary"
+                    className="hover:scale-105 transition-transform"
                 >
                     <Plus className="h-5 w-5" />
                     <span className="sr-only">Add Piece</span>
