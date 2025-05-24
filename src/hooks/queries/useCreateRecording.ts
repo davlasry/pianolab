@@ -6,14 +6,14 @@ export const useCreateRecording = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const createRecording = async (recording: InsertRecording) => {
+    const createRecording = async (session: InsertRecording) => {
         setIsLoading(true);
         setError(null);
 
         try {
             const { data, error } = await supabase
-                .from("recordings")
-                .insert(recording)
+                .from("sessions")
+                .insert(session)
                 .select()
                 .single();
 
@@ -22,9 +22,7 @@ export const useCreateRecording = () => {
             return data;
         } catch (err) {
             const errorMessage =
-                err instanceof Error
-                    ? err.message
-                    : "Failed to create recording";
+                err instanceof Error ? err.message : "Failed to create session";
             setError(errorMessage);
             return null;
         } finally {

@@ -1,11 +1,11 @@
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
 import { Home } from "@/components/Home.tsx";
-import { RecordingView } from "@/components/RecordingView.tsx";
+import { SessionView } from "@/components/SessionView.tsx";
 import { Navbar } from "@/components/Navbar.tsx";
 import { PieceView } from "@/components/Pieces/PieceView.tsx";
 import { PiecesPage } from "@/pages/PiecesPage";
-import { RecordingsPage } from "@/pages/RecordingsPage";
+import { SessionsPage } from "@/pages/SessionsPage.tsx";
 
 function App() {
     return (
@@ -15,10 +15,10 @@ function App() {
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/pieces" element={<PiecesPage />} />
-                    <Route path="/recordings" element={<RecordingsPage />} />
+                    <Route path="/sessions" element={<SessionsPage />} />
                     <Route
-                        path="/recording/:recordingId"
-                        element={<RecordingView />}
+                        path="/session/:sessionId"
+                        element={<SessionView />}
                     />
                     <Route path="/piece/:pieceId" element={<PieceView />} />
                 </Routes>

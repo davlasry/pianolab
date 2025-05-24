@@ -8,7 +8,7 @@ import { ItemCard } from "@/components/shared/ItemCard.tsx";
 export const PieceView = () => {
     const { pieceId } = useParams();
     const navigate = useNavigate();
-    const { piece, recordings, loading } = useFetchPieceDetails(pieceId);
+    const { piece, sessions, loading } = useFetchPieceDetails(pieceId);
 
     if (loading) {
         return (
@@ -103,50 +103,48 @@ export const PieceView = () => {
                     </div>
                 </Card>
 
-                {/* Recordings Section */}
+                {/* Sessions Section */}
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <h2 className="text-2xl font-semibold text-white">
-                            Recordings
+                            Sessions
                         </h2>
                         <div className="text-sm text-zinc-400">
-                            {recordings.length}{" "}
-                            {recordings.length === 1
-                                ? "recording"
-                                : "recordings"}
+                            {sessions.length}{" "}
+                            {sessions.length === 1 ? "session" : "sessions"}
                         </div>
                     </div>
 
-                    {recordings.length === 0 ? (
+                    {sessions.length === 0 ? (
                         <Card className="p-6 bg-zinc-900/50 text-zinc-300 text-center">
-                            No recordings yet for this piece.
+                            No sessions yet for this piece.
                         </Card>
                     ) : (
                         <div className="grid gap-2">
-                            {recordings.map((recording) => (
+                            {sessions.map((session) => (
                                 <ItemCard
-                                    key={recording.id}
-                                    title={recording.name || "Untitled"}
+                                    key={session.id}
+                                    title={session.name || "Untitled"}
                                     subtitle={
-                                        recording.performer
-                                            ? `Performed by ${recording.performer}`
+                                        session.performer
+                                            ? `Performed by ${session.performer}`
                                             : undefined
                                     }
                                     tags={
-                                        recording.key
-                                            ? [{ text: recording.key }]
+                                        session.key
+                                            ? [{ text: session.key }]
                                             : []
                                     }
                                     centerContent={
                                         <div className="text-sm text-zinc-400">
                                             {new Date(
-                                                recording.created_at || "",
+                                                session.created_at || "",
                                             ).toLocaleDateString()}
                                         </div>
                                     }
                                     actions={[]}
                                     onClick={() =>
-                                        navigate(`/recording/${recording.id}`)
+                                        navigate(`/session/${session.id}`)
                                     }
                                 />
                             ))}

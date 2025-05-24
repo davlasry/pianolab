@@ -12,28 +12,28 @@ export type Database = {
             annotations: {
                 Row: {
                     id: string;
-                    recording_id: string | null;
+                    session_id: string | null;
                     text: string | null;
                     time: number | null;
                 };
                 Insert: {
                     id?: string;
-                    recording_id?: string | null;
+                    session_id?: string | null;
                     text?: string | null;
                     time?: number | null;
                 };
                 Update: {
                     id?: string;
-                    recording_id?: string | null;
+                    session_id?: string | null;
                     text?: string | null;
                     time?: number | null;
                 };
                 Relationships: [
                     {
-                        foreignKeyName: "annotations_recording_id_fkey";
-                        columns: ["recording_id"];
+                        foreignKeyName: "annotations_session_id_fkey";
+                        columns: ["session_id"];
                         isOneToOne: false;
-                        referencedRelation: "recordings";
+                        referencedRelation: "sessions";
                         referencedColumns: ["id"];
                     },
                 ];
@@ -43,7 +43,7 @@ export type Database = {
                     end_time: number | null;
                     id: string;
                     key: string | null;
-                    recording_id: string | null;
+                    session_id: string | null;
                     start_time: number | null;
                     type: string | null;
                 };
@@ -51,7 +51,7 @@ export type Database = {
                     end_time?: number | null;
                     id?: string;
                     key?: string | null;
-                    recording_id?: string | null;
+                    session_id?: string | null;
                     start_time?: number | null;
                     type?: string | null;
                 };
@@ -59,16 +59,16 @@ export type Database = {
                     end_time?: number | null;
                     id?: string;
                     key?: string | null;
-                    recording_id?: string | null;
+                    session_id?: string | null;
                     start_time?: number | null;
                     type?: string | null;
                 };
                 Relationships: [
                     {
-                        foreignKeyName: "cadences_recording_id_fkey";
-                        columns: ["recording_id"];
+                        foreignKeyName: "cadences_session_id_fkey";
+                        columns: ["session_id"];
                         isOneToOne: false;
-                        referencedRelation: "recordings";
+                        referencedRelation: "sessions";
                         referencedColumns: ["id"];
                     },
                 ];
@@ -100,37 +100,37 @@ export type Database = {
                 };
                 Relationships: [];
             };
-            recording_pieces: {
+            session_pieces: {
                 Row: {
                     piece_id: string;
-                    recording_id: string;
+                    session_id: string;
                 };
                 Insert: {
                     piece_id: string;
-                    recording_id: string;
+                    session_id: string;
                 };
                 Update: {
                     piece_id?: string;
-                    recording_id?: string;
+                    session_id?: string;
                 };
                 Relationships: [
                     {
-                        foreignKeyName: "recording_pieces_piece_id_fkey";
+                        foreignKeyName: "session_pieces_piece_id_fkey";
                         columns: ["piece_id"];
                         isOneToOne: false;
                         referencedRelation: "pieces";
                         referencedColumns: ["id"];
                     },
                     {
-                        foreignKeyName: "recording_pieces_recording_id_fkey";
-                        columns: ["recording_id"];
+                        foreignKeyName: "session_pieces_session_id_fkey";
+                        columns: ["session_id"];
                         isOneToOne: false;
-                        referencedRelation: "recordings";
+                        referencedRelation: "sessions";
                         referencedColumns: ["id"];
                     },
                 ];
             };
-            recordings: {
+            sessions: {
                 Row: {
                     audio_url: string | null;
                     chords: Json | null;
@@ -168,29 +168,29 @@ export type Database = {
                     id: string;
                     name: string | null;
                     notes: string | null;
-                    recording_id: string | null;
+                    session_id: string | null;
                     time: number | null;
                 };
                 Insert: {
                     id?: string;
                     name?: string | null;
                     notes?: string | null;
-                    recording_id?: string | null;
+                    session_id?: string | null;
                     time?: number | null;
                 };
                 Update: {
                     id?: string;
                     name?: string | null;
                     notes?: string | null;
-                    recording_id?: string | null;
+                    session_id?: string | null;
                     time?: number | null;
                 };
                 Relationships: [
                     {
-                        foreignKeyName: "techniques_recording_id_fkey";
-                        columns: ["recording_id"];
+                        foreignKeyName: "techniques_session_id_fkey";
+                        columns: ["session_id"];
                         isOneToOne: false;
-                        referencedRelation: "recordings";
+                        referencedRelation: "sessions";
                         referencedColumns: ["id"];
                     },
                 ];

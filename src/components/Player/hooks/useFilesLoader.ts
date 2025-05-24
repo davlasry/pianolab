@@ -1,4 +1,4 @@
-import { useFetchRecording } from "@/hooks/queries/useFetchRecording.ts";
+import { useFetchSession } from "@/hooks/queries/useFetchSession.ts";
 import { useRef, useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useMidiNotes } from "@/components/Player/hooks/useMidiNotes.ts";
@@ -10,15 +10,15 @@ interface Props {
 }
 
 export const useFilesLoader = ({ parseMidi, loadAudio }: Props) => {
-    const { recordingId } = useParams();
+    const { sessionId } = useParams();
     const [isReady, setReady] = useState(false);
     const {
-        recording,
+        session,
         loading: isLoadingRecording,
         error,
-    } = useFetchRecording(recordingId);
+    } = useFetchSession(sessionId);
 
-    // Track if we've already loaded assets for this recording
+    // Track if we've already loaded assets for this session
     const assetsLoadedForIdRef = useRef<string | null>(null);
 
     // Memoize the loadMidi function to maintain a stable reference
@@ -30,20 +30,20 @@ export const useFilesLoader = ({ parseMidi, loadAudio }: Props) => {
     );
 
     useEffect(() => {
-        // Skip if recording is not loaded yet
-        if (!recording) return;
+        // Skip if session is not loaded yet
+        if (!session) return;
 
-        // Skip if we've already loaded assets for this recording
-        if (assetsLoadedForIdRef.current === recording.id) return;
+        // Skip if we've already loaded assets for this session
+        if (assetsLoadedForIdRef.current === session.id) return;
 
         let isMounted = true;
-        console.log("Loading assets for recording:", recording.id);
+        console.log("Loading assets for session:", session.id);
 
         const loadAssets = async () => {
             try {
                 // Prepare URLs or use null values if not available
-                const audioUrl = recording.audio_url || undefined;
-                const midiUrl = recording.midi_url || undefined;
+                const audioUrl = session.audio_url || undefined;
+                const midiUrl = session.midi_url || undefined;
 
                 console.log("Audio URL:", audioUrl);
                 console.log("MIDI URL:", midiUrl);
@@ -58,11 +58,11 @@ export const useFilesLoader = ({ parseMidi, loadAudio }: Props) => {
                 }
 
                 if (isMounted) {
-                    assetsLoadedForIdRef.current = recording.id;
+                    assetsLoadedForIdRef.current = session.id;
                     setReady(true);
                     console.log(
-                        "Assets loaded successfully for recording:",
-                        recording.id,
+                        "Assets loaded successfully for session:",
+                        session.id,
                     );
                 }
             } catch (error) {
@@ -75,7 +75,7 @@ export const useFilesLoader = ({ parseMidi, loadAudio }: Props) => {
         return () => {
             isMounted = false;
         };
-    }, [recording, loadMidi, loadAudio]);
+    }, [session, loadMidi, loadAudio]);
 
     return {
         isLoadingRecording,
@@ -83,6 +83,6 @@ export const useFilesLoader = ({ parseMidi, loadAudio }: Props) => {
         loadAudio,
         loadMidi,
         isReady,
-        recording,
+        session,
     };
 };

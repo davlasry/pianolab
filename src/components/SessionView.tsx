@@ -7,35 +7,35 @@ import { PlayerContent } from "@/components/PlayerContent.tsx";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button.tsx";
 import { Pencil, Music } from "lucide-react";
-import { RecordingFormModal } from "@/components/Recordings/RecordingFormModal.tsx";
+import { RecordingFormModal } from "@/components/Recordings/SessionFormModal.tsx";
 import { supabase } from "@/supabase.ts";
 import type { Piece } from "@/types/entities.types.ts";
 
-const RecordingContent = () => {
-    const { isLoading, recording, isReady, error } = usePlayerContext();
-    const { recordingId } = useParams();
+const SessionContent = () => {
+    const { isLoading, session, isReady, error } = usePlayerContext();
+    const { sessionId } = useParams();
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [linkedPieces, setLinkedPieces] = useState<Piece[]>([]);
     const [piecesLoading, setPiecesLoading] = useState(true);
 
     useEffect(() => {
         const fetchLinkedPieces = async () => {
-            if (recordingId) {
+            if (sessionId) {
                 setPiecesLoading(true);
                 try {
-                    // Fetch piece_ids linked to the recording
+                    // Fetch piece_ids linked to the session
                     const {
-                        data: recordingPiecesData,
-                        error: recordingPiecesError,
+                        data: sessionPiecesData,
+                        error: sessionPiecesError,
                     } = await supabase
-                        .from("recording_pieces")
+                        .from("session_pieces")
                         .select("piece_id")
-                        .eq("recording_id", recordingId);
+                        .eq("session_id", sessionId);
 
-                    if (recordingPiecesError) throw recordingPiecesError;
+                    if (sessionPiecesError) throw sessionPiecesError;
 
-                    if (recordingPiecesData && recordingPiecesData.length > 0) {
-                        const pieceIds = recordingPiecesData.map(
+                    if (sessionPiecesData && sessionPiecesData.length > 0) {
+                        const pieceIds = sessionPiecesData.map(
                             (rp) => rp.piece_id,
                         );
                         // Fetch details for those pieces
@@ -61,10 +61,10 @@ const RecordingContent = () => {
             }
         };
 
-        if (recordingId) {
+        if (sessionId) {
             fetchLinkedPieces();
         }
-    }, [recordingId]);
+    }, [sessionId]);
 
     const handleOpenEditModal = () => {
         setIsEditModalOpen(true);
@@ -77,7 +77,7 @@ const RecordingContent = () => {
     // Handle successful edit
     const handleEditSuccess = () => {
         setIsEditModalOpen(false);
-        // Reload the page to show updated recording data
+        // Reload the page to show updated session data
         window.location.reload();
     };
 
@@ -85,7 +85,7 @@ const RecordingContent = () => {
         return (
             <div className="p-8 text-center">
                 <div className="animate-pulse text-lg">
-                    Loading recording details...
+                    Loading session details...
                 </div>
             </div>
         );
@@ -100,7 +100,7 @@ const RecordingContent = () => {
         );
     }
 
-    if (!recording) {
+    if (!session) {
         return (
             <div className="p-8 text-center">
                 <div className="text-lg">Recording not found.</div>
@@ -116,10 +116,10 @@ const RecordingContent = () => {
                     Loading audio and MIDI files...
                 </div>
                 <div className="mt-2 text-sm text-gray-500">
-                    {recording.performer
-                        ? `"${recording.performer}'s Recording"`
+                    {session.performer
+                        ? `"${session.performer}'s Recording"`
                         : "Recording"}
-                    {recording.key && ` in ${recording.key}`}
+                    {session.key && ` in ${session.key}`}
                 </div>
             </div>
         );
@@ -129,9 +129,9 @@ const RecordingContent = () => {
         <div>
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-bold">
-                    {recording.name ||
-                        (recording.performer
-                            ? `${recording.performer}'s Recording`
+                    {session.name ||
+                        (session.performer
+                            ? `${session.performer}'s Recording`
                             : "Recording")}
                 </h1>
                 <Button
@@ -189,23 +189,22 @@ const RecordingContent = () => {
                 isOpen={isEditModalOpen}
                 onClose={handleCloseEditModal}
                 onSuccess={handleEditSuccess}
-                recording={recording}
+                session={session}
                 mode="edit"
             />
         </div>
     );
 };
 
-export const RecordingView = () => {
-    const { recordingId } = useParams();
+export const SessionView = () => {
+    const { sessionId } = useParams();
 
-    if (!recordingId) {
+    if (!sessionId) {
         return (
             <div className="p-8 text-center">
-                <div className="text-lg">No recording ID provided.</div>
+                <div className="text-lg">No session ID provided.</div>
                 <div className="mt-2">
-                    Please go back to the recordings list and select a
-                    recording.
+                    Please go back to the sessions list and select a session.
                 </div>
             </div>
         );
@@ -214,7 +213,7 @@ export const RecordingView = () => {
     return (
         <div>
             <PlayerProvider>
-                <RecordingContent />
+                <SessionContent />
             </PlayerProvider>
         </div>
     );

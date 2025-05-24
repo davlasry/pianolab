@@ -4,7 +4,7 @@ import type { Piece, Recording } from "@/types/entities.types.ts";
 
 interface UseFetchPieceDetailsResult {
     piece: Piece | null;
-    recordings: Recording[];
+    sessions: Recording[];
     loading: boolean;
 }
 
@@ -12,11 +12,11 @@ export const useFetchPieceDetails = (
     pieceId: string | undefined,
 ): UseFetchPieceDetailsResult => {
     const [piece, setPiece] = useState<Piece | null>(null);
-    const [recordings, setRecordings] = useState<Recording[]>([]);
+    const [sessions, setSessions] = useState<Recording[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchPieceAndRecordings = async () => {
+        const fetchPieceAndSessions = async () => {
             if (!pieceId) return;
 
             try {
@@ -25,8 +25,8 @@ export const useFetchPieceDetails = (
                     .select(
                         `
                       *,
-                      recording_pieces (
-                        recordings (*)
+                      session_pieces (
+                        sessions (*)
                       )
                     `,
                     )
@@ -35,22 +35,22 @@ export const useFetchPieceDetails = (
 
                 if (error) throw error;
 
-                // data.recording_pieces is an array of { recordings: Recording }
+                // data.session_pieces is an array of { sessions: Recording }
                 setPiece(data);
-                setRecordings(
-                    data.recording_pieces.map(
-                        (rp: { recordings: Recording }) => rp.recordings,
+                setSessions(
+                    data.session_pieces.map(
+                        (rp: { sessions: Recording }) => rp.sessions,
                     ),
                 );
             } catch (error) {
-                console.error("Error fetching piece + recordings:", error);
+                console.error("Error fetching piece + sessions:", error);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchPieceAndRecordings();
+        fetchPieceAndSessions();
     }, [pieceId]);
 
-    return { piece, recordings, loading };
+    return { piece, sessions, loading };
 };

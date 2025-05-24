@@ -2,7 +2,7 @@ import { useState } from "react";
 import { supabase } from "@/supabase.ts";
 import type { Recording } from "@/types/entities.types.ts";
 
-export const useUpdateRecording = () => {
+export const useUpdateSession = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -12,7 +12,7 @@ export const useUpdateRecording = () => {
 
         try {
             const { data, error } = await supabase
-                .from("recordings")
+                .from("sessions")
                 .update(updates)
                 .eq("id", id)
                 .select()
@@ -23,9 +23,7 @@ export const useUpdateRecording = () => {
             return data;
         } catch (err) {
             const errorMessage =
-                err instanceof Error
-                    ? err.message
-                    : "Failed to update recording";
+                err instanceof Error ? err.message : "Failed to update session";
             setError(errorMessage);
             return null;
         } finally {

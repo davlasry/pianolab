@@ -8,11 +8,8 @@ export const Home = () => {
                 <Link to="/pieces" className="text-blue-500 hover:underline">
                     View Pieces
                 </Link>
-                <Link
-                    to="/recordings"
-                    className="text-blue-500 hover:underline"
-                >
-                    View Recordings
+                <Link to="/sessions" className="text-blue-500 hover:underline">
+                    View Sessions
                 </Link>
             </div>
         </div>

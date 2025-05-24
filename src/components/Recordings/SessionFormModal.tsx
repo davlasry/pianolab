@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button.tsx";
 import { useCreateRecording } from "@/hooks/queries/useCreateRecording.ts";
-import { useUpdateRecording } from "@/hooks/queries/useUpdateRecording.ts";
+import { useUpdateSession } from "@/hooks/queries/useUpdateSession.ts";
 import { useUploadFile } from "@/hooks/queries/useUploadFile.ts";
 import type { InsertRecording, Recording } from "@/types/entities.types.ts";
 import { useFetchPieces } from "@/hooks/queries/useFetchPieces.ts";
@@ -12,7 +12,7 @@ interface RecordingFormModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess?: () => void;
-    recording?: Recording; // For edit mode
+    session?: Recording; // For edit mode
     mode: "create" | "edit";
 }
 
@@ -20,7 +20,7 @@ export const RecordingFormModal = ({
     isOpen,
     onClose,
     onSuccess,
-    recording,
+    session,
     mode = "create",
 }: RecordingFormModalProps) => {
     const [formData, setFormData] = useState<
@@ -47,7 +47,7 @@ export const RecordingFormModal = ({
         updateRecording,
         isLoading: isUpdating,
         error: updateError,
-    } = useUpdateRecording();
+    } = useUpdateSession();
     const { uploadFile, isUploading, uploadError, uploadProgress } =
         useUploadFile();
 
@@ -56,24 +56,24 @@ export const RecordingFormModal = ({
     const isLoading = isCreating || isUpdating;
     const error = createError || updateError;
 
-    // Load recording data when in edit mode
+    // Load session data when in edit mode
     useEffect(() => {
-        if (mode === "edit" && recording) {
+        if (mode === "edit" && session) {
             setFormData({
-                performer: recording.performer || "",
-                key: recording.key || "",
-                name: recording.name || "",
-                audio_url: recording.audio_url || "",
-                midi_url: recording.midi_url || "",
+                performer: session.performer || "",
+                key: session.key || "",
+                name: session.name || "",
+                audio_url: session.audio_url || "",
+                midi_url: session.midi_url || "",
                 piece_ids: [], // Initialize as empty, will be populated by fetchAssociatedPieces
             });
-            // Fetch associated pieces for the recording in edit mode
+            // Fetch associated pieces for the session in edit mode
             const fetchAssociatedPieces = async () => {
-                if (recording?.id) {
+                if (session?.id) {
                     const { data, error: fetchError } = await supabase
-                        .from("recording_pieces")
+                        .from("session_pieces")
                         .select("piece_id")
-                        .eq("recording_id", recording.id);
+                        .eq("session_id", session.id);
                     if (fetchError) {
                         console.error(
                             "Error fetching associated pieces:",
@@ -99,7 +99,7 @@ export const RecordingFormModal = ({
                 piece_ids: [],
             });
         }
-    }, [mode, recording]);
+    }, [mode, session]);
 
     if (!isOpen) return null;
 
@@ -153,9 +153,9 @@ export const RecordingFormModal = ({
                 file: audioFile,
                 fileType: "audio",
             });
-        } else if (mode === "edit" && recording) {
+        } else if (mode === "edit" && session) {
             // Preserve existing audio URL in edit mode if no new file provided
-            audioUrl = recording.audio_url;
+            audioUrl = session.audio_url;
         }
 
         // Upload midi file if provided
@@ -164,12 +164,12 @@ export const RecordingFormModal = ({
                 file: midiFile,
                 fileType: "midi",
             });
-        } else if (mode === "edit" && recording) {
+        } else if (mode === "edit" && session) {
             // Preserve existing MIDI URL in edit mode if no new file provided
-            midiUrl = recording.midi_url;
+            midiUrl = session.midi_url;
         }
 
-        const recordingData: Partial<Recording> = {
+        const sessionData: Partial<Recording> = {
             performer: formData.performer || null,
             key: formData.key || null,
             name: formData.name || null,
@@ -178,23 +178,23 @@ export const RecordingFormModal = ({
         };
 
         let result;
-        let recordingIdToLink = "";
+        let sessionIdToLink = "";
 
-        if (mode === "edit" && recording) {
-            result = await updateRecording(recording.id, recordingData);
-            if (result) recordingIdToLink = result.id;
+        if (mode === "edit" && session) {
+            result = await updateRecording(session.id, sessionData);
+            if (result) sessionIdToLink = result.id;
         } else {
-            result = await createRecording(recordingData as InsertRecording);
-            if (result) recordingIdToLink = result.id;
+            result = await createRecording(sessionData as InsertRecording);
+            if (result) sessionIdToLink = result.id;
         }
 
-        if (result && recordingIdToLink) {
+        if (result && sessionIdToLink) {
             // Handle piece linking
-            // 1. Delete existing links for this recording (important for edit mode)
+            // 1. Delete existing links for this session (important for edit mode)
             const { error: deleteError } = await supabase
-                .from("recording_pieces")
+                .from("session_pieces")
                 .delete()
-                .eq("recording_id", recordingIdToLink);
+                .eq("session_id", sessionIdToLink);
 
             if (deleteError) {
                 console.error(
@@ -208,11 +208,11 @@ export const RecordingFormModal = ({
             // 2. Insert new links
             if (formData.piece_ids && formData.piece_ids.length > 0) {
                 const linksToInsert = formData.piece_ids.map((piece_id) => ({
-                    recording_id: recordingIdToLink,
+                    session_id: sessionIdToLink,
                     piece_id: piece_id,
                 }));
                 const { error: linkError } = await supabase
-                    .from("recording_pieces")
+                    .from("session_pieces")
                     .insert(linksToInsert);
                 if (linkError) {
                     console.error("Error linking pieces:", linkError);
@@ -331,7 +331,7 @@ export const RecordingFormModal = ({
                                 className="block text-sm font-medium mb-1 text-left"
                             >
                                 Audio File
-                                {mode === "edit" && recording?.audio_url && (
+                                {mode === "edit" && session?.audio_url && (
                                     <span className="ml-2 text-xs text-green-600 font-semibold dark:text-green-400">
                                         (File Attached)
                                     </span>
@@ -339,7 +339,7 @@ export const RecordingFormModal = ({
                             </label>
                             <div className="flex flex-col gap-2">
                                 {mode === "edit" &&
-                                    recording?.audio_url &&
+                                    session?.audio_url &&
                                     !audioFile && (
                                         <div className="flex flex-col bg-green-50 dark:bg-green-900/40 p-3 rounded mb-2 border border-green-200 dark:border-green-800">
                                             <div className="flex items-center">
@@ -358,13 +358,13 @@ export const RecordingFormModal = ({
                                                     <path d="M8 8.5a.5.5 0 01.5-.5h3a.5.5 0 010 1h-3a.5.5 0 01-.5-.5zM8 10.5a.5.5 0 01.5-.5h3a.5.5 0 010 1h-3a.5.5 0 01-.5-.5z" />
                                                 </svg>
                                                 <span className="font-medium text-green-700 dark:text-green-300">
-                                                    This recording has an audio
+                                                    This session has an audio
                                                     file
                                                 </span>
                                             </div>
                                             <div className="mt-2 flex justify-between items-center">
                                                 <a
-                                                    href={recording.audio_url}
+                                                    href={session.audio_url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="text-blue-500 hover:text-blue-700 underline flex items-center"
@@ -421,7 +421,7 @@ export const RecordingFormModal = ({
                                 className="block text-sm font-medium mb-1 text-left"
                             >
                                 MIDI File
-                                {mode === "edit" && recording?.midi_url && (
+                                {mode === "edit" && session?.midi_url && (
                                     <span className="ml-2 text-xs text-green-600 font-semibold dark:text-green-400">
                                         (File Attached)
                                     </span>
@@ -429,7 +429,7 @@ export const RecordingFormModal = ({
                             </label>
                             <div className="flex flex-col gap-2">
                                 {mode === "edit" &&
-                                    recording?.midi_url &&
+                                    session?.midi_url &&
                                     !midiFile && (
                                         <div className="flex flex-col bg-green-50 dark:bg-green-900/40 p-3 rounded mb-2 border border-green-200 dark:border-green-800">
                                             <div className="flex items-center">
@@ -447,13 +447,12 @@ export const RecordingFormModal = ({
                                                     <path d="M8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" />
                                                 </svg>
                                                 <span className="font-medium text-green-700 dark:text-green-300">
-                                                    This recording has a MIDI
-                                                    file
+                                                    This session has a MIDI file
                                                 </span>
                                             </div>
                                             <div className="mt-2 flex justify-between items-center">
                                                 <a
-                                                    href={recording.midi_url}
+                                                    href={session.midi_url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="text-blue-500 hover:text-blue-700 underline flex items-center"

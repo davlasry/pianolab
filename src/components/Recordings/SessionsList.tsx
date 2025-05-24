@@ -1,5 +1,4 @@
 import { Clock, Edit, Trash2, Plus } from "lucide-react";
-import { useFetchRecordings } from "@/hooks/queries/useFetchRecordings.ts";
 import type { Recording, Piece } from "@/types/entities.types.ts";
 import { ItemCard } from "@/components/shared/ItemCard.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
@@ -9,6 +8,7 @@ import {
     TooltipTrigger,
     TooltipContent,
 } from "@/components/ui/tooltip.tsx";
+import { useFetchSessions } from "@/hooks/queries/useFetchSessions.ts";
 
 function PiecesList({ pieces }: { pieces: Piece[] }) {
     const maxVisible = 1;
@@ -61,36 +61,36 @@ function PiecesList({ pieces }: { pieces: Piece[] }) {
     );
 }
 
-interface RecordingsListProps {
-    onOpenRecording: (recording: Recording) => void;
-    onEdit: (recording: Recording) => void;
-    onDelete: (recording: Recording) => void;
+interface SessionsListProps {
+    onOpenRecording: (session: Recording) => void;
+    onEdit: (session: Recording) => void;
+    onDelete: (session: Recording) => void;
 }
 
-export default function RecordingsList({
+export default function SessionsList({
     onOpenRecording,
     onEdit,
     onDelete,
-}: RecordingsListProps) {
-    const { recordings } = useFetchRecordings();
+}: SessionsListProps) {
+    const { sessions } = useFetchSessions();
 
-    const handleEdit = (recording: Recording, e: React.MouseEvent) => {
+    const handleEdit = (session: Recording, e: React.MouseEvent) => {
         e.stopPropagation();
-        onEdit(recording);
+        onEdit(session);
     };
 
-    const handleDelete = (recording: Recording, e: React.MouseEvent) => {
+    const handleDelete = (session: Recording, e: React.MouseEvent) => {
         e.stopPropagation();
-        onDelete(recording);
+        onDelete(session);
     };
 
     return (
         <div className="grid gap-2">
-            {recordings.map((recording) => (
+            {sessions.map((session) => (
                 <ItemCard
-                    key={recording.id}
-                    title={recording.name || "Untitled"}
-                    subtitle={recording.performer || "—"}
+                    key={session.id}
+                    title={session.name || "Untitled"}
+                    subtitle={session.performer || "—"}
                     centerContent={
                         <div className="flex gap-6">
                             <div className="flex items-center">
@@ -98,20 +98,20 @@ export default function RecordingsList({
                             </div>
                             {/* Pieces List */}
                             <PiecesList
-                                pieces={(recording.recording_pieces || []).map(
+                                pieces={(session.session_pieces || []).map(
                                     (rp: { pieces: Piece }) => rp.pieces,
                                 )}
                             />
                         </div>
                     }
-                    tags={recording.key ? [{ text: recording.key }] : []}
+                    tags={session.key ? [{ text: session.key }] : []}
                     actions={[
                         // {
                         //     icon: <Play className="h-4 w-4 ml-0.5" />,
                         //     label: "Play",
                         //     onClick: (e) => {
                         //         e.stopPropagation();
-                        //         onOpenRecording(recording);
+                        //         onOpenRecording(session);
                         //     },
                         //     className:
                         //         "bg-green-500 hover:bg-green-400 text-black hover:scale-105",
@@ -119,15 +119,15 @@ export default function RecordingsList({
                         {
                             icon: <Edit className="h-4 w-4" />,
                             label: "Edit",
-                            onClick: (e) => handleEdit(recording, e),
+                            onClick: (e) => handleEdit(session, e),
                         },
                         {
                             icon: <Trash2 className="h-4 w-4" />,
                             label: "Delete",
-                            onClick: (e) => handleDelete(recording, e),
+                            onClick: (e) => handleDelete(session, e),
                         },
                     ]}
-                    onClick={() => onOpenRecording(recording)}
+                    onClick={() => onOpenRecording(session)}
                 />
             ))}
         </div>

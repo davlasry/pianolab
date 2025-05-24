@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { supabase } from "@/supabase.ts";
 
-export const useDeleteRecording = () => {
+export const useDeleteSession = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -11,7 +11,7 @@ export const useDeleteRecording = () => {
 
         try {
             const { error } = await supabase
-                .from("recordings")
+                .from("sessions")
                 .delete()
                 .eq("id", id);
 
@@ -20,9 +20,7 @@ export const useDeleteRecording = () => {
             return true;
         } catch (err) {
             const errorMessage =
-                err instanceof Error
-                    ? err.message
-                    : "Failed to delete recording";
+                err instanceof Error ? err.message : "Failed to delete session";
             setError(errorMessage);
             return false;
         } finally {
