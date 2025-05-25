@@ -1,9 +1,7 @@
 import { useRef } from "react";
-import { Keyboard } from "@/components/Player/Keyboard/components/Keyboard";
 import { CurrentChord } from "@/components/Player/CurrentChord.tsx";
 import { usePlayerContext } from "@/components/Player/context/PlayerContext";
 import Controls from "@/components/Player/Controls/Controls.tsx";
-import { realistic } from "@/components/Player/Keyboard/presets";
 import Timeline, {
     type TimelineHandle,
 } from "@/components/Player/Timeline/Timeline.tsx";
@@ -42,7 +40,7 @@ export const PlayerContent = () => {
             </div>
 
             <div className="flex flex-col">
-                <Keyboard activeNotes={activeNotes} components={realistic} />
+                {/*<Keyboard activeNotes={activeNotes} components={realistic} />*/}
                 <div className="flex">
                     <Controls handleMoveToBeginning={handleMoveToBeginning} />
                     <CurrentChord chord={activeChord} />
