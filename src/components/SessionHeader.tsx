@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
-import type { Session } from "@/types/entities.types";
+import type { Session } from "@/types/entities.types.ts";
 
 interface SessionHeaderProps {
     session: Session | null;

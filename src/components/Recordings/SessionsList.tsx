@@ -1,5 +1,5 @@
 import { Clock, Edit, Trash2, Plus } from "lucide-react";
-import type { Recording, Piece } from "@/types/entities.types.ts";
+import type { Session, Piece } from "@/types/entities.types.ts";
 import { ItemCard } from "@/components/shared/ItemCard.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
 import {
@@ -62,9 +62,9 @@ function PiecesList({ pieces }: { pieces: Piece[] }) {
 }
 
 interface SessionsListProps {
-    onOpenRecording: (session: Recording) => void;
-    onEdit: (session: Recording) => void;
-    onDelete: (session: Recording) => void;
+    onOpenRecording: (session: Session) => void;
+    onEdit: (session: Session) => void;
+    onDelete: (session: Session) => void;
 }
 
 export default function SessionsList({
@@ -74,12 +74,12 @@ export default function SessionsList({
 }: SessionsListProps) {
     const { sessions } = useFetchSessions();
 
-    const handleEdit = (session: Recording, e: React.MouseEvent) => {
+    const handleEdit = (session: Session, e: React.MouseEvent) => {
         e.stopPropagation();
         onEdit(session);
     };
 
-    const handleDelete = (session: Recording, e: React.MouseEvent) => {
+    const handleDelete = (session: Session, e: React.MouseEvent) => {
         e.stopPropagation();
         onDelete(session);
     };

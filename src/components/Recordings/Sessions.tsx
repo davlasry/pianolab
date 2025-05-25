@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useDeleteSession } from "@/hooks/queries/useDeleteSession.ts";
 import { RecordingFormModal } from "@/components/Recordings/SessionFormModal.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import type { Recording } from "@/types/entities.types.ts";
+import type { Session } from "@/types/entities.types.ts";
 import { Plus } from "lucide-react";
 import {
     AlertDialog,
@@ -25,10 +25,10 @@ export const Sessions = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState<"create" | "edit">("create");
     const [selectedRecording, setSelectedRecording] = useState<
-        Recording | undefined
+        Session | undefined
     >(undefined);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-    const [sessionToDelete, setRecordingToDelete] = useState<Recording | null>(
+    const [sessionToDelete, setRecordingToDelete] = useState<Session | null>(
         null,
     );
 
@@ -38,7 +38,7 @@ export const Sessions = () => {
         setIsModalOpen(true);
     };
 
-    const openEditModal = (session: Recording) => {
+    const openEditModal = (session: Session) => {
         setModalMode("edit");
         setSelectedRecording(session);
         setIsModalOpen(true);
@@ -46,7 +46,7 @@ export const Sessions = () => {
 
     const closeModal = () => setIsModalOpen(false);
 
-    const handleDeleteRecording = (session: Recording) => {
+    const handleDeleteRecording = (session: Session) => {
         setRecordingToDelete(session);
         setDeleteDialogOpen(true);
     };
@@ -67,7 +67,7 @@ export const Sessions = () => {
         setRecordingToDelete(null);
     };
 
-    const handleRecordingClick = (session: Recording) => {
+    const handleRecordingClick = (session: Session) => {
         navigate(`/session/${session.id}`);
     };
 

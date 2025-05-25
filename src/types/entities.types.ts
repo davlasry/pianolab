@@ -1,7 +1,7 @@
 import type { Database } from "src/types/database.types.ts";
 
-export type Recording = Database["public"]["Tables"]["sessions"]["Row"];
-export type RecordingWithPieces = Recording & {
+export type Session = Database["public"]["Tables"]["sessions"]["Row"];
+export type RecordingWithPieces = Session & {
     session_pieces: Array<{
         pieces: Piece;
     }>;

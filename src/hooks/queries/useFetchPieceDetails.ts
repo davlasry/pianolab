@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/supabase.ts";
-import type { Piece, Recording } from "@/types/entities.types.ts";
+import type { Piece, Session } from "@/types/entities.types.ts";
 
 interface UseFetchPieceDetailsResult {
     piece: Piece | null;
-    sessions: Recording[];
+    sessions: Session[];
     loading: boolean;
 }
 
@@ -12,7 +12,7 @@ export const useFetchPieceDetails = (
     pieceId: string | undefined,
 ): UseFetchPieceDetailsResult => {
     const [piece, setPiece] = useState<Piece | null>(null);
-    const [sessions, setSessions] = useState<Recording[]>([]);
+    const [sessions, setSessions] = useState<Session[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -39,7 +39,7 @@ export const useFetchPieceDetails = (
                 setPiece(data);
                 setSessions(
                     data.session_pieces.map(
-                        (rp: { sessions: Recording }) => rp.sessions,
+                        (rp: { sessions: Session }) => rp.sessions,
                     ),
                 );
             } catch (error) {

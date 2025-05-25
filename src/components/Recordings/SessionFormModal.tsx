@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge.tsx";
 import { useCreateRecording } from "@/hooks/queries/useCreateRecording.ts";
 import { useUpdateSession } from "@/hooks/queries/useUpdateSession.ts";
 import { useUploadFile } from "@/hooks/queries/useUploadFile.ts";
-import type { InsertRecording, Recording } from "@/types/entities.types.ts";
+import type { InsertRecording, Session } from "@/types/entities.types.ts";
 import { useFetchPieces } from "@/hooks/queries/useFetchPieces.ts";
 import { supabase } from "@/supabase.ts";
 import { MultiSelect } from "@/components/ui/multi-select";
@@ -13,7 +13,7 @@ interface RecordingFormModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess?: () => void;
-    session?: Recording; // For edit mode
+    session?: Session; // For edit mode
     mode: "create" | "edit";
 }
 
@@ -170,7 +170,7 @@ export const RecordingFormModal = ({
             midiUrl = session.midi_url;
         }
 
-        const sessionData: Partial<Recording> = {
+        const sessionData: Partial<Session> = {
             performer: formData.performer || null,
             key: formData.key || null,
             name: formData.name || null,

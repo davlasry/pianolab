@@ -33,16 +33,26 @@ const SessionContent = () => {
     }
 
     return (
-        <div>
-            <SessionHeader
-                session={session}
-                onOpenEditModal={handleOpenEditModal}
-            />
-            <LinkedPiecesDisplay
-                pieces={linkedPieces}
-                isLoading={piecesLoading}
-            />
-            <PlayerContent />
+        <>
+            <div className="flex flex-col flex-1 overflow-hidden">
+                <div className="p-4">
+                    <SessionHeader
+                        session={session}
+                        onOpenEditModal={handleOpenEditModal}
+                    />
+                    <LinkedPiecesDisplay
+                        pieces={linkedPieces}
+                        isLoading={piecesLoading}
+                    />
+                </div>
+
+                <div className="flex flex-1">
+                    <div className="flex flex-1">
+                        <PlayerContent />
+                    </div>
+                </div>
+            </div>
+
             <RecordingFormModal
                 isOpen={isEditModalOpen}
                 onClose={handleCloseEditModal}
@@ -50,7 +60,7 @@ const SessionContent = () => {
                 session={session}
                 mode="edit"
             />
-        </div>
+        </>
     );
 };
 
@@ -69,10 +79,8 @@ export const SessionView = () => {
     }
 
     return (
-        <div>
-            <PlayerProvider>
-                <SessionContent />
-            </PlayerProvider>
-        </div>
+        <PlayerProvider>
+            <SessionContent />
+        </PlayerProvider>
     );
 };

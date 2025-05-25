@@ -28,13 +28,11 @@ export const PlayerContent = () => {
     };
 
     return (
-        <>
-            <div className="flex items-center mb-4 gap-2">
-                <Controls handleMoveToBeginning={handleMoveToBeginning} />
-                <CurrentChord chord={activeChord} />
-            </div>
-
-            <div className="mb-6">
+        <div
+            className="flex flex-col flex-1 overflow-hidden"
+            data-testid="player-content"
+        >
+            <div className="flex flex-col flex-1 mb-6">
                 <Timeline
                     duration={audioDuration}
                     onSeek={seek}
@@ -43,7 +41,13 @@ export const PlayerContent = () => {
                 />
             </div>
 
-            <Keyboard activeNotes={activeNotes} components={realistic} />
-        </>
+            <div className="flex flex-col">
+                <Keyboard activeNotes={activeNotes} components={realistic} />
+                <div className="flex">
+                    <Controls handleMoveToBeginning={handleMoveToBeginning} />
+                    <CurrentChord chord={activeChord} />
+                </div>
+            </div>
+        </div>
     );
 };

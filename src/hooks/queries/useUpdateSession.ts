@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { supabase } from "@/supabase.ts";
-import type { Recording } from "@/types/entities.types.ts";
+import type { Session } from "@/types/entities.types.ts";
 
 export const useUpdateSession = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const updateRecording = async (id: string, updates: Partial<Recording>) => {
+    const updateRecording = async (id: string, updates: Partial<Session>) => {
         setIsLoading(true);
         setError(null);
 

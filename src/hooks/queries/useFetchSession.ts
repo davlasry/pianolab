@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/supabase.ts";
-import type { Recording } from "@/types/entities.types.ts";
+import type { Session } from "@/types/entities.types.ts";
 
 export const useFetchSession = (sessionId: string | undefined) => {
-    const [session, setRecording] = useState<Recording | null>(null);
+    const [session, setRecording] = useState<Session | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
