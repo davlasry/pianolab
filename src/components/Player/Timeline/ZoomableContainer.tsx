@@ -1,12 +1,13 @@
-import type { MouseEvent, WheelEvent, ReactNode } from "react";
+import type { MouseEvent, WheelEvent, ReactNode, DragEvent } from "react";
 
 interface ZoomableContainerProps {
     outerRef: React.RefObject<HTMLDivElement | null>;
     innerRef: React.RefObject<HTMLDivElement | null>;
     zoomLevel: number;
-    height: number;
     onWheel: (e: WheelEvent<HTMLDivElement>) => void;
     onClick: (e: MouseEvent<HTMLDivElement>) => void;
+    onDragOver?: (e: DragEvent<HTMLDivElement>) => void;
+    onDrop?: (e: DragEvent<HTMLDivElement>) => void;
     children: ReactNode;
 }
 
@@ -14,23 +15,25 @@ export function ZoomableContainer({
     outerRef,
     innerRef,
     zoomLevel,
-    height,
     onWheel,
     onClick,
+    onDragOver,
+    onDrop,
     children,
 }: ZoomableContainerProps) {
     return (
         <div
             ref={outerRef}
-            className="relative w-full overflow-x-auto bg-muted"
+            className="relative w-full overflow-x-auto bg-muted h-34"
         >
             <div
                 ref={innerRef}
                 onWheel={onWheel}
                 onClick={onClick}
-                className="relative bg-muted overflow-hidden"
+                onDragOver={onDragOver}
+                onDrop={onDrop}
+                className="relative h-full bg-muted overflow-hidden"
                 style={{
-                    height,
                     width: `${100 * zoomLevel}%`,
                     minWidth: "100%",
                 }}

@@ -37,7 +37,7 @@ export function ItemCard({
 }: ItemCardProps) {
     return (
         <Card
-            className="overflow-hidden border-0 bg-card/70 hover:bg-card/90 transition-all duration-200 cursor-pointer py-4 px-0"
+            className="overflow-hidden border-0 bg-secondary/50 hover:bg-secondary/9 0 transition-all duration-200 cursor-pointer py-4 px-0"
             onClick={onClick}
         >
             <div className="flex items-center px-4">

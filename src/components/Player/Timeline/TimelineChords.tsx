@@ -1,27 +1,61 @@
-import { chordProgression } from "@/components/Player/hooks/useChordProgression.ts";
+import type { DragEvent, RefObject } from "react";
+import type { Chord } from "@/components/Player/hooks/useChordProgression";
+import { TimelineChord } from "@/components/Player/Timeline/TimelineChord.tsx";
+import { useDragTimelineChord } from "@/components/Player/Timeline/hooks/useDragTimelineChord.ts";
+
+export interface IEnrichedChord extends Chord {
+    originalStartTime: number;
+    originalDuration: number;
+    originalIndex: number;
+}
 
 interface Props {
     totalDuration: number;
+    chordProgression: Chord[];
+    isCurrentChord: boolean;
+    isEditMode?: boolean;
+    onChordUpdate: (index: number, duration: number, startTime: number) => void;
+    timelineRef: RefObject<HTMLDivElement | null>;
 }
 
-export const TimelineChords = ({ totalDuration }: Props) => {
+export const TimelineChords = ({
+    totalDuration,
+    chordProgression,
+    isCurrentChord,
+    isEditMode = true,
+    onChordUpdate = () => {},
+    timelineRef,
+}: Props) => {
+    const { dragChord, isDragging, handleChordMouseDown, enrichedChords } =
+        useDragTimelineChord({
+            isEditMode,
+            onChordUpdate,
+            totalDuration,
+            timelineRef,
+            chordProgression,
+        });
+
     if (totalDuration <= 0) return null;
 
-    return chordProgression.map((chord, index) => {
-        if (!chord.chord) return null; // Skip empty chords
+    const handleDragStart = (e: DragEvent<HTMLDivElement>, index: number) => {
+        e.dataTransfer.setData("application/reactflow", index.toString());
+        e.dataTransfer.effectAllowed = "move";
+    };
 
-        const percent = (chord.time / totalDuration) * 100;
-
+    return enrichedChords.map((chord, index) => {
         return (
-            <div
-                key={`chord-${index}`}
-                className="absolute top-1/2 transform -translate-y-1/2"
-                style={{ left: `${percent}%` }}
-            >
-                <div className="bg-accent text-accent-foreground px-2 py-1 rounded text-xs whitespace-nowrap">
-                    {chord.chord}
-                </div>
-            </div>
+            <TimelineChord
+                key={index}
+                index={index}
+                chord={chord}
+                isCurrentChord={isCurrentChord}
+                totalDuration={totalDuration}
+                handleDragStart={handleDragStart}
+                dragChord={dragChord}
+                isDragging={isDragging}
+                isEditMode={isEditMode}
+                handleChordMouseDown={handleChordMouseDown}
+            ></TimelineChord>
         );
     });
 };

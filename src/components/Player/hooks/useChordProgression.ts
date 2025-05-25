@@ -1,22 +1,50 @@
-export const useChordProgression = () => {
-    const chordProgression = [
-        { chord: "Cmaj", duration: "4n", time: 0 },
-        { chord: "Gmaj", duration: "4n", time: 4 },
-        { chord: "Am", duration: "4n", time: 8 },
-        { chord: "Fmaj", duration: "4n", time: 12 },
-    ];
+import { useState, useCallback } from "react";
 
-    return chordProgression;
+export interface Chord {
+    label: string;
+    startTime: number;
+    duration: number;
+}
+
+const initialChordProgression: Chord[] = [
+    { label: "F#m", startTime: 0, duration: 2 },
+    { label: "C#7b9", startTime: 2, duration: 2 },
+    { label: "F#m", startTime: 4, duration: 2 },
+    { label: "B7#11", startTime: 6, duration: 2 },
+    { label: "E", startTime: 8, duration: 2 },
+    { label: "A7", startTime: 10, duration: 2 },
+    { label: "Abm", startTime: 12, duration: 2 },
+    { label: "Gdim7", startTime: 14, duration: 2 },
+    { label: "", startTime: 16, duration: 2 },
+];
+
+export const useChordProgressionState = () => {
+    const [chordProgression, setChordProgression] = useState<Chord[]>(
+        initialChordProgression,
+    );
+
+    const updateChordTime = useCallback(
+        (index: number, _duration: number, newTime: number) => {
+            console.log(
+                `Updating chord at index ${index} to new time ${newTime}`,
+            );
+            setChordProgression((currentProgression) => {
+                console.log("currentProgression =====>", currentProgression);
+                return currentProgression.map((chord, i) =>
+                    i === index ? { ...chord, startTime: newTime } : chord,
+                );
+            });
+        },
+        [],
+    );
+
+    // Function to get the initial progression if needed elsewhere non-reactively
+    // Or simply export initialChordProgression if that's preferred
+    const getInitialChordProgression = () => initialChordProgression;
+
+    return { chordProgression, updateChordTime, getInitialChordProgression };
 };
 
-export const chordProgression = [
-    { chord: "F#m", time: 0 },
-    { chord: "C#7b9", time: 2.2 },
-    { chord: "F#m", time: 3.5 },
-    { chord: "B7#11", time: 5.5 },
-    { chord: "E", time: 7 },
-    { chord: "A7", time: 10.5 },
-    { chord: "Abm", time: 13 },
-    { chord: "Gdim7", time: 15 },
-    { chord: "", time: 16 },
-];
+// Exporting the initial array directly for any non-React parts that might still use it.
+// If all consumers will be React components, this can be removed.
+export const chordProgression = initialChordProgression;

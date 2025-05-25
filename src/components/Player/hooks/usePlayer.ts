@@ -94,8 +94,8 @@ export const usePlayer = (notes: Note[]) => {
 
     const buildChordProgressionPart = useCallback(() => {
         const events = chordProgression.map((n) => ({
-            time: n.time,
-            chord: n.chord,
+            time: n.startTime,
+            chord: n.label,
         }));
 
         // dispose the old part if we rebuild
@@ -198,9 +198,9 @@ export const usePlayer = (notes: Note[]) => {
         const last = chordProgression
             .slice()
             .reverse()
-            .find((e) => e.time <= time);
+            .find((e) => e.startTime <= time);
 
-        if (last) setActiveChord(last.chord);
+        if (last) setActiveChord(last.label);
     }, []);
 
     const seekToBeginning = useCallback(() => {

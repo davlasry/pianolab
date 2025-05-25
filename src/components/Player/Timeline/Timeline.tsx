@@ -4,13 +4,13 @@ import { useTimelineZoom } from "@/components/Player/Timeline/useTimelineZoom";
 import { useThrottle } from "@/components/Player/Timeline/useThrottle";
 import { ZoomableContainer } from "@/components/Player/Timeline/ZoomableContainer";
 import { Playhead } from "@/components/Player/Timeline/Playhead";
-import { TimelineTicks } from "@/components/Player/Timeline/TimelineTicks";
 import { TimelineChords } from "@/components/Player/Timeline/TimelineChords";
 import { TimelineZoomControls } from "@/components/Player/Timeline/TimelineZoomControls";
 import { TimelineSelection } from "@/components/Player/Timeline/TimelineSelection";
 import { TimelineSelectionControls } from "@/components/Player/Timeline/TimelineSelectionControls";
 import { useTimelineSelection } from "@/components/Player/Timeline/hooks/useTimelineSelection";
 import type { TransportState } from "@/components/Player/hooks/useTransportState";
+import { useChordProgressionState } from "@/components/Player/hooks/useChordProgression";
 
 export interface TimelineHandle {
     scrollToBeginning: () => void;
@@ -26,7 +26,7 @@ export interface TimelineProps {
 }
 
 const Timeline = (
-    { duration, height = 80, onSeek, transportState }: TimelineProps,
+    { duration, onSeek, transportState }: TimelineProps,
     ref: Ref<TimelineHandle>,
 ) => {
     const outerRef = useRef<HTMLDivElement>(null);
@@ -43,6 +43,8 @@ const Timeline = (
         handleResetSelection,
         isSelectionComplete,
     } = useTimelineSelection({ duration, onSeek });
+
+    const { chordProgression, updateChordTime } = useChordProgressionState();
 
     // Expose imperative API
     useImperativeHandle(
@@ -113,12 +115,18 @@ const Timeline = (
                     outerRef={outerRef}
                     innerRef={containerRef}
                     zoomLevel={zoomLevel}
-                    height={height}
                     onWheel={onWheel}
                     onClick={onClick}
                 >
-                    <TimelineTicks totalDuration={duration} />
-                    <TimelineChords totalDuration={duration} />
+                    {/*<TimelineTicks totalDuration={duration} />*/}
+                    <TimelineChords
+                        totalDuration={duration}
+                        chordProgression={chordProgression}
+                        isCurrentChord={false}
+                        isEditMode={true}
+                        onChordUpdate={updateChordTime}
+                        timelineRef={containerRef}
+                    />
 
                     <TimelineSelection
                         selectionStart={selectionStart}
