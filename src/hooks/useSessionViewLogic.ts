@@ -13,40 +13,25 @@ export const useSessionViewLogic = () => {
 
     useEffect(() => {
         const fetchLinkedPieces = async () => {
-            if (sessionId) {
-                setPiecesLoading(true);
-                try {
-                    const {
-                        data: sessionPiecesData,
-                        error: sessionPiecesError,
-                    } = await supabase
-                        .from("session_pieces")
-                        .select("piece_id")
-                        .eq("session_id", sessionId);
+            if (!sessionId) return;
 
-                    if (sessionPiecesError) throw sessionPiecesError;
+            setPiecesLoading(true);
+            try {
+                // session_pieces.piece_id → pieces.id must be a FK
+                const { data, error } = await supabase
+                    .from("session_pieces")
+                    .select("pieces(*)") // nested join
+                    .eq("session_id", sessionId);
 
-                    if (sessionPiecesData && sessionPiecesData.length > 0) {
-                        const pieceIds = sessionPiecesData.map(
-                            (rp) => rp.piece_id,
-                        );
-                        const { data: piecesData, error: piecesError } =
-                            await supabase
-                                .from("pieces")
-                                .select("*")
-                                .in("id", pieceIds);
+                if (error) throw error;
 
-                        if (piecesError) throw piecesError;
-                        setLinkedPieces(piecesData || []);
-                    } else {
-                        setLinkedPieces([]);
-                    }
-                } catch (e) {
-                    console.error("Error fetching linked pieces:", e);
-                    setLinkedPieces([]);
-                } finally {
-                    setPiecesLoading(false);
-                }
+                // flatten the nested rows
+                setLinkedPieces(data?.map((r) => r.pieces) ?? []);
+            } catch (e) {
+                console.error("Error fetching linked pieces:", e);
+                setLinkedPieces([]);
+            } finally {
+                setPiecesLoading(false);
             }
         };
 
