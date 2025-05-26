@@ -77,19 +77,20 @@ const Timeline = (
         (e: MouseEvent<HTMLDivElement>) => {
             if (!containerRef.current) return;
             const rect = containerRef.current.getBoundingClientRect();
-            const pct = (e.clientX - rect.left) / rect.width;
-            const t = pct * duration;
+            const percent = (e.clientX - rect.left) / rect.width;
+            const time = percent * duration;
 
-            if (!Number.isFinite(t) || t < 0) return;
+            if (!Number.isFinite(time) || time < 0) return;
 
             // Always seek to clicked position
-            onSeek(t);
+            onSeek(time);
 
             // Set end time if we have a start time
-            handleSetEndTime(t);
+            handleSetEndTime(time);
 
             if (barRef.current) {
-                barRef.current.style.transform = `translateX(${pct * 100}%)`;
+                const x = percent * containerRef.current.scrollWidth;
+                barRef.current.style.transform = `translateX(${x}px)`;
             }
         },
         [duration, onSeek, handleSetEndTime],
