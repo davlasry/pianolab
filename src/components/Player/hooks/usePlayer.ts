@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import * as Tone from "tone";
 import type { Note } from "@/components/Player/hooks/useMidiNotes.ts";
-import { chordProgression } from "@/components/Player/hooks/useChordProgression.ts";
+import { initialChordProgression } from "@/components/Player/hooks/useChordProgression.ts";
 import { useTransportState } from "@/components/Player/hooks/useTransportState.ts";
 import { transportTicker } from "@/TransportTicker/transportTicker.ts";
 
@@ -91,7 +91,7 @@ export const usePlayer = (notes: Note[]) => {
     }, [notes]);
 
     const buildChordProgressionPart = useCallback(() => {
-        const events = chordProgression.map((n) => ({
+        const events = initialChordProgression.map((n) => ({
             time: n.startTime,
             chord: n.label,
         }));
@@ -194,7 +194,7 @@ export const usePlayer = (notes: Note[]) => {
         transportTicker.set(time);
 
         // find last played chord before the time
-        const last = chordProgression
+        const last = initialChordProgression
             .slice()
             .reverse()
             .find((e) => e.startTime <= time);

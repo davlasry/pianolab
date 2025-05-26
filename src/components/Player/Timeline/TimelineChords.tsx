@@ -57,8 +57,9 @@ export const TimelineChords = ({
         <div ref={timelineRef} className="relative h-full w-full">
             {enrichedChords.map((chord, i) => (
                 <TimelineChord
-                    chord={chord}
+                    key={i}
                     i={i}
+                    chord={chord}
                     pxPerUnit={pxPerUnit}
                     isEditMode={isEditMode}
                     onChordUpdate={onChordUpdate}

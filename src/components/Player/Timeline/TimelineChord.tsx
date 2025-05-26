@@ -38,11 +38,14 @@ export const TimelineChord = ({
             onCommit={(id: number | string, start: number, duration: number) =>
                 onChordUpdate(id as number, duration, start)
             }
+            onChange={(id: number | string, start: number, duration: number) =>
+                onChordUpdate(id as number, duration, start)
+            }
             className={cn(
                 "absolute flex flex-col items-center justify-center p-2 rounded-2xl transition-colors duration-200 z-10",
                 isCurrentChord
                     ? "bg-accent border border-zinc-600"
-                    : "bg-accent/60 border border-zinc-800/50",
+                    : "bg-accent/40 border border-zinc-800/50",
                 isEditMode && "group",
                 isEditMode && "cursor-move",
             )}

@@ -69,8 +69,6 @@ export const useUploadFile = () => {
             // Set progress to 100% when done
             setUploadProgress(100);
 
-            console.log("Upload successful to:", url);
-
             // Return the URL where the file can be accessed
             // For S3, this is typically the URL without the query parameters
             const publicUrl = url.split("?")[0];

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import { cn } from "@/lib/utils.ts";
 
 /**
@@ -21,6 +21,7 @@ export interface DraggableResizableBlockProps {
     className?: string; // base classes
     draggingClassName?: string; // applied **only while dragging**
     children?: React.ReactNode;
+    onChange?: (id: string | number, start: number, duration: number) => void; // 🆕 fires during drag
 }
 
 export default function DraggableResizableBlock({
@@ -33,6 +34,7 @@ export default function DraggableResizableBlock({
     className = "",
     draggingClassName = "",
     children,
+    onChange,
 }: DraggableResizableBlockProps) {
     /* --------------------------------------------------
      * Refs & local state
@@ -52,6 +54,20 @@ export default function DraggableResizableBlock({
     const [isDragging, setIsDragging] = useState(false);
 
     const pxToUnits = (dxPx: number) => dxPx / pixelsPerUnit;
+
+    /* ---------- keep ref & DOM in sync when *not* dragging ---------- */
+    useEffect(() => {
+        if (isDragging) return; // ignore while user drags
+
+        live.current.x = start;
+        live.current.w = duration;
+
+        const el = blockRef.current;
+        if (el) {
+            el.style.transform = `translateX(${start * pixelsPerUnit}px)`;
+            el.style.width = `${duration * pixelsPerUnit}px`;
+        }
+    }, [start, duration, pixelsPerUnit, isDragging]);
 
     /* --------------------------------------------------
      * Commit final position
@@ -101,6 +117,11 @@ export default function DraggableResizableBlock({
                 live.current.initW - dxUnits,
             );
         }
+
+        if (onChange) {
+            onChange(id, live.current.x, live.current.w);
+        }
+
         el.style.transform = `translateX(${live.current.x * pixelsPerUnit}px)`;
         el.style.width = `${live.current.w * pixelsPerUnit}px`;
     };

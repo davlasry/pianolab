@@ -21,7 +21,6 @@ export const useMidiNotes = () => {
             url = "/pianolab/sample.mid",
         ) => {
             try {
-                console.log("Loading MIDI from:", url);
                 const midi = await Midi.fromUrl(url);
 
                 const parsed: Note[] = midi.tracks.flatMap((t) =>

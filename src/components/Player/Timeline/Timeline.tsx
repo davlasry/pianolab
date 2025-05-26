@@ -126,7 +126,6 @@ const Timeline = (
                         isEditMode={true}
                         onChordUpdate={updateChordTime}
                         timelineRef={containerRef}
-                        // currentTime={currentTime}
                     />
 
                     <TimelineSelection

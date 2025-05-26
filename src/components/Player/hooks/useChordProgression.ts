@@ -6,7 +6,7 @@ export interface Chord {
     duration: number;
 }
 
-const initialChordProgression: Chord[] = [
+export const initialChordProgression: Chord[] = [
     { label: "F#m", startTime: 0, duration: 2 },
     { label: "C#7b9", startTime: 2, duration: 2 },
     { label: "F#m", startTime: 4, duration: 2 },
@@ -18,31 +18,109 @@ const initialChordProgression: Chord[] = [
     { label: "", startTime: 16, duration: 2 },
 ];
 
+/*───────────────────────────────────────────────────────────────
+  Helper: collision-aware update
+───────────────────────────────────────────────────────────────*/
+function applyNoOverlapRule(
+    prog: Chord[],
+    i: number, // chord being edited
+    newStart: number,
+    newDur: number,
+    minDur = 0.1,
+): Chord[] {
+    const chords = prog.map((c) => ({ ...c })); // shallow copy
+
+    const prev = chords[i - 1] ?? null;
+    const curr = chords[i];
+    const next = chords[i + 1] ?? null;
+    const nextWall = chords[i + 2] ?? null;
+
+    if (next) {
+        // if nextWall is defined, we can also check if next is allowed to move
+        if (nextWall && next.startTime + next.duration > nextWall.startTime) {
+            // If next is not allowed to move, we can skip this step
+            return chords;
+        }
+    }
+
+    /*──────────────── 1. apply the user’s edit ────────────────*/
+    curr.startTime = newStart;
+    curr.duration = newDur;
+
+    /*──────────────── 2. resolve overlap with *previous* only ─*/
+    if (prev) {
+        const overlapLeft = prev.startTime + prev.duration - curr.startTime; // positive = clash
+
+        if (overlapLeft > 0) {
+            // How much can we shorten prev without dropping below minDur?
+            const shrinkable = Math.max(0, prev.duration - minDur);
+
+            if (overlapLeft <= shrinkable) {
+                prev.duration -= overlapLeft;
+            } else {
+                // 2-step: shrink to minDur, then shift prev left for the rest
+                prev.duration = minDur;
+                const shiftLeft = overlapLeft - shrinkable;
+                prev.startTime = Math.max(0, prev.startTime - shiftLeft);
+                //  ^ if this hits 0 it simply butts against timeline start;
+                //    we *do not* keep walking further back
+            }
+        }
+    }
+
+    /*──── 3. resolve overlap with *next* (shift, don’t shrink) ───*/
+    if (next) {
+        const overlapRight = curr.startTime + curr.duration - next.startTime;
+
+        // if nextWall is defined, we can also check if next is allowed to move
+        if (nextWall && next.startTime + next.duration > nextWall.startTime) {
+            // If next is not allowed to move, we can skip this step
+            return chords;
+        }
+
+        if (overlapRight > 0) {
+            // Keep next’s full duration, just move it forward
+            next.startTime += overlapRight;
+            next.duration = Math.max(minDur, next.duration - overlapRight);
+
+            /* optional: clamp so the gap between next & curr is exactly zero */
+            if (next.startTime < curr.startTime + curr.duration) {
+                next.startTime = curr.startTime + curr.duration;
+            }
+        }
+    }
+
+    return chords;
+}
+
+/*───────────────────────────────────────────────────────────────
+  React hook
+───────────────────────────────────────────────────────────────*/
 export const useChordProgressionState = () => {
     const [chordProgression, setChordProgression] = useState<Chord[]>(
         initialChordProgression,
     );
 
+    /**
+     * Move or resize a single chord *with* collision-avoidance.
+     * @param index      which chord in the array
+     * @param duration   new duration (timeline units)
+     * @param newStart   new start-time (timeline units)
+     */
     const updateChordTime = useCallback(
-        (index: number, _duration: number, newTime: number) => {
-            setChordProgression((currentProgression) => {
-                return currentProgression.map((chord, i) =>
-                    i === index
-                        ? { ...chord, startTime: newTime, duration: _duration }
-                        : chord,
+        (index: number, duration: number, newStart: number) => {
+            setChordProgression((curr) => {
+                const result = applyNoOverlapRule(
+                    curr,
+                    index,
+                    newStart,
+                    duration,
                 );
+                return result;
             });
         },
         [],
     );
 
-    // Function to get the initial progression if needed elsewhere non-reactively
-    // Or simply export initialChordProgression if that's preferred
-    const getInitialChordProgression = () => initialChordProgression;
-
-    return { chordProgression, updateChordTime, getInitialChordProgression };
+    return { chordProgression, updateChordTime };
 };
-
-// Exporting the initial array directly for any non-React parts that might still use it.
-// If all consumers will be React components, this can be removed.
-export const chordProgression = initialChordProgression;
