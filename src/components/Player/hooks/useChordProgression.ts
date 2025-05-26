@@ -27,7 +27,9 @@ export const useChordProgressionState = () => {
         (index: number, _duration: number, newTime: number) => {
             setChordProgression((currentProgression) => {
                 return currentProgression.map((chord, i) =>
-                    i === index ? { ...chord, startTime: newTime } : chord,
+                    i === index
+                        ? { ...chord, startTime: newTime, duration: _duration }
+                        : chord,
                 );
             });
         },

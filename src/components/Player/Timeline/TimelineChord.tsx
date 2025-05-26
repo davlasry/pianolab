@@ -1,78 +1,54 @@
 import { cn } from "@/lib/utils.ts";
-import type { DragChord } from "@/components/Player/Timeline/hooks/useDragTimelineChord.ts";
 import type { IEnrichedChord } from "@/components/Player/Timeline/TimelineChords.tsx";
-import { useTransportTime } from "@/TransportTicker/transportTicker";
+import DraggableResizableBlock from "@/components/shared/DraggableResizableBlock.tsx";
+import { useTransportTime } from "@/TransportTicker/transportTicker.ts";
 
 interface Props {
     chord: IEnrichedChord;
-    totalDuration: number;
-    isEditMode?: boolean;
-    handleDragStart: (
-        e: React.DragEvent<HTMLDivElement>,
-        index: number,
-    ) => void;
-    handleChordMouseDown: (
-        event: React.MouseEvent,
-        chord: IEnrichedChord,
-    ) => void;
-    index: number;
-    dragChord: DragChord | null;
-    isDragging?: boolean;
-    currentTime?: number;
+    isEditMode: boolean;
+    pxPerUnit: number;
+    onChordUpdate: (index: number, duration: number, startTime: number) => void;
+    i: number; // index for key
 }
 
 export const TimelineChord = ({
     chord,
-    totalDuration,
     isEditMode,
-    handleChordMouseDown,
-    index,
-    dragChord,
-    isDragging,
+    pxPerUnit,
+    onChordUpdate,
+    i,
 }: Props) => {
     const currentTime = useTransportTime();
-
-    if (!chord.label) return null; // Skip empty chords
 
     const isCurrentChord =
         currentTime !== undefined &&
         currentTime >= chord.startTime &&
         currentTime < chord.startTime + chord.duration;
 
-    const isBeingDragged =
-        isDragging && dragChord?.index === chord.originalIndex;
-
-    // Calculate the width of a chord based on its duration within this row
-    const getChordWidth = (chord: IEnrichedChord) => {
-        return (chord.duration / totalDuration) * 100;
-    };
-
-    const width = getChordWidth(chord);
-    const left = (chord.startTime / totalDuration) * 100;
+    if (!chord.label) return null; // Skip empty chords
 
     return (
-        <div
-            key={`chord-${index}`}
+        <DraggableResizableBlock
+            key={i}
+            id={i} /* index is fine as id here */
+            start={chord.startTime} /* unit-agnostic */
+            duration={chord.duration}
+            pixelsPerUnit={pxPerUnit}
+            minDuration={0.25}
+            onCommit={(id: number | string, start: number, duration: number) =>
+                onChordUpdate(id as number, duration, start)
+            }
             className={cn(
                 "absolute flex flex-col items-center justify-center p-2 rounded-2xl transition-colors duration-200 z-10",
                 isCurrentChord
                     ? "bg-accent border border-zinc-600"
                     : "bg-accent/60 border border-zinc-800/50",
-                // !chord.isEnd && "border-r-0 rounded-r-none",
                 isEditMode && "group",
-                isBeingDragged && "ring-2 ring-white/30",
                 isEditMode && "cursor-move",
             )}
-            style={{
-                width: `${width}%`,
-                left: `${left}%`,
-                top: "20px",
-                bottom: "4px",
-            }}
-            draggable={true}
-            onMouseDown={(e) => handleChordMouseDown(e, chord)}
+            draggingClassName="ring-2 ring-white/30"
         >
             {chord.label}
-        </div>
+        </DraggableResizableBlock>
     );
 };
