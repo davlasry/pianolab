@@ -33,14 +33,11 @@ export const usePlayer = (notes: Note[]) => {
             playerRef.current?.dispose(); // if re-loading
 
             try {
-                console.log("Loading audio from:", url);
-
                 playerRef.current = new Tone.Player({
                     url,
                     autostart: false,
                     onload: () => {
                         setAudioDuration(playerRef.current!.buffer.duration);
-                        console.log("Audio loaded successfully");
                     },
                     onerror: (err) => {
                         console.error("Error loading audio:", err);

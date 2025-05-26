@@ -5,7 +5,6 @@ import { useTheme } from "@/components/theme-provider";
 
 export const Navbar = () => {
     const { theme, setTheme } = useTheme();
-    console.log("theme =====>", theme);
 
     return (
         <nav className="bg-background border-b border-border py-1.5 px-4 w-full">

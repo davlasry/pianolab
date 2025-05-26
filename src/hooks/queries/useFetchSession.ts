@@ -18,7 +18,6 @@ export const useFetchSession = (sessionId: string | undefined) => {
 
         // Skip if we've already loaded this session
         if (loadedRecordingIdRef.current === sessionId) {
-            console.log("Recording already loaded, skipping fetch");
             return session;
         }
 
@@ -26,8 +25,6 @@ export const useFetchSession = (sessionId: string | undefined) => {
         setError(null);
 
         try {
-            console.log("Fetching session with ID:", sessionId);
-
             const { data, error } = await supabase
                 .from("sessions")
                 .select("*")
@@ -39,7 +36,6 @@ export const useFetchSession = (sessionId: string | undefined) => {
             // Update our ref to indicate we've loaded this session
             loadedRecordingIdRef.current = sessionId;
 
-            console.log("Recording fetched successfully:", data);
             setRecording(data);
             return data;
         } catch (err) {
@@ -51,7 +47,7 @@ export const useFetchSession = (sessionId: string | undefined) => {
         } finally {
             setLoading(false);
         }
-    }, [sessionId]);
+    }, [session, sessionId]);
 
     useEffect(() => {
         // Only fetch if the session ID changes

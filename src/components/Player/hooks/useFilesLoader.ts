@@ -37,16 +37,12 @@ export const useFilesLoader = ({ parseMidi, loadAudio }: Props) => {
         if (assetsLoadedForIdRef.current === session.id) return;
 
         let isMounted = true;
-        console.log("Loading assets for session:", session.id);
 
         const loadAssets = async () => {
             try {
                 // Prepare URLs or use null values if not available
                 const audioUrl = session.audio_url || undefined;
                 const midiUrl = session.midi_url || undefined;
-
-                console.log("Audio URL:", audioUrl);
-                console.log("MIDI URL:", midiUrl);
 
                 // Load MIDI first, then audio (not in parallel to avoid race conditions)
                 if (midiUrl) {
@@ -60,10 +56,6 @@ export const useFilesLoader = ({ parseMidi, loadAudio }: Props) => {
                 if (isMounted) {
                     assetsLoadedForIdRef.current = session.id;
                     setReady(true);
-                    console.log(
-                        "Assets loaded successfully for session:",
-                        session.id,
-                    );
                 }
             } catch (error) {
                 console.error("Failed to load assets:", error);

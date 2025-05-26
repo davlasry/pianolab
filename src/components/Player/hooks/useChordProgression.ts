@@ -25,11 +25,7 @@ export const useChordProgressionState = () => {
 
     const updateChordTime = useCallback(
         (index: number, _duration: number, newTime: number) => {
-            console.log(
-                `Updating chord at index ${index} to new time ${newTime}`,
-            );
             setChordProgression((currentProgression) => {
-                console.log("currentProgression =====>", currentProgression);
                 return currentProgression.map((chord, i) =>
                     i === index ? { ...chord, startTime: newTime } : chord,
                 );
