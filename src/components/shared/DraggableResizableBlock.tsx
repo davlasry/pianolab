@@ -1,4 +1,5 @@
 import React, { useRef, useState, useCallback } from "react";
+import { cn } from "@/lib/utils.ts";
 
 /**
  * Generic **draggable + edge‑resizable** timeline block (unit‑agnostic).
@@ -45,6 +46,8 @@ export default function DraggableResizableBlock({
         initW: duration,
         mode: "move" as "move" | "left" | "right",
     });
+    /* `force` is a no-op state setter used purely to force a rerender
+   when we want the parent to re-evaluate derived styles.          */
     const [, force] = useState({});
     const [isDragging, setIsDragging] = useState(false);
 
@@ -98,7 +101,8 @@ export default function DraggableResizableBlock({
                 live.current.initW - dxUnits,
             );
         }
-        force({});
+        el.style.transform = `translateX(${live.current.x * pixelsPerUnit}px)`;
+        el.style.width = `${live.current.w * pixelsPerUnit}px`;
     };
 
     const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -115,13 +119,11 @@ export default function DraggableResizableBlock({
     const translateX = live.current.x * pixelsPerUnit;
     const width = live.current.w * pixelsPerUnit;
 
-    /* --------------------------------------------------
-     * Compose className & data-attr
-     * -------------------------------------------------- */
-    const combinedClassName =
-        "absolute top-0 h-full select-none " +
-        className +
-        (isDragging && draggingClassName ? " " + draggingClassName : "");
+    const combinedClassName = cn(
+        "absolute top-0 h-full select-none",
+        className,
+        isDragging && draggingClassName,
+    );
 
     return (
         <div
