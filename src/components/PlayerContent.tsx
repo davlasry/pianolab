@@ -19,9 +19,7 @@ export const PlayerContent = () => {
     } = usePlayerContext();
 
     const handleMoveToBeginning = () => {
-        // Call the seekToBeginning function from the player context
         seekToBeginning();
-        // Scroll the timeline to the beginning
         timelineRef.current?.scrollToBeginning();
     };
 

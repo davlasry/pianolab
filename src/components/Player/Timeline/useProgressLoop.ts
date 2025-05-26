@@ -7,21 +7,31 @@ export function useProgressLoop(
     duration: number,
     onFrame: (percentage: number) => void,
 ) {
-    const rafId = useRef<number>(null);
+    const rafId = useRef<number | null>(null);
 
     useEffect(() => {
-        if (!duration) return;
+        // stop/skip loop unless the transport is actively running
+        if (transportState !== "started" || !duration) {
+            if (rafId.current !== null) {
+                cancelAnimationFrame(rafId.current);
+                rafId.current = null;
+            }
+            return;
+        }
 
         const tick = () => {
             const position = Tone.getTransport().seconds;
-            const percent = Math.min(position / duration, 1);
-            onFrame(percent);
+            onFrame(Math.min(position / duration, 1));
             rafId.current = requestAnimationFrame(tick);
         };
 
         rafId.current = requestAnimationFrame(tick);
+
         return () => {
-            if (rafId.current) cancelAnimationFrame(rafId.current);
+            if (rafId.current !== null) {
+                cancelAnimationFrame(rafId.current);
+                rafId.current = null;
+            }
         };
-    }, [duration, transportState, onFrame]);
+    }, [transportState, duration, onFrame]);
 }
