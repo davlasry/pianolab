@@ -1,12 +1,13 @@
 import { useEffect, useRef } from "react";
-import * as Tone from "tone";
 import type { TransportState } from "@/components/Player/hooks/useTransportState.ts";
+import { usePlayerContext } from "@/components/Player/context/PlayerContext.tsx";
 
 export function useProgressLoop(
     transportState: TransportState | undefined,
     duration: number,
     onFrame: (percentage: number) => void,
 ) {
+    const { getTransport } = usePlayerContext();
     const rafId = useRef<number | null>(null);
 
     useEffect(() => {
@@ -20,7 +21,7 @@ export function useProgressLoop(
         }
 
         const tick = () => {
-            const position = Tone.getTransport().seconds;
+            const position = getTransport().seconds;
             onFrame(Math.min(position / duration, 1));
             rafId.current = requestAnimationFrame(tick);
         };
@@ -33,5 +34,5 @@ export function useProgressLoop(
                 rafId.current = null;
             }
         };
-    }, [transportState, duration, onFrame]);
+    }, [transportState, duration, onFrame, getTransport]);
 }
