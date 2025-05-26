@@ -13,9 +13,9 @@ export function useProgressLoop(
         if (!duration) return;
 
         const tick = () => {
-            const pos = Tone.getTransport().seconds;
-            const pct = Math.min(pos / duration, 1);
-            onFrame(pct);
+            const position = Tone.getTransport().seconds;
+            const percent = Math.min(position / duration, 1);
+            onFrame(percent);
             rafId.current = requestAnimationFrame(tick);
         };
 

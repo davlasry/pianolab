@@ -11,7 +11,7 @@ export const PlayerContent = () => {
 
     const {
         activeChord,
-        activeNotes,
+        // activeNotes,
         audioDuration,
         seek,
         seekToBeginning,
