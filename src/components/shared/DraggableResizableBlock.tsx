@@ -149,6 +149,7 @@ export default function DraggableResizableBlock({
     return (
         <div
             ref={blockRef}
+            data-component="DraggableResizableBlock"
             data-dragging={isDragging || undefined}
             className={combinedClassName}
             style={{ transform: `translateX(${translateX}px)`, width }}

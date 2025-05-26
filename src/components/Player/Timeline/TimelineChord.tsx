@@ -44,14 +44,14 @@ export const TimelineChord = ({
             className={cn(
                 "absolute flex flex-col items-center justify-center p-2 rounded-2xl transition-colors duration-200 z-10",
                 isCurrentChord
-                    ? "bg-accent border border-zinc-600"
-                    : "bg-accent/40 border border-zinc-800/50",
+                    ? "bg-primary border border-zinc-600"
+                    : "bg-accent/40 hover:bg-accent border border-foreground/20",
                 isEditMode && "group",
                 isEditMode && "cursor-move",
             )}
             draggingClassName="ring-2 ring-white/30"
         >
-            {chord.label}
+            <div className="text-2xl">{chord.label}</div>
         </DraggableResizableBlock>
     );
 };

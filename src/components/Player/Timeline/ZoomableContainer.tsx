@@ -24,7 +24,7 @@ export function ZoomableContainer({
     return (
         <div
             ref={outerRef}
-            className="relative w-full overflow-x-auto bg-muted h-34"
+            className="relative w-full overflow-x-auto bg-muted h-34 py-3"
         >
             <div
                 ref={innerRef}
