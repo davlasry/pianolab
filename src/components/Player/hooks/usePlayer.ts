@@ -3,6 +3,7 @@ import * as Tone from "tone";
 import type { Note } from "@/components/Player/hooks/useMidiNotes.ts";
 import { chordProgression } from "@/components/Player/hooks/useChordProgression.ts";
 import { useTransportState } from "@/components/Player/hooks/useTransportState.ts";
+import { transportTicker } from "@/TransportTicker/transportTicker.ts";
 
 type ActiveNote = {
     midi: number;
@@ -190,6 +191,7 @@ export const usePlayer = (notes: Note[]) => {
 
         // 2 – jump the transport
         Tone.getTransport().seconds = time;
+        transportTicker.set(time);
 
         // find last played chord before the time
         const last = chordProgression

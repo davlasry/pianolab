@@ -123,10 +123,10 @@ const Timeline = (
                     <TimelineChords
                         totalDuration={duration}
                         chordProgression={chordProgression}
-                        isCurrentChord={false}
                         isEditMode={true}
                         onChordUpdate={updateChordTime}
                         timelineRef={containerRef}
+                        // currentTime={currentTime}
                     />
 
                     <TimelineSelection

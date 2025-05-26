@@ -12,16 +12,15 @@ export interface IEnrichedChord extends Chord {
 interface Props {
     totalDuration: number;
     chordProgression: Chord[];
-    isCurrentChord: boolean;
     isEditMode?: boolean;
     onChordUpdate: (index: number, duration: number, startTime: number) => void;
     timelineRef: RefObject<HTMLDivElement | null>;
+    currentTime?: number;
 }
 
 export const TimelineChords = ({
     totalDuration,
     chordProgression,
-    isCurrentChord,
     isEditMode = true,
     onChordUpdate = () => {},
     timelineRef,
@@ -48,7 +47,6 @@ export const TimelineChords = ({
                 key={index}
                 index={index}
                 chord={chord}
-                isCurrentChord={isCurrentChord}
                 totalDuration={totalDuration}
                 handleDragStart={handleDragStart}
                 dragChord={dragChord}

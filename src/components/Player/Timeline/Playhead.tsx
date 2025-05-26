@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import * as Tone from "tone";
-import { useProgressLoop } from "@/components/Player/Timeline/useProgressLoop.ts";
 import type { TransportState } from "@/components/Player/hooks/useTransportState";
+import { useProgressPercent } from "@/TransportTicker/transportTicker.ts";
 
 const SCROLL_THRESHOLD = 0.95;
 const LEFT_MARGIN_RATIO = 0.1;
@@ -22,6 +22,7 @@ export function Playhead({
     outerRef,
 }: PlayheadProps) {
     const [outerWidth, setOuterWidth] = useState(0);
+    const percent = useProgressPercent(duration);
 
     // Keep track of container width via ResizeObserver
     useEffect(() => {
@@ -65,14 +66,14 @@ export function Playhead({
     );
 
     // Drive playhead animation + scrolling
-    useProgressLoop(transportState, duration, (pct) => {
+    useEffect(() => {
         if (barRef.current && containerRef.current) {
             const totalWidth = containerRef.current.scrollWidth;
-            const x = pct * totalWidth;
+            const x = percent * totalWidth;
             barRef.current.style.transform = `translateX(${x}px)`;
         }
-        scrollIfNeeded(pct);
-    });
+        scrollIfNeeded(percent);
+    }, [barRef, containerRef, percent, scrollIfNeeded]);
 
     return (
         <div

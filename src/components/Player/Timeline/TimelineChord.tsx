@@ -1,11 +1,11 @@
 import { cn } from "@/lib/utils.ts";
 import type { DragChord } from "@/components/Player/Timeline/hooks/useDragTimelineChord.ts";
 import type { IEnrichedChord } from "@/components/Player/Timeline/TimelineChords.tsx";
+import { useTransportTime } from "@/TransportTicker/transportTicker";
 
 interface Props {
     chord: IEnrichedChord;
     totalDuration: number;
-    isCurrentChord: boolean;
     isEditMode?: boolean;
     handleDragStart: (
         e: React.DragEvent<HTMLDivElement>,
@@ -18,19 +18,26 @@ interface Props {
     index: number;
     dragChord: DragChord | null;
     isDragging?: boolean;
+    currentTime?: number;
 }
 
 export const TimelineChord = ({
     chord,
     totalDuration,
-    isCurrentChord,
     isEditMode,
     handleChordMouseDown,
     index,
     dragChord,
     isDragging,
 }: Props) => {
+    const currentTime = useTransportTime();
+
     if (!chord.label) return null; // Skip empty chords
+
+    const isCurrentChord =
+        currentTime !== undefined &&
+        currentTime >= chord.startTime &&
+        currentTime < chord.startTime + chord.duration;
 
     const isBeingDragged =
         isDragging && dragChord?.index === chord.originalIndex;

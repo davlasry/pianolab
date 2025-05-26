@@ -6,6 +6,7 @@ import { useSessionViewLogic } from "@/hooks/useSessionViewLogic";
 import { SessionHeader } from "@/components/SessionHeader";
 import { LinkedPiecesDisplay } from "@/components/LinkedPiecesDisplay";
 import { SessionStatusDisplay } from "@/components/SessionStatusDisplay";
+import { TransportTickerProvider } from "@/TransportTicker/TransportTickerProvider.tsx";
 
 const SessionContent = () => {
     const {
@@ -80,7 +81,9 @@ export const SessionView = () => {
 
     return (
         <PlayerProvider>
-            <SessionContent />
+            <TransportTickerProvider>
+                <SessionContent />
+            </TransportTickerProvider>
         </PlayerProvider>
     );
 };
