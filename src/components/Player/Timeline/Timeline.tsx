@@ -76,6 +76,14 @@ const Timeline = (
     // Click → seek and set end time
     const onClick = useCallback(
         (e: MouseEvent<HTMLDivElement>) => {
+            // Check if we clicked on a chord block or any of its children
+            const target = e.target as HTMLElement;
+            console.log("target =====>", target);
+            const isChordClick = target.closest(
+                '[data-component="DraggableResizableBlock"]',
+            );
+            if (isChordClick) return;
+
             if (!containerRef.current) return;
             const rect = containerRef.current.getBoundingClientRect();
             const percent = (e.clientX - rect.left) / rect.width;

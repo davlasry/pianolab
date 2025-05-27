@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils.ts";
 import type { IEnrichedChord } from "@/components/Player/Timeline/TimelineChords.tsx";
 import DraggableResizableBlock from "@/components/shared/DraggableResizableBlock.tsx";
 import { useTransportTime } from "@/TransportTicker/transportTicker.ts";
+import { Button } from "@/components/ui/button";
 
 interface Props {
     chord: IEnrichedChord;
@@ -50,7 +51,7 @@ export const TimelineChord = ({
                 onChordUpdate(id as number, duration, start)
             }
             className={cn(
-                "group absolute top-4 bottom-0 z-10 flex flex-col items-center justify-center rounded-2xl p-2",
+                "group z-10 flex flex-col items-center justify-center rounded-2xl p-2",
                 isCurrentChord
                     ? "border border-zinc-600 bg-primary"
                     : "border border-foreground/20 bg-accent/40 hover:bg-accent",
@@ -59,14 +60,16 @@ export const TimelineChord = ({
             draggingClassName="ring-2 ring-white/30"
         >
             {isEditMode && (
-                <button
+                <Button
                     onClick={handleAddAfter}
-                    className="pointer-events-auto absolute top-1/2 right-0 z-30 flex h-6 w-6 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-blue-500 text-lg text-white opacity-100 group-hover:opacity-100 hover:bg-blue-600"
+                    className="pointer-events-auto absolute -top-4 left-full z-30 -translate-x-1/2 opacity-0 group-hover:opacity-100"
+                    size="icon"
+                    variant="secondary"
                     data-interactive-child="true"
                     title="Add chord after"
                 >
                     +
-                </button>
+                </Button>
             )}
             <div
                 className={cn(

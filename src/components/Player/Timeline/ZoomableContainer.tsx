@@ -25,12 +25,12 @@ export function ZoomableContainer({
         <div
             data-component="ZoomableContainer"
             ref={outerRef}
-            className="relative h-30 w-full overflow-x-auto bg-muted pt-2"
+            className="relative h-36 w-full overflow-x-auto bg-muted pt-8"
+            onClick={onClick}
         >
             <div
                 ref={innerRef}
                 onWheel={onWheel}
-                onClick={onClick}
                 onDragOver={onDragOver}
                 onDrop={onDrop}
                 className="flex h-full overflow-hidden"
