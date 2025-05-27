@@ -5,6 +5,7 @@ import Controls from "@/components/Player/Controls/Controls.tsx";
 import Timeline, {
     type TimelineHandle,
 } from "@/components/Player/Timeline/Timeline.tsx";
+import { useTransportShortcuts } from "@/components/Player/hooks/useTransportShortcuts.ts";
 
 export const PlayerContent = () => {
     const timelineRef = useRef<TimelineHandle>(null);
@@ -16,7 +17,12 @@ export const PlayerContent = () => {
         seek,
         seekToBeginning,
         transportState,
+        getTransport,
+        isReady,
     } = usePlayerContext();
+
+    // Register ArrowLeft / ArrowRight keyboard shortcuts
+    useTransportShortcuts({ seek, getTransport, isReady });
 
     const handleMoveToBeginning = () => {
         seekToBeginning();

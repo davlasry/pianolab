@@ -7,6 +7,7 @@ import { SessionHeader } from "@/components/SessionHeader";
 import { LinkedPiecesDisplay } from "@/components/LinkedPiecesDisplay";
 import { SessionStatusDisplay } from "@/components/SessionStatusDisplay";
 import { TransportTickerProvider } from "@/TransportTicker/TransportTickerProvider.tsx";
+import { KeyboardShortcutProvider } from "@/shortcuts/KeyboardShortcuts.tsx";
 
 const SessionContent = () => {
     const {
@@ -82,7 +83,9 @@ export const SessionView = () => {
     return (
         <PlayerProvider>
             <TransportTickerProvider>
-                <SessionContent />
+                <KeyboardShortcutProvider>
+                    <SessionContent />
+                </KeyboardShortcutProvider>
             </TransportTickerProvider>
         </PlayerProvider>
     );
