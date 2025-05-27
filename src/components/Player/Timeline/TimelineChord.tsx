@@ -42,16 +42,25 @@ export const TimelineChord = ({
                 onChordUpdate(id as number, duration, start)
             }
             className={cn(
-                "absolute top-4 bottom-0 flex flex-col items-center justify-center p-2 rounded-2xl transition-colors duration-200 z-10",
+                "absolute top-4 bottom-0 z-10 flex flex-col items-center justify-center rounded-2xl p-2 transition-colors duration-200",
                 isCurrentChord
-                    ? "bg-primary border border-zinc-600"
-                    : "bg-accent/40 hover:bg-accent border border-foreground/20",
+                    ? "border border-zinc-600 bg-primary"
+                    : "border border-foreground/20 bg-accent/40 hover:bg-accent",
                 isEditMode && "group",
                 isEditMode && "cursor-move",
             )}
             draggingClassName="ring-2 ring-white/30"
         >
-            <div className="text-2xl">{chord.label}</div>
+            <div
+                className={cn(
+                    "text-2xl",
+                    isCurrentChord
+                        ? "text-white"
+                        : "text-primary-foreground/50",
+                )}
+            >
+                {chord.label}
+            </div>
         </DraggableResizableBlock>
     );
 };

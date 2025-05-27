@@ -25,10 +25,10 @@ export const PlayerContent = () => {
 
     return (
         <div
-            className="flex flex-col flex-1 overflow-hidden"
+            className="flex flex-1 flex-col overflow-hidden"
             data-testid="player-content"
         >
-            <div className="flex flex-col flex-1 mb-6">
+            <div className="mb-6 flex flex-1 flex-col">
                 <Timeline
                     duration={audioDuration}
                     onSeek={seek}

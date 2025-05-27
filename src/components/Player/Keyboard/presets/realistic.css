@@ -8,30 +8,30 @@ div[data-midi-number]:has(.klavier-realistic-key-white:not(.active)) + div[data-
 
 .klavier-realistic-key-white,
 .klavier-realistic-key-black {
-  display: block;
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  /* Unmounting/mounting children elements often causes "mouseleave" not to fire:
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    /* Unmounting/mounting children elements often causes "mouseleave" not to fire:
      https://github.com/facebook/react/issues/20483#issuecomment-1670926431 */
-  pointer-events: none;
+    pointer-events: none;
 }
 
 /* Color active keys red (middle C and above - right hand) */
 .right-hand > .klavier-realistic-key-white.active path {
-  fill: rgba(255, 0, 0, 0.8) !important;
+    fill: rgba(255, 0, 0, 0.8) !important;
 }
 
 .right-hand > .klavier-realistic-key-black.active path {
-  fill: rgba(200, 0, 0, 1) !important;
+    fill: rgba(200, 0, 0, 1) !important;
 }
 
 /* Color active keys blue (below middle C - left hand) */
 .left-hand > .klavier-realistic-key-white.active path {
-  fill: rgba(0, 0, 255, 0.8) !important;
+    fill: rgba(0, 0, 255, 0.8) !important;
 }
 
 .left-hand > .klavier-realistic-key-black.active path {
-  fill: rgba(0, 0, 200, 1) !important;
+    fill: rgba(0, 0, 200, 1) !important;
 }

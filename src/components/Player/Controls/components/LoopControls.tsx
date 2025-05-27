@@ -18,10 +18,10 @@ const LoopControls = ({
     onLoopEndChange,
 }: LoopControlsProps) => {
     return (
-        <div className="flex items-center gap-4 mt-2">
+        <div className="mt-2 flex items-center gap-4">
             <button
                 onClick={onToggleLoop}
-                className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md transition-colors ${
+                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs transition-colors ${
                     loopActive
                         ? "bg-destructive text-destructive-foreground"
                         : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -37,7 +37,7 @@ const LoopControls = ({
                     type="text"
                     value={loopStart}
                     onChange={(e) => onLoopStartChange(e.target.value)}
-                    className="w-20 bg-muted/50 text-foreground border border-input rounded-md py-1 px-2 text-center focus:border-primary focus:outline-none"
+                    className="w-20 rounded-md border border-input bg-muted/50 px-2 py-1 text-center text-foreground focus:border-primary focus:outline-none"
                     disabled={!loopActive}
                 />
             </div>
@@ -48,7 +48,7 @@ const LoopControls = ({
                     type="text"
                     value={loopEnd}
                     onChange={(e) => onLoopEndChange(e.target.value)}
-                    className="w-20 bg-muted/50 text-foreground border border-input rounded-md py-1 px-2 text-center focus:border-primary focus:outline-none"
+                    className="w-20 rounded-md border border-input bg-muted/50 px-2 py-1 text-center text-foreground focus:border-primary focus:outline-none"
                     disabled={!loopActive}
                 />
             </div>

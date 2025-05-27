@@ -15,15 +15,15 @@ const DigitalClock = () => {
 
     return (
         <div
-            className={`flex-1 bg-muted overflow-hidden border border-muted transition-all duration-300 ${isPlaying ? "shadow-primary/20" : ""}`}
+            className={`flex-1 overflow-hidden border border-muted bg-muted transition-all duration-300 ${isPlaying ? "shadow-primary/20" : ""}`}
         >
             <div className="p-2">
-                <div className="flex flex-col md:flex-row items-center gap-6">
+                <div className="flex flex-col items-center gap-6 md:flex-row">
                     <TimeDisplay
                         currentTime={currentTime}
                         isPlaying={isPlaying}
                     />
-                    <div className="flex-1 flex flex-col gap-4">
+                    <div className="flex flex-1 flex-col gap-4">
                         {/*Tempo controls*/}
                         {/*<div className="flex flex-wrap gap-4 items-center justify-between">*/}
                         {/*    <TempoControl*/}

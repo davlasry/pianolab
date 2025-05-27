@@ -12,7 +12,7 @@ function App() {
     return (
         <ThemeProvider defaultTheme="dark" storageKey="pianolab-theme">
             <Navbar />
-            <div className="content flex flex-col flex-1">
+            <div className="content flex flex-1 flex-col">
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/pieces" element={<PiecesPage />} />

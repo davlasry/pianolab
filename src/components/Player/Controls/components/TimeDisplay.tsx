@@ -5,9 +5,9 @@ interface TimeDisplayProps {
 
 const TimeDisplay = ({ currentTime, isPlaying }: TimeDisplayProps) => {
     return (
-        <div className="bg-muted/50 rounded-lg p-2 w-full md:w-70 shadow-inner">
+        <div className="w-full rounded-lg bg-muted/50 p-2 shadow-inner md:w-70">
             <div
-                className={`font-mono text-center text-xl md:text-xl font-bold tracking-tight transition-colors duration-300 ${isPlaying ? "text-primary" : "text-foreground"}`}
+                className={`text-center font-mono text-xl font-bold tracking-tight transition-colors duration-300 md:text-xl ${isPlaying ? "text-primary" : "text-foreground"}`}
             >
                 {currentTime}
             </div>

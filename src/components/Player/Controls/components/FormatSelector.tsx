@@ -11,7 +11,7 @@ const FormatSelector = ({
         <div className="flex items-center gap-1">
             <button
                 onClick={() => onFormatChange("smpte")}
-                className={`text-xs px-3 py-1 rounded-md transition-colors ${
+                className={`rounded-md px-3 py-1 text-xs transition-colors ${
                     currentFormat === "smpte"
                         ? "bg-primary text-primary-foreground"
                         : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -21,7 +21,7 @@ const FormatSelector = ({
             </button>
             <button
                 onClick={() => onFormatChange("bars")}
-                className={`text-xs px-3 py-1 rounded-md transition-colors ${
+                className={`rounded-md px-3 py-1 text-xs transition-colors ${
                     currentFormat === "bars"
                         ? "bg-primary text-primary-foreground"
                         : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -31,7 +31,7 @@ const FormatSelector = ({
             </button>
             <button
                 onClick={() => onFormatChange("seconds")}
-                className={`text-xs px-3 py-1 rounded-md transition-colors ${
+                className={`rounded-md px-3 py-1 text-xs transition-colors ${
                     currentFormat === "seconds"
                         ? "bg-primary text-primary-foreground"
                         : "bg-muted text-muted-foreground hover:bg-muted/80"

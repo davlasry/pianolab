@@ -57,7 +57,7 @@ export const TimelineChords = ({
         <div
             data-component="TimelineChords"
             ref={timelineRef}
-            className="relative flex-grow w-full"
+            className="relative w-full flex-grow"
         >
             {enrichedChords.map((chord, i) => (
                 <TimelineChord

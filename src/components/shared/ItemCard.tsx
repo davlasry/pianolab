@@ -37,23 +37,23 @@ export function ItemCard({
 }: ItemCardProps) {
     return (
         <Card
-            className="overflow-hidden border-0 bg-secondary/50 hover:bg-secondary/9 0 transition-all duration-200 cursor-pointer py-4 px-0"
+            className="0 cursor-pointer overflow-hidden border-0 bg-secondary/50 px-0 py-4 transition-all duration-200 hover:bg-secondary/9"
             onClick={onClick}
         >
             <div className="flex items-center px-4">
-                <div className="h-12 w-12 rounded-md bg-muted flex items-center justify-center mr-4">
+                <div className="mr-4 flex h-12 w-12 items-center justify-center rounded-md bg-muted">
                     {leftContent || (
                         <Music className="h-6 w-6 text-muted-foreground" />
                     )}
                 </div>
 
-                <div className="flex-1 items-center grid grid-cols-[2fr_2fr_1fr_1fr] gap-y-1 gap-x-4">
+                <div className="grid flex-1 grid-cols-[2fr_2fr_1fr_1fr] items-center gap-x-4 gap-y-1">
                     <div className="col-span-2 md:col-span-1">
-                        <h3 className="font-medium text-base text-foreground line-clamp-1">
+                        <h3 className="line-clamp-1 text-base font-medium text-foreground">
                             {title}
                         </h3>
                         {subtitle && (
-                            <p className="text-sm text-muted-foreground line-clamp-1">
+                            <p className="line-clamp-1 text-sm text-muted-foreground">
                                 {subtitle}
                             </p>
                         )}
@@ -67,7 +67,7 @@ export function ItemCard({
                         {tags.map((tag, index) => (
                             <span
                                 key={index}
-                                className={`inline-block px-2 py-0.5 bg-muted rounded-sm text-muted-foreground text-xs ${
+                                className={`inline-block rounded-sm bg-muted px-2 py-0.5 text-xs text-muted-foreground ${
                                     index > 0 ? "ml-2" : ""
                                 } ${tag.className || ""}`}
                             >

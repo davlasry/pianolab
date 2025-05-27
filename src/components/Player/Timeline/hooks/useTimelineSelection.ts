@@ -31,19 +31,22 @@ export function useTimelineSelection({
         }
     }, [duration, onSeek]);
 
-    const handleSetEndTime = useCallback((time: number) => {
-        if (selectionStart !== null && time >= 0 && time <= duration) {
-            setSelectionEnd(time);
-        }
-    }, [duration, selectionStart]);
+    const handleSetEndTime = useCallback(
+        (time: number) => {
+            if (selectionStart !== null && time >= 0 && time <= duration) {
+                setSelectionEnd(time);
+            }
+        },
+        [duration, selectionStart],
+    );
 
     const handleSubmitSelection = useCallback(() => {
         if (selectionStart !== null && selectionEnd !== null) {
             // Ensure start is always less than end
             const start = Math.min(selectionStart, selectionEnd);
             const end = Math.max(selectionStart, selectionEnd);
-            console.log('Selection:', { start, end });
-            
+            console.log("Selection:", { start, end });
+
             // Reset selection
             setSelectionStart(null);
             setSelectionEnd(null);
@@ -64,4 +67,4 @@ export function useTimelineSelection({
         handleResetSelection,
         isSelectionComplete: selectionStart !== null && selectionEnd !== null,
     };
-} 
+}

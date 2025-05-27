@@ -34,7 +34,7 @@ export const TimelineTicks = ({ totalDuration }: Props) => {
 
                 {/* Only add label for major ticks */}
                 {isMajorTick && (
-                    <div className="absolute top-3 transform -translate-x-1/2 text-xs text-muted-foreground">
+                    <div className="absolute top-3 -translate-x-1/2 transform text-xs text-muted-foreground">
                         {formatTime(time)}
                     </div>
                 )}

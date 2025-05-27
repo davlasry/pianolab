@@ -127,9 +127,9 @@ export const PieceFormModal = ({
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-background p-6 rounded-lg shadow-lg w-full max-w-md text-foreground">
-                <h2 className="text-xl font-bold mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+            <div className="w-full max-w-md rounded-lg bg-background p-6 text-foreground shadow-lg">
+                <h2 className="mb-4 text-xl font-bold">
                     {mode === "edit" ? "Edit Piece" : "Add New Piece"}
                 </h2>
 
@@ -138,7 +138,7 @@ export const PieceFormModal = ({
                         <div className="text-left">
                             <label
                                 htmlFor="name"
-                                className="block text-sm font-medium mb-1 text-left"
+                                className="mb-1 block text-left text-sm font-medium"
                             >
                                 Name <span className="text-destructive">*</span>
                             </label>
@@ -149,14 +149,14 @@ export const PieceFormModal = ({
                                 required
                                 value={formData.name}
                                 onChange={handleChange}
-                                className="w-full p-2 border rounded bg-input text-foreground"
+                                className="w-full rounded border bg-input p-2 text-foreground"
                             />
                         </div>
 
                         <div className="text-left">
                             <label
                                 htmlFor="composer"
-                                className="block text-sm font-medium mb-1 text-left"
+                                className="mb-1 block text-left text-sm font-medium"
                             >
                                 Composer
                             </label>
@@ -166,14 +166,14 @@ export const PieceFormModal = ({
                                 type="text"
                                 value={formData.composer || ""}
                                 onChange={handleChange}
-                                className="w-full p-2 border rounded bg-input text-foreground"
+                                className="w-full rounded border bg-input p-2 text-foreground"
                             />
                         </div>
 
                         <div className="text-left">
                             <label
                                 htmlFor="style"
-                                className="block text-sm font-medium mb-1 text-left"
+                                className="mb-1 block text-left text-sm font-medium"
                             >
                                 Style
                             </label>
@@ -183,28 +183,28 @@ export const PieceFormModal = ({
                                 type="text"
                                 value={formData.style || ""}
                                 onChange={handleChange}
-                                className="w-full p-2 border rounded bg-input text-foreground"
+                                className="w-full rounded border bg-input p-2 text-foreground"
                             />
                         </div>
 
                         <div className="text-left">
-                            <label className="block text-sm font-medium mb-1 text-left">
+                            <label className="mb-1 block text-left text-sm font-medium">
                                 Tags
                             </label>
-                            <div className="flex gap-2 mb-2">
+                            <div className="mb-2 flex gap-2">
                                 <input
                                     type="text"
                                     value={tagInput}
                                     onChange={(e) =>
                                         setTagInput(e.target.value)
                                     }
-                                    className="flex-1 p-2 border rounded-l bg-input text-foreground"
+                                    className="flex-1 rounded-l border bg-input p-2 text-foreground"
                                     placeholder="Add a tag"
                                 />
                                 <button
                                     type="button"
                                     onClick={handleAddTag}
-                                    className="bg-primary text-primary-foreground px-4 rounded-r hover:bg-primary/90"
+                                    className="rounded-r bg-primary px-4 text-primary-foreground hover:bg-primary/90"
                                 >
                                     Add
                                 </button>
@@ -213,7 +213,7 @@ export const PieceFormModal = ({
                                 {formData.tags?.map((tag, index) => (
                                     <div
                                         key={index}
-                                        className="bg-accent text-accent-foreground px-2 py-1 rounded flex items-center"
+                                        className="flex items-center rounded bg-accent px-2 py-1 text-accent-foreground"
                                     >
                                         <span>{tag}</span>
                                         <button
@@ -230,24 +230,24 @@ export const PieceFormModal = ({
                     </div>
 
                     {error && (
-                        <div className="text-destructive text-sm mt-2">
+                        <div className="mt-2 text-sm text-destructive">
                             {error}
                         </div>
                     )}
 
-                    <div className="flex justify-end gap-2 mt-6">
+                    <div className="mt-6 flex justify-end gap-2">
                         <button
                             type="button"
                             onClick={onClose}
                             disabled={isLoading}
-                            className="bg-muted text-muted-foreground hover:bg-muted/90 px-4 py-2 rounded"
+                            className="rounded bg-muted px-4 py-2 text-muted-foreground hover:bg-muted/90"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded"
+                            className="rounded bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
                         >
                             {isLoading
                                 ? "Saving..."

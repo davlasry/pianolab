@@ -35,7 +35,7 @@ const SessionContent = () => {
 
     return (
         <>
-            <div className="flex flex-col flex-1 overflow-hidden">
+            <div className="flex flex-1 flex-col overflow-hidden">
                 <div className="p-4">
                     <SessionHeader
                         session={session}

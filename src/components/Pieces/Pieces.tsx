@@ -65,13 +65,13 @@ export const Pieces = () => {
 
     return (
         <div>
-            <div className="flex justify-between items-center mb-4">
+            <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-2xl font-bold">Pieces</h2>
                 <Button
                     onClick={openCreateModal}
                     size="icon"
                     variant="secondary"
-                    className="hover:scale-105 transition-transform"
+                    className="transition-transform hover:scale-105"
                 >
                     <Plus className="h-5 w-5" />
                     <span className="sr-only">Add Piece</span>

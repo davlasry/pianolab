@@ -78,7 +78,7 @@ export function Playhead({
     return (
         <div
             ref={barRef}
-            className="absolute top-0 bottom-0 w-px bg-white z-20"
+            className="absolute top-0 bottom-0 z-20 w-px bg-white"
             role="slider"
             aria-valuemin={0}
             aria-valuemax={duration}

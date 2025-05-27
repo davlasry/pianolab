@@ -38,16 +38,16 @@ const TempoControl: React.FC<TempoControlProps> = ({
                     type="text"
                     value={tempTempo}
                     onChange={handleTempoChange}
-                    className="w-16 bg-muted/50 text-foreground border border-input rounded-md py-1 px-2 text-center focus:border-primary focus:outline-none"
+                    className="w-16 rounded-md border border-input bg-muted/50 px-2 py-1 text-center text-foreground focus:border-primary focus:outline-none"
                     aria-label="Tempo BPM"
                 />
-                <span className="text-muted-foreground text-sm">BPM</span>
+                <span className="text-sm text-muted-foreground">BPM</span>
             </div>
 
             <select
                 value={timeSignature}
                 onChange={(e) => onSignatureChange(e.target.value)}
-                className="bg-muted/50 text-foreground border border-input rounded-md py-1 px-2 focus:border-primary focus:outline-none"
+                className="rounded-md border border-input bg-muted/50 px-2 py-1 text-foreground focus:border-primary focus:outline-none"
                 aria-label="Time Signature"
             >
                 <option value="4/4">4/4</option>

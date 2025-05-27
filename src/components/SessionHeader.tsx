@@ -14,7 +14,7 @@ export const SessionHeader = ({
     if (!session) return null;
 
     return (
-        <div className="flex justify-between items-center mb-4">
+        <div className="mb-4 flex items-center justify-between">
             <h1 className="text-2xl font-bold">
                 {session.name ||
                     (session.performer

@@ -73,7 +73,7 @@ export const Sessions = () => {
 
     return (
         <div>
-            <div className="flex justify-between items-center mb-4">
+            <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-2xl font-bold">Sessions</h2>
                 <Button
                     onClick={openCreateModal}

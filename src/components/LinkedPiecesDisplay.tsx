@@ -13,7 +13,7 @@ export const LinkedPiecesDisplay = ({
 }: LinkedPiecesDisplayProps) => {
     if (isLoading) {
         return (
-            <div className="px-4 mb-4 text-sm text-gray-500">
+            <div className="mb-4 px-4 text-sm text-gray-500">
                 <p>Loading linked pieces...</p>
             </div>
         );
@@ -21,8 +21,8 @@ export const LinkedPiecesDisplay = ({
 
     return (
         <div className="mb-6">
-            <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1 flex items-center">
-                <Music className="h-4 w-4 mr-1.5 text-gray-500 dark:text-gray-400" />{" "}
+            <h3 className="mb-1 flex items-center text-sm font-medium text-gray-600 dark:text-gray-400">
+                <Music className="mr-1.5 h-4 w-4 text-gray-500 dark:text-gray-400" />{" "}
                 Linked Pieces:
             </h3>
             {pieces.length > 0 ? (
@@ -31,7 +31,7 @@ export const LinkedPiecesDisplay = ({
                         <Link
                             key={piece.id}
                             to={`/piece/${piece.id}`}
-                            className="bg-muted hover:bg-muted/80 text-muted-foreground text-xs px-2 py-1 rounded-full shadow-sm cursor-pointer"
+                            className="cursor-pointer rounded-full bg-muted px-2 py-1 text-xs text-muted-foreground shadow-sm hover:bg-muted/80"
                         >
                             {piece.name}
                             {piece.composer && (

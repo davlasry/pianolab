@@ -160,16 +160,16 @@ export default function DraggableResizableBlock({
         >
             {/* resize handles */}
             <div
-                className="absolute left-0 top-0 h-full w-2 cursor-ew-resize"
+                className="absolute top-0 left-0 h-full w-2 cursor-ew-resize"
                 onPointerDown={(e) => onPointerDown(e, "left")}
             />
             <div
-                className="absolute right-0 top-0 h-full w-2 cursor-ew-resize"
+                className="absolute top-0 right-0 h-full w-2 cursor-ew-resize"
                 onPointerDown={(e) => onPointerDown(e, "right")}
             />
 
             {/* children */}
-            <div className="h-full w-full flex items-center justify-center pointer-events-none">
+            <div className="pointer-events-none flex h-full w-full items-center justify-center">
                 {children}
             </div>
         </div>

@@ -12,7 +12,7 @@ export const PieceView = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[200px]">
+            <div className="flex min-h-[200px] items-center justify-center">
                 <div className="text-gray-500">Loading...</div>
             </div>
         );
@@ -20,14 +20,14 @@ export const PieceView = () => {
 
     if (!piece) {
         return (
-            <div className="flex items-center justify-center min-h-[200px]">
+            <div className="flex min-h-[200px] items-center justify-center">
                 <div className="text-gray-500">Piece not found</div>
             </div>
         );
     }
 
     return (
-        <div className="container mx-auto py-6 px-4">
+        <div className="container mx-auto px-4 py-6">
             <div className="mb-6">
                 <Link to="/">
                     <Button variant="ghost" className="pl-0">
@@ -45,18 +45,18 @@ export const PieceView = () => {
                     </h1>
                     {piece.composer && (
                         <div className="flex items-center text-lg text-zinc-200">
-                            <Music2 className="h-5 w-5 mr-2" />
+                            <Music2 className="mr-2 h-5 w-5" />
                             {piece.composer}
                         </div>
                     )}
                 </div>
 
                 {/* Piece Details */}
-                <Card className="p-6 bg-zinc-900/50">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card className="bg-zinc-900/50 p-6">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                         {piece.style && (
                             <div className="flex items-center">
-                                <Tag className="h-5 w-5 mr-2 text-zinc-400" />
+                                <Tag className="mr-2 h-5 w-5 text-zinc-400" />
                                 <div>
                                     <div className="text-sm text-zinc-400">
                                         Style
@@ -69,7 +69,7 @@ export const PieceView = () => {
                         )}
                         {piece.created_at && (
                             <div className="flex items-center">
-                                <Calendar className="h-5 w-5 mr-2 text-zinc-400" />
+                                <Calendar className="mr-2 h-5 w-5 text-zinc-400" />
                                 <div>
                                     <div className="text-sm text-zinc-400">
                                         Added on
@@ -87,12 +87,12 @@ export const PieceView = () => {
                             </div>
                         )}
                         {piece.tags && piece.tags.length > 0 && (
-                            <div className="flex items-center col-span-2">
+                            <div className="col-span-2 flex items-center">
                                 <div className="flex flex-wrap gap-2">
                                     {piece.tags.map((tag, index) => (
                                         <span
                                             key={index}
-                                            className="px-2 py-1 bg-zinc-800 rounded-md text-sm text-zinc-200"
+                                            className="rounded-md bg-zinc-800 px-2 py-1 text-sm text-zinc-200"
                                         >
                                             {tag}
                                         </span>
@@ -116,7 +116,7 @@ export const PieceView = () => {
                     </div>
 
                     {sessions.length === 0 ? (
-                        <Card className="p-6 bg-zinc-900/50 text-zinc-300 text-center">
+                        <Card className="bg-zinc-900/50 p-6 text-center text-zinc-300">
                             No sessions yet for this piece.
                         </Card>
                     ) : (
