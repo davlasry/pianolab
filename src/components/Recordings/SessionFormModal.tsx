@@ -49,8 +49,7 @@ export const RecordingFormModal = ({
         isLoading: isUpdating,
         error: updateError,
     } = useUpdateSession();
-    const { uploadFile, isUploading, uploadError, uploadProgress } =
-        useUploadFile();
+    const { uploadFile, isUploading, uploadProgress } = useUploadFile();
 
     const { pieces, loading: piecesLoading } = useFetchPieces();
 
