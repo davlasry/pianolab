@@ -22,6 +22,7 @@ export interface DraggableResizableBlockProps {
     draggingClassName?: string; // applied **only while dragging**
     children?: React.ReactNode;
     onChange?: (id: string | number, start: number, duration: number) => void; // 🆕 fires during drag
+    onClick?: (e: React.MouseEvent<HTMLDivElement>) => void; // 🆕 click handler
 }
 
 export default function DraggableResizableBlock({
@@ -35,6 +36,7 @@ export default function DraggableResizableBlock({
     draggingClassName = "",
     children,
     onChange,
+    onClick,
 }: DraggableResizableBlockProps) {
     /* --------------------------------------------------
      * Refs & local state
@@ -52,6 +54,7 @@ export default function DraggableResizableBlock({
    when we want the parent to re-evaluate derived styles.          */
     const [, force] = useState({});
     const [isDragging, setIsDragging] = useState(false);
+    const [hasDragged, setHasDragged] = useState(false);
 
     const pxToUnits = (dxPx: number) => dxPx / pixelsPerUnit;
 
@@ -106,6 +109,7 @@ export default function DraggableResizableBlock({
         live.current.initX = live.current.x;
         live.current.initW = live.current.w;
         setIsDragging(true);
+        setHasDragged(false);
     };
 
     const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -113,6 +117,11 @@ export default function DraggableResizableBlock({
         if (!el || !el.hasPointerCapture(e.pointerId)) return;
 
         const dxUnits = pxToUnits(e.clientX - live.current.originX);
+
+        // Mark as dragged if there's any movement
+        if (Math.abs(dxUnits) > 0.01) {
+            setHasDragged(true);
+        }
 
         if (live.current.mode === "move") {
             live.current.x = Math.max(0, live.current.initX + dxUnits);
@@ -142,6 +151,19 @@ export default function DraggableResizableBlock({
         const el = blockRef.current;
         if (!el || !el.hasPointerCapture(e.pointerId)) return;
         el.releasePointerCapture(e.pointerId);
+
+        // If we didn't drag, treat it as a click
+        if (!hasDragged && onClick) {
+            // Create a synthetic MouseEvent from the PointerEvent
+            const mouseEvent = {
+                ...e,
+                type: "click",
+                button: 0,
+                buttons: 1,
+            } as React.MouseEvent<HTMLDivElement>;
+            onClick(mouseEvent);
+        }
+
         setIsDragging(false);
         commit();
     };

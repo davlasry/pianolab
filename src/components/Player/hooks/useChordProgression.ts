@@ -15,7 +15,6 @@ export const initialChordProgression: Chord[] = [
     { label: "A7", startTime: 10, duration: 2 },
     { label: "Abm", startTime: 12, duration: 2 },
     { label: "Gdim7", startTime: 14, duration: 2 },
-    { label: "", startTime: 16, duration: 2 },
 ];
 
 /*───────────────────────────────────────────────────────────────
@@ -100,6 +99,9 @@ export const useChordProgressionState = () => {
     const [chordProgression, setChordProgression] = useState<Chord[]>(
         initialChordProgression,
     );
+    const [activeChordIndex, setActiveChordIndex] = useState<number | null>(
+        null,
+    );
 
     /**
      * Move or resize a single chord *with* collision-avoidance.
@@ -124,7 +126,6 @@ export const useChordProgressionState = () => {
 
     const insertChordAtIndex = useCallback(
         (indexToInsertRelative: number, side: "before" | "after") => {
-            debugger;
             setChordProgression((currentProgression) => {
                 const chords = [...currentProgression.map((c) => ({ ...c }))]; // Create a mutable copy
                 const newChordDuration = 2;
@@ -185,5 +186,54 @@ export const useChordProgressionState = () => {
         [],
     );
 
-    return { chordProgression, updateChordTime, insertChordAtIndex };
+    const setActiveChord = useCallback((index: number | null) => {
+        setActiveChordIndex(index);
+    }, []);
+
+    const deleteChord = useCallback(
+        (index: number) => {
+            setChordProgression((currentProgression) => {
+                if (index < 0 || index >= currentProgression.length) {
+                    console.error(
+                        "Timeline: Cannot delete chord at invalid index:",
+                        index,
+                    );
+                    return currentProgression;
+                }
+
+                const newProgression = [...currentProgression];
+                newProgression.splice(index, 1);
+
+                // Clear active chord if we deleted it
+                if (index === activeChordIndex) {
+                    setActiveChordIndex(null);
+                } else if (
+                    activeChordIndex !== null &&
+                    index < activeChordIndex
+                ) {
+                    // Adjust active chord index if we deleted a chord before it
+                    setActiveChordIndex(activeChordIndex - 1);
+                }
+
+                return newProgression;
+            });
+        },
+        [activeChordIndex],
+    );
+
+    const deleteActiveChord = useCallback(() => {
+        if (activeChordIndex !== null) {
+            deleteChord(activeChordIndex);
+        }
+    }, [activeChordIndex, deleteChord]);
+
+    return {
+        chordProgression,
+        updateChordTime,
+        insertChordAtIndex,
+        activeChordIndex,
+        setActiveChord,
+        deleteChord,
+        deleteActiveChord,
+    };
 };

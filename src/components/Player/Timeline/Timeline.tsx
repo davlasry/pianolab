@@ -1,5 +1,11 @@
 import type { MouseEvent, WheelEvent, Ref } from "react";
-import { forwardRef, useRef, useImperativeHandle, useCallback } from "react";
+import {
+    forwardRef,
+    useRef,
+    useImperativeHandle,
+    useCallback,
+    useEffect,
+} from "react";
 import { useTimelineZoom } from "@/components/Player/Timeline/useTimelineZoom";
 import { useThrottle } from "@/components/Player/Timeline/useThrottle";
 import { ZoomableContainer } from "@/components/Player/Timeline/ZoomableContainer";
@@ -44,8 +50,27 @@ const Timeline = (
         isSelectionComplete,
     } = useTimelineSelection({ duration, onSeek });
 
-    const { chordProgression, updateChordTime, insertChordAtIndex } =
-        useChordProgressionState();
+    const {
+        chordProgression,
+        updateChordTime,
+        insertChordAtIndex,
+        activeChordIndex,
+        setActiveChord,
+        deleteActiveChord,
+    } = useChordProgressionState();
+
+    // Handle keyboard events for chord deletion
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Delete" || e.key === "Backspace") {
+                e.preventDefault();
+                deleteActiveChord();
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [deleteActiveChord]);
 
     // Expose imperative API
     useImperativeHandle(
@@ -78,7 +103,6 @@ const Timeline = (
         (e: MouseEvent<HTMLDivElement>) => {
             // Check if we clicked on a chord block or any of its children
             const target = e.target as HTMLElement;
-            console.log("target =====>", target);
             const isChordClick = target.closest(
                 '[data-component="DraggableResizableBlock"]',
             );
@@ -136,6 +160,8 @@ const Timeline = (
                         onChordUpdate={updateChordTime}
                         timelineRef={containerRef}
                         onInsertChord={insertChordAtIndex}
+                        activeChordIndex={activeChordIndex}
+                        onChordSelect={setActiveChord}
                     />
 
                     <TimelineSelection

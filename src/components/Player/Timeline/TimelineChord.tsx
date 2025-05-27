@@ -11,6 +11,8 @@ interface Props {
     onChordUpdate: (index: number, duration: number, startTime: number) => void;
     onInsertChord: (index: number, side: "before" | "after") => void;
     i: number; // index for key
+    isSelected?: boolean;
+    onSelect?: () => void;
 }
 
 export const TimelineChord = ({
@@ -20,6 +22,8 @@ export const TimelineChord = ({
     onChordUpdate,
     onInsertChord,
     i,
+    isSelected = false,
+    onSelect,
 }: Props) => {
     const currentTime = useTransportTime();
 
@@ -36,6 +40,10 @@ export const TimelineChord = ({
         onInsertChord(i, "after");
     };
 
+    const handleChordClick = () => {
+        onSelect?.();
+    };
+
     return (
         <DraggableResizableBlock
             key={i}
@@ -50,11 +58,14 @@ export const TimelineChord = ({
             onChange={(id: number | string, start: number, duration: number) =>
                 onChordUpdate(id as number, duration, start)
             }
+            onClick={handleChordClick}
             className={cn(
                 "group z-10 flex flex-col items-center justify-center rounded-2xl p-2",
                 isCurrentChord
                     ? "border border-zinc-600 bg-primary"
-                    : "border border-foreground/20 bg-accent/40 hover:bg-accent",
+                    : isSelected
+                      ? "border-2 border-blue-500 bg-accent/60 hover:bg-accent"
+                      : "border border-foreground/20 bg-accent/40 hover:bg-accent",
                 isEditMode && "cursor-move",
             )}
             draggingClassName="ring-2 ring-white/30"
