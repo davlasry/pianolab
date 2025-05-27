@@ -48,6 +48,7 @@ const Timeline = (
         handleSubmitSelection,
         handleResetSelection,
         isSelectionComplete,
+        isCreatingLoop,
     } = useTimelineSelection({ duration, onSeek });
 
     const {
@@ -137,6 +138,7 @@ const Timeline = (
                 onResetSelection={handleResetSelection}
                 selectionStart={selectionStart}
                 isSelectionComplete={isSelectionComplete}
+                isCreatingLoop={isCreatingLoop}
             />
 
             <div className="relative">
@@ -169,6 +171,8 @@ const Timeline = (
                         selectionEnd={selectionEnd}
                         duration={duration}
                         timelineRef={containerRef}
+                        transportState={transportState}
+                        onSetEndTime={handleSetEndTime}
                     />
 
                     <Playhead

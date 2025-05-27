@@ -73,7 +73,7 @@ export const TimelineChord = ({
             {isEditMode && (
                 <Button
                     onClick={handleAddAfter}
-                    className="pointer-events-auto absolute -top-4 left-full z-30 -translate-x-1/2 opacity-0 group-hover:opacity-100"
+                    className="pointer-events-auto absolute -top-7 left-full z-30 -translate-x-1/2 opacity-0 group-hover:opacity-100"
                     size="icon"
                     variant="secondary"
                     data-interactive-child="true"

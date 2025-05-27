@@ -14,6 +14,7 @@ interface UseTimelineSelectionReturn {
     handleSubmitSelection: () => void;
     handleResetSelection: () => void;
     isSelectionComplete: boolean;
+    isCreatingLoop: boolean;
 }
 
 export function useTimelineSelection({
@@ -22,12 +23,15 @@ export function useTimelineSelection({
 }: UseTimelineSelectionProps): UseTimelineSelectionReturn {
     const [selectionStart, setSelectionStart] = useState<number | null>(null);
     const [selectionEnd, setSelectionEnd] = useState<number | null>(null);
+    const [isCreatingLoop, setIsCreatingLoop] = useState(false);
 
     const handleSetStartAtPlayhead = useCallback(() => {
         const currentTime = Tone.getTransport().seconds;
         console.log("currentTime =====>", currentTime);
         if (currentTime >= 0 && currentTime <= duration) {
             setSelectionStart(currentTime);
+            setSelectionEnd(null); // Reset end when starting new loop
+            setIsCreatingLoop(true); // Enter loop creation mode
             onSeek(currentTime);
         }
     }, [duration, onSeek]);
@@ -42,21 +46,26 @@ export function useTimelineSelection({
     );
 
     const handleSubmitSelection = useCallback(() => {
-        if (selectionStart !== null && selectionEnd !== null) {
+        if (selectionStart !== null) {
+            // Use current time as end if no end is set yet
+            const currentTime = Tone.getTransport().seconds;
+            const finalEnd = selectionEnd !== null ? selectionEnd : currentTime;
+            
             // Ensure start is always less than end
-            const start = Math.min(selectionStart, selectionEnd);
-            const end = Math.max(selectionStart, selectionEnd);
+            const start = Math.min(selectionStart, finalEnd);
+            const end = Math.max(selectionStart, finalEnd);
             console.log("Selection:", { start, end });
 
-            // Reset selection
-            setSelectionStart(null);
-            setSelectionEnd(null);
+            // Finalize the selection but keep it visible
+            setSelectionEnd(end);
+            setIsCreatingLoop(false); // Exit loop creation mode
         }
     }, [selectionStart, selectionEnd]);
 
     const handleResetSelection = useCallback(() => {
         setSelectionStart(null);
         setSelectionEnd(null);
+        setIsCreatingLoop(false);
     }, []);
 
     return {
@@ -66,6 +75,7 @@ export function useTimelineSelection({
         handleSetEndTime,
         handleSubmitSelection,
         handleResetSelection,
-        isSelectionComplete: selectionStart !== null && selectionEnd !== null,
+        isSelectionComplete: isCreatingLoop,
+        isCreatingLoop,
     };
 }

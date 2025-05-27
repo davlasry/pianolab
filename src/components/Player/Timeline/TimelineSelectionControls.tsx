@@ -6,6 +6,7 @@ interface TimelineSelectionControlsProps {
     onResetSelection: () => void;
     selectionStart: number | null;
     isSelectionComplete: boolean;
+    isCreatingLoop: boolean;
 }
 
 export function TimelineSelectionControls({
@@ -14,19 +15,18 @@ export function TimelineSelectionControls({
     onResetSelection,
     selectionStart,
     isSelectionComplete,
+    isCreatingLoop,
 }: TimelineSelectionControlsProps) {
     return (
         <div className="flex items-center gap-2">
             <Button
                 onClick={
-                    selectionStart === null
-                        ? onSetStartAtPlayhead
-                        : onSubmitSelection
+                    isCreatingLoop ? onSubmitSelection : onSetStartAtPlayhead
                 }
                 variant="secondary"
-                disabled={selectionStart !== null && !isSelectionComplete}
+                disabled={isCreatingLoop && !isSelectionComplete}
             >
-                {selectionStart === null ? "Start Loop" : "End Loop"}
+                {isCreatingLoop ? "End Loop" : "Start Loop"}
             </Button>
 
             {selectionStart !== null && (
