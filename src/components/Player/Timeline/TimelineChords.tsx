@@ -54,7 +54,11 @@ export const TimelineChords = ({
     if (totalDuration <= 0) return null;
 
     return (
-        <div ref={timelineRef} className="relative h-full w-full">
+        <div
+            data-component="TimelineChords"
+            ref={timelineRef}
+            className="relative flex-grow w-full"
+        >
             {enrichedChords.map((chord, i) => (
                 <TimelineChord
                     key={i}

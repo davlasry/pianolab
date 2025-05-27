@@ -141,7 +141,7 @@ export default function DraggableResizableBlock({
     const width = live.current.w * pixelsPerUnit;
 
     const combinedClassName = cn(
-        "absolute top-0 h-full select-none",
+        "absolute top-0 bottom-0 select-none",
         className,
         isDragging && draggingClassName,
     );

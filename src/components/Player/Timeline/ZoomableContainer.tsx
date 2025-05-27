@@ -23,8 +23,9 @@ export function ZoomableContainer({
 }: ZoomableContainerProps) {
     return (
         <div
+            data-component="ZoomableContainer"
             ref={outerRef}
-            className="relative w-full overflow-x-auto bg-muted h-34 py-3"
+            className="relative w-full overflow-x-auto bg-muted h-30 pt-2"
         >
             <div
                 ref={innerRef}
@@ -32,7 +33,7 @@ export function ZoomableContainer({
                 onClick={onClick}
                 onDragOver={onDragOver}
                 onDrop={onDrop}
-                className="relative h-full bg-muted overflow-hidden"
+                className="flex overflow-hidden h-full"
                 style={{
                     width: `${100 * zoomLevel}%`,
                     minWidth: "100%",
