@@ -196,6 +196,7 @@ const Timeline = (
                         transportState={transportState}
                         onSetEndTime={handleSetEndTime}
                         isCreatingLoop={isCreatingLoop}
+                        zoomLevel={zoomLevel}
                     />
 
                     <Playhead

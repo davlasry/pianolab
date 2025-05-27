@@ -11,6 +11,7 @@ interface TimelineSelectionProps {
     transportState?: TransportState;
     onSetEndTime?: (time: number) => void;
     isCreatingLoop?: boolean;
+    zoomLevel?: number;
 }
 
 export function TimelineSelection({
@@ -21,6 +22,7 @@ export function TimelineSelection({
     transportState,
     onSetEndTime,
     isCreatingLoop = false,
+    zoomLevel,
 }: TimelineSelectionProps) {
     const [pxPerUnit, setPxPerUnit] = useState(1);
     const currentTime = useTransportTime();
@@ -34,7 +36,7 @@ export function TimelineSelection({
         }
     };
 
-    useLayoutEffect(computeScale, [duration, timelineRef.current]);
+    useLayoutEffect(computeScale, [duration, timelineRef.current, zoomLevel]);
     /* keep it responsive */
     useEffect(() => {
         window.addEventListener("resize", computeScale);
