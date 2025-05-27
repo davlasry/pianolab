@@ -168,6 +168,7 @@ const Timeline = (
                         selectionStart={selectionStart}
                         selectionEnd={selectionEnd}
                         duration={duration}
+                        timelineRef={containerRef}
                     />
 
                     <Playhead

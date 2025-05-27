@@ -25,6 +25,7 @@ export function useTimelineSelection({
 
     const handleSetStartAtPlayhead = useCallback(() => {
         const currentTime = Tone.getTransport().seconds;
+        console.log("currentTime =====>", currentTime);
         if (currentTime >= 0 && currentTime <= duration) {
             setSelectionStart(currentTime);
             onSeek(currentTime);

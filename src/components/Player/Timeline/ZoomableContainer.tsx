@@ -1,4 +1,5 @@
 import type { MouseEvent, WheelEvent, ReactNode, DragEvent } from "react";
+import { useEffect } from "react";
 
 interface ZoomableContainerProps {
     outerRef: React.RefObject<HTMLDivElement | null>;
@@ -21,6 +22,26 @@ export function ZoomableContainer({
     onDrop,
     children,
 }: ZoomableContainerProps) {
+    // Use useEffect to add wheel event listener with passive: false
+    useEffect(() => {
+        const innerElement = innerRef.current;
+        if (!innerElement || !onWheel) return;
+
+        const handleWheel = (e: Event) => {
+            // Cast the native Event to React's WheelEvent for the callback
+            onWheel(e as unknown as WheelEvent<HTMLDivElement>);
+        };
+
+        // Add event listener with passive: false to allow preventDefault
+        innerElement.addEventListener("wheel", handleWheel, {
+            passive: false,
+        });
+
+        return () => {
+            innerElement.removeEventListener("wheel", handleWheel);
+        };
+    }, [innerRef, onWheel]);
+
     return (
         <div
             data-component="ZoomableContainer"
@@ -30,7 +51,6 @@ export function ZoomableContainer({
         >
             <div
                 ref={innerRef}
-                onWheel={onWheel}
                 onDragOver={onDragOver}
                 onDrop={onDrop}
                 className="flex h-full overflow-hidden"
