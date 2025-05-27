@@ -44,7 +44,8 @@ const Timeline = (
         isSelectionComplete,
     } = useTimelineSelection({ duration, onSeek });
 
-    const { chordProgression, updateChordTime } = useChordProgressionState();
+    const { chordProgression, updateChordTime, insertChordAtIndex } =
+        useChordProgressionState();
 
     // Expose imperative API
     useImperativeHandle(
@@ -126,6 +127,7 @@ const Timeline = (
                         isEditMode={true}
                         onChordUpdate={updateChordTime}
                         timelineRef={containerRef}
+                        onInsertChord={insertChordAtIndex}
                     />
 
                     <TimelineSelection

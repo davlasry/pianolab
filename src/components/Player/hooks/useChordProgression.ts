@@ -43,7 +43,7 @@ function applyNoOverlapRule(
         }
     }
 
-    /*──────────────── 1. apply the user’s edit ────────────────*/
+    /*──────────────── 1. apply the user's edit ────────────────*/
     curr.startTime = newStart;
     curr.duration = newDur;
 
@@ -68,7 +68,7 @@ function applyNoOverlapRule(
         }
     }
 
-    /*──── 3. resolve overlap with *next* (shift, don’t shrink) ───*/
+    /*──── 3. resolve overlap with *next* (shift, don't shrink) ───*/
     if (next) {
         const overlapRight = curr.startTime + curr.duration - next.startTime;
 
@@ -79,7 +79,7 @@ function applyNoOverlapRule(
         }
 
         if (overlapRight > 0) {
-            // Keep next’s full duration, just move it forward
+            // Keep next's full duration, just move it forward
             next.startTime += overlapRight;
             next.duration = Math.max(minDur, next.duration - overlapRight);
 
@@ -122,5 +122,68 @@ export const useChordProgressionState = () => {
         [],
     );
 
-    return { chordProgression, updateChordTime };
+    const insertChordAtIndex = useCallback(
+        (indexToInsertRelative: number, side: "before" | "after") => {
+            debugger;
+            setChordProgression((currentProgression) => {
+                const chords = [...currentProgression.map((c) => ({ ...c }))]; // Create a mutable copy
+                const newChordDuration = 2;
+                const newChordLabel = "";
+
+                let newChordToInsert: Chord;
+                let insertionPoint: number;
+
+                if (side === "after") {
+                    const anchorChord = chords[indexToInsertRelative];
+                    if (!anchorChord) {
+                        console.error(
+                            "Timeline: Cannot add chord after non-existent chord index:",
+                            indexToInsertRelative,
+                        );
+                        return currentProgression;
+                    }
+                    const newStartTime =
+                        anchorChord.startTime + anchorChord.duration;
+                    newChordToInsert = {
+                        label: newChordLabel,
+                        startTime: newStartTime,
+                        duration: newChordDuration,
+                    };
+                    insertionPoint = indexToInsertRelative + 1;
+                } else {
+                    // side === 'before'
+                    const anchorChord = chords[indexToInsertRelative];
+                    if (!anchorChord) {
+                        console.error(
+                            "Timeline: Cannot add chord before non-existent chord index:",
+                            indexToInsertRelative,
+                        );
+                        return currentProgression;
+                    }
+                    const newStartTime = anchorChord.startTime;
+                    newChordToInsert = {
+                        label: newChordLabel,
+                        startTime: newStartTime,
+                        duration: newChordDuration,
+                    };
+                    insertionPoint = indexToInsertRelative;
+                }
+
+                chords.splice(insertionPoint, 0, newChordToInsert);
+
+                // Adjust subsequent chords' start times to make space
+                // Starts from the chord immediately after the newly inserted one
+                for (let i = insertionPoint + 1; i < chords.length; i++) {
+                    const prevChord = chords[i - 1];
+                    chords[i].startTime =
+                        prevChord.startTime + prevChord.duration;
+                }
+
+                return chords;
+            });
+        },
+        [],
+    );
+
+    return { chordProgression, updateChordTime, insertChordAtIndex };
 };

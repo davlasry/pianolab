@@ -84,6 +84,18 @@ export default function DraggableResizableBlock({
         e: React.PointerEvent<HTMLDivElement>,
         mode: "move" | "left" | "right" = "move",
     ) => {
+        // Check if the event target or its parent has data-interactive-child
+        let targetElement = e.target as HTMLElement | null;
+        const blockElement = blockRef.current;
+
+        while (targetElement && targetElement !== blockElement) {
+            if (targetElement.dataset.interactiveChild === "true") {
+                // If it's an interactive child, don't interfere with its events
+                return;
+            }
+            targetElement = targetElement.parentElement;
+        }
+
         e.stopPropagation();
         e.preventDefault();
         const el = blockRef.current!;
@@ -169,7 +181,7 @@ export default function DraggableResizableBlock({
             />
 
             {/* children */}
-            <div className="pointer-events-none flex h-full w-full items-center justify-center">
+            <div className="flex h-full w-full items-center justify-center">
                 {children}
             </div>
         </div>

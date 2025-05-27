@@ -14,6 +14,7 @@ interface Props {
     chordProgression: Chord[];
     isEditMode?: boolean;
     onChordUpdate: (index: number, duration: number, startTime: number) => void;
+    onInsertChord: (index: number, side: "before" | "after") => void;
     timelineRef: RefObject<HTMLDivElement | null>;
     currentTime?: number;
 }
@@ -23,6 +24,7 @@ export const TimelineChords = ({
     chordProgression,
     isEditMode = true,
     onChordUpdate = () => {},
+    onInsertChord,
     timelineRef,
 }: Props) => {
     const [pxPerUnit, setPxPerUnit] = useState(1);
@@ -67,6 +69,7 @@ export const TimelineChords = ({
                     pxPerUnit={pxPerUnit}
                     isEditMode={isEditMode}
                     onChordUpdate={onChordUpdate}
+                    onInsertChord={onInsertChord}
                 />
             ))}
         </div>
