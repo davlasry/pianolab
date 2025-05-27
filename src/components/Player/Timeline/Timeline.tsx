@@ -49,7 +49,14 @@ const Timeline = (
         handleResetSelection,
         isSelectionComplete,
         isCreatingLoop,
-    } = useTimelineSelection({ duration, onSeek });
+        activeLoop,
+        isLoopActive,
+        toggleLoop,
+    } = useTimelineSelection({
+        duration,
+        onSeek,
+        transportState,
+    });
 
     const {
         chordProgression,
@@ -139,6 +146,9 @@ const Timeline = (
                 selectionStart={selectionStart}
                 isSelectionComplete={isSelectionComplete}
                 isCreatingLoop={isCreatingLoop}
+                activeLoop={activeLoop}
+                isLoopActive={isLoopActive}
+                onToggleLoop={toggleLoop}
             />
 
             <div className="relative">

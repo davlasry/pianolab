@@ -7,6 +7,9 @@ interface TimelineSelectionControlsProps {
     selectionStart: number | null;
     isSelectionComplete: boolean;
     isCreatingLoop: boolean;
+    activeLoop: { start: number; end: number } | null;
+    isLoopActive: boolean;
+    onToggleLoop: () => void;
 }
 
 export function TimelineSelectionControls({
@@ -16,6 +19,9 @@ export function TimelineSelectionControls({
     selectionStart,
     isSelectionComplete,
     isCreatingLoop,
+    activeLoop,
+    isLoopActive,
+    onToggleLoop,
 }: TimelineSelectionControlsProps) {
     return (
         <div className="flex items-center gap-2">
@@ -29,10 +35,29 @@ export function TimelineSelectionControls({
                 {isCreatingLoop ? "End Loop" : "Start Loop"}
             </Button>
 
+            {activeLoop && (
+                <Button
+                    onClick={onToggleLoop}
+                    variant={isLoopActive ? "default" : "outline"}
+                    className={
+                        isLoopActive ? "bg-green-600 hover:bg-green-700" : ""
+                    }
+                >
+                    {isLoopActive ? "Loop On" : "Loop Off"}
+                </Button>
+            )}
+
             {selectionStart !== null && (
                 <Button onClick={onResetSelection} variant="outline">
                     Reset
                 </Button>
+            )}
+
+            {activeLoop && (
+                <span className="text-sm text-muted-foreground">
+                    Loop: {activeLoop.start.toFixed(1)}s -{" "}
+                    {activeLoop.end.toFixed(1)}s
+                </span>
             )}
         </div>
     );
