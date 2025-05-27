@@ -126,15 +126,17 @@ const Timeline = (
             // Always seek to clicked position
             onSeek(time);
 
-            // Set end time if we have a start time
-            handleSetEndTime(time);
+            // Only set end time if we're actively creating a loop
+            if (isCreatingLoop) {
+                handleSetEndTime(time);
+            }
 
             if (barRef.current) {
                 const x = percent * containerRef.current.scrollWidth;
                 barRef.current.style.transform = `translateX(${x}px)`;
             }
         },
-        [duration, onSeek, handleSetEndTime],
+        [duration, onSeek, handleSetEndTime, isCreatingLoop],
     );
 
     return (
@@ -183,6 +185,7 @@ const Timeline = (
                         timelineRef={containerRef}
                         transportState={transportState}
                         onSetEndTime={handleSetEndTime}
+                        isCreatingLoop={isCreatingLoop}
                     />
 
                     <Playhead

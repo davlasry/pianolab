@@ -10,6 +10,7 @@ interface TimelineSelectionProps {
     timelineRef: RefObject<HTMLDivElement | null>;
     transportState?: TransportState;
     onSetEndTime?: (time: number) => void;
+    isCreatingLoop?: boolean;
 }
 
 export function TimelineSelection({
@@ -19,6 +20,7 @@ export function TimelineSelection({
     timelineRef,
     transportState,
     onSetEndTime,
+    isCreatingLoop = false,
 }: TimelineSelectionProps) {
     const [pxPerUnit, setPxPerUnit] = useState(1);
     const currentTime = useTransportTime();
@@ -50,6 +52,7 @@ export function TimelineSelection({
             isNowStopped &&
             selectionStart !== null &&
             selectionEnd === null &&
+            isCreatingLoop &&
             onSetEndTime
         ) {
             // Finalize the selection with current time
@@ -63,6 +66,7 @@ export function TimelineSelection({
         selectionEnd,
         currentTime,
         onSetEndTime,
+        isCreatingLoop,
     ]);
 
     if (selectionStart === null) return null;
