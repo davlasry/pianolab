@@ -19,6 +19,7 @@ interface Props {
     currentTime?: number;
     activeChordIndex?: number | null;
     onChordSelect?: (index: number | null) => void;
+    zoomLevel?: number;
 }
 
 export const TimelineChords = ({
@@ -30,6 +31,7 @@ export const TimelineChords = ({
     timelineRef,
     activeChordIndex,
     onChordSelect,
+    zoomLevel,
 }: Props) => {
     const [pxPerUnit, setPxPerUnit] = useState(1);
 
@@ -39,7 +41,11 @@ export const TimelineChords = ({
         }
     };
 
-    useLayoutEffect(computeScale, [totalDuration, timelineRef.current]);
+    useLayoutEffect(computeScale, [
+        totalDuration,
+        timelineRef.current,
+        zoomLevel,
+    ]);
     /* keep it responsive */
     useEffect(() => {
         window.addEventListener("resize", computeScale);

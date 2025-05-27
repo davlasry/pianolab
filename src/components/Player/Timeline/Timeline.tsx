@@ -40,6 +40,15 @@ const Timeline = (
     const barRef = useRef<HTMLDivElement>(null);
 
     const { zoomLevel, updateZoom, resetZoom } = useTimelineZoom();
+
+    // Use a ref to store the current zoom level for the throttled wheel handler
+    const zoomLevelRef = useRef(zoomLevel);
+
+    // Update the ref whenever zoomLevel changes
+    useEffect(() => {
+        zoomLevelRef.current = zoomLevel;
+    }, [zoomLevel]);
+
     const {
         selectionStart,
         selectionEnd,
@@ -102,7 +111,7 @@ const Timeline = (
     // Throttled wheel → zoom
     const onWheel = useThrottle((e: WheelEvent<HTMLDivElement>) => {
         e.preventDefault();
-        const newZoom = Math.max(1, zoomLevel - e.deltaY * 0.005);
+        const newZoom = Math.max(1, zoomLevelRef.current - e.deltaY * 0.005);
         updateZoom(newZoom);
     }, 50);
 
@@ -176,6 +185,7 @@ const Timeline = (
                         onInsertChord={insertChordAtIndex}
                         activeChordIndex={activeChordIndex}
                         onChordSelect={setActiveChord}
+                        zoomLevel={zoomLevel}
                     />
 
                     <TimelineSelection
