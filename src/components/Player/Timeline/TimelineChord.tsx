@@ -90,7 +90,7 @@ export const TimelineChord = ({
                         : "text-primary-foreground/50",
                 )}
             >
-                {chord.label || (isEditMode && "Empty")}
+                {chord.label || (isEditMode && "?")}
             </div>
         </DraggableResizableBlock>
     );
