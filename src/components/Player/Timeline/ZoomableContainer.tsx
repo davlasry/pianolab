@@ -46,7 +46,7 @@ export function ZoomableContainer({
         <div
             data-component="ZoomableContainer"
             ref={outerRef}
-            className="relative h-36 w-full overflow-x-auto bg-muted pt-8"
+            className="relative h-40 w-full overflow-x-auto bg-muted pt-6"
             onClick={onClick}
         >
             <div
