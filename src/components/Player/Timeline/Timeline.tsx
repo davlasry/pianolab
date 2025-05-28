@@ -16,8 +16,8 @@ import { TimelineSelection } from "@/components/Player/Timeline/TimelineSelectio
 import { TimelineSelectionControls } from "@/components/Player/Timeline/TimelineSelectionControls";
 import { useTimelineSelection } from "@/components/Player/Timeline/hooks/useTimelineSelection";
 import type { TransportState } from "@/components/Player/hooks/useTransportState";
-import { useChordProgressionState } from "@/components/Player/hooks/useChordProgression";
 import { useUndoRedoShortcuts } from "@/components/Player/hooks/useUndoRedoShortcuts";
+import { useChordStore } from "@/store/chordStore";
 
 export interface TimelineHandle {
     scrollToBeginning: () => void;
@@ -68,21 +68,26 @@ const Timeline = (
         transportState,
     });
 
-    const {
-        chordProgression,
-        updateChordTime,
-        updateChordTimeLive,
-        saveStateToHistory,
-        insertChordAtIndex,
-        activeChordIndex,
-        setActiveChord,
-        deleteActiveChord,
-        addChordAtEnd,
-        undo,
-        redo,
-        canUndo,
-        canRedo,
-    } = useChordProgressionState();
+    // const { undo, redo, canUndo, canRedo } = useHistoryStore();
+
+    const chordProgression = useChordStore((s) => s.chordProgression);
+    const updateChordTime = useChordStore((s) => s.updateChordTime);
+    const updateChordTimeLive = useChordStore((s) => s.updateChordTimeLive);
+    const setChordProgression = useChordStore((s) => s.setChordProgression);
+    const insertChordAtIndex = useChordStore((s) => s.insertChordAtIndex);
+    const activeChordIndex = useChordStore((s) => s.activeChordIndex);
+    const setActiveChord = useChordStore((s) => s.setActiveChord);
+    const deleteActiveChord = useChordStore((s) => s.deleteActiveChord);
+    const addChordAtEnd = useChordStore((s) => s.addChordAtEnd);
+    const undo = useChordStore((s) => s.undo);
+    const redo = useChordStore((s) => s.redo);
+    const canUndo = useChordStore((s) => s.canUndo);
+    const canRedo = useChordStore((s) => s.canRedo);
+
+    // Save state to history before drag operations
+    const saveStateToHistory = useCallback(() => {
+        setChordProgression(chordProgression);
+    }, [chordProgression, setChordProgression]);
 
     // Setup undo/redo keyboard shortcuts
     useUndoRedoShortcuts({

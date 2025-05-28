@@ -1,6 +1,6 @@
 import type { RefObject } from "react";
 import { useEffect, useState, useLayoutEffect } from "react";
-import type { Chord } from "@/components/Player/hooks/useChordProgression";
+import type { Chord } from "@/store/chordStore";
 import { TimelineChord } from "@/components/Player/Timeline/TimelineChord.tsx";
 
 interface Props {

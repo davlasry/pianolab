@@ -3,8 +3,8 @@ import { useShortcut } from "@/shortcuts/KeyboardShortcuts";
 interface UseUndoRedoShortcutsProps {
     undo: () => void;
     redo: () => void;
-    canUndo: boolean;
-    canRedo: boolean;
+    canUndo: () => boolean;
+    canRedo: () => boolean;
 }
 
 export const useUndoRedoShortcuts = ({
@@ -21,7 +21,7 @@ export const useUndoRedoShortcuts = ({
                 undo();
             }
         },
-        when: () => canUndo,
+        when: () => canUndo(),
         description: "Undo last action",
     });
 
@@ -33,7 +33,7 @@ export const useUndoRedoShortcuts = ({
                 redo();
             }
         },
-        when: () => canRedo,
+        when: () => canRedo(),
         description: "Redo last action",
     });
-}; 
+};
