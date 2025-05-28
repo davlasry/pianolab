@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils.ts";
-import type { Chord } from "@/store/chordStore";
+import type { Chord } from "@/stores/chordsStore.ts";
 import DraggableResizableBlock from "@/components/shared/DraggableResizableBlock.tsx";
 import { useTransportTime } from "@/TransportTicker/transportTicker.ts";
 import { Button } from "@/components/ui/button";

@@ -17,7 +17,12 @@ import { TimelineSelectionControls } from "@/components/Player/Timeline/Timeline
 import { useTimelineSelection } from "@/components/Player/Timeline/hooks/useTimelineSelection";
 import type { TransportState } from "@/components/Player/hooks/useTransportState";
 import { useUndoRedoShortcuts } from "@/components/Player/hooks/useUndoRedoShortcuts";
-import { useChordStore } from "@/store/chordStore";
+import {
+    useChordProgression,
+    useActiveChordIndex,
+    useChordsActions,
+} from "@/stores/chordsStore.ts";
+import { useGlobalUndoRedo } from "@/hooks/useGlobalUndoRedo";
 
 export interface TimelineHandle {
     scrollToBeginning: () => void;
@@ -70,19 +75,20 @@ const Timeline = (
 
     // const { undo, redo, canUndo, canRedo } = useHistoryStore();
 
-    const chordProgression = useChordStore((s) => s.chordProgression);
-    const updateChordTime = useChordStore((s) => s.updateChordTime);
-    const updateChordTimeLive = useChordStore((s) => s.updateChordTimeLive);
-    const setChordProgression = useChordStore((s) => s.setChordProgression);
-    const insertChordAtIndex = useChordStore((s) => s.insertChordAtIndex);
-    const activeChordIndex = useChordStore((s) => s.activeChordIndex);
-    const setActiveChord = useChordStore((s) => s.setActiveChord);
-    const deleteActiveChord = useChordStore((s) => s.deleteActiveChord);
-    const addChordAtEnd = useChordStore((s) => s.addChordAtEnd);
-    const undo = useChordStore((s) => s.undo);
-    const redo = useChordStore((s) => s.redo);
-    const canUndo = useChordStore((s) => s.canUndo);
-    const canRedo = useChordStore((s) => s.canRedo);
+    const chordProgression = useChordProgression();
+    const activeChordIndex = useActiveChordIndex();
+    const {
+        updateChordTime,
+        updateChordTimeLive,
+        setChordProgression,
+        insertChordAtIndex,
+        setActiveChord,
+        deleteActiveChord,
+        addChordAtEnd,
+    } = useChordsActions();
+
+    // Use global undo/redo system instead of chord store delegates
+    const { undo, redo, canUndo, canRedo } = useGlobalUndoRedo();
 
     // Save state to history before drag operations
     const saveStateToHistory = useCallback(() => {

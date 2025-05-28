@@ -3,7 +3,7 @@ import * as Tone from "tone";
 import type { Note } from "@/components/Player/hooks/useMidiNotes.ts";
 import { useTransportState } from "@/components/Player/hooks/useTransportState.ts";
 import { transportTicker } from "@/TransportTicker/transportTicker.ts";
-import { useChordStore } from "@/store/chordStore.ts";
+import { useChordProgression } from "@/stores/chordsStore.ts";
 
 type ActiveNote = {
     midi: number;
@@ -11,7 +11,7 @@ type ActiveNote = {
 };
 
 export const usePlayer = (notes: Note[]) => {
-    const { chordProgression } = useChordStore();
+    const chordProgression = useChordProgression();
     const [activeNotes, setActiveNotes] = useState<ActiveNote[]>([]);
     const [activeChord, setActiveChord] = useState<string>("");
     const [audioDuration, setAudioDuration] = useState<number>(0);
