@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useActionHistory } from "@/hooks/useActionHistory.ts";
 
 export interface Chord {
     label: string;
@@ -96,94 +97,130 @@ function applyNoOverlapRule(
   React hook
 ───────────────────────────────────────────────────────────────*/
 export const useChordProgressionState = () => {
-    const [chordProgression, setChordProgression] = useState<Chord[]>(
-        initialChordProgression,
-    );
+    // Use generic history for chord progression
+    const {
+        state: chordProgression,
+        executeAction: setChordProgression,
+        updatePresent: updateChordProgressionPresent,
+        undo,
+        redo,
+        canUndo,
+        canRedo,
+    } = useActionHistory<Chord[]>(initialChordProgression, 20);
+
     const [activeChordIndex, setActiveChordIndex] = useState<number | null>(
         null,
     );
 
     /**
+     * Save the current state to history before starting a drag operation.
+     * This ensures we can undo back to the state before the drag began.
+     */
+    const saveStateToHistory = useCallback(() => {
+        setChordProgression(chordProgression);
+    }, [chordProgression, setChordProgression]);
+
+    /**
      * Move or resize a single chord *with* collision-avoidance.
+     * This version does NOT save to history - used for final commit after drag.
+     * History should already be saved when drag starts.
      * @param index      which chord in the array
      * @param duration   new duration (timeline units)
      * @param newStart   new start-time (timeline units)
      */
     const updateChordTime = useCallback(
         (index: number, duration: number, newStart: number) => {
-            setChordProgression((curr) => {
-                const result = applyNoOverlapRule(
-                    curr,
-                    index,
-                    newStart,
-                    duration,
-                );
-                return result;
-            });
+            // Use the current present state (which includes any live updates)
+            // and apply the final collision rules, but don't save to history
+            const result = applyNoOverlapRule(
+                chordProgression,
+                index,
+                newStart,
+                duration,
+            );
+            updateChordProgressionPresent(result); // Update present without history
         },
-        [],
+        [chordProgression, updateChordProgressionPresent],
+    );
+
+    /**
+     * Live update during drag/resize operations - does NOT save to history.
+     * Use this for onChange callbacks during drag operations.
+     * @param index      which chord in the array
+     * @param duration   new duration (timeline units)
+     * @param newStart   new start-time (timeline units)
+     */
+    const updateChordTimeLive = useCallback(
+        (index: number, duration: number, newStart: number) => {
+            const result = applyNoOverlapRule(
+                chordProgression,
+                index,
+                newStart,
+                duration,
+            );
+            // Update the current state directly without saving to history
+            updateChordProgressionPresent(result);
+        },
+        [chordProgression, updateChordProgressionPresent],
     );
 
     const insertChordAtIndex = useCallback(
         (indexToInsertRelative: number, side: "before" | "after") => {
-            setChordProgression((currentProgression) => {
-                const chords = [...currentProgression.map((c) => ({ ...c }))]; // Create a mutable copy
-                const newChordDuration = 2;
-                const newChordLabel = "";
+            const chords = [...chordProgression.map((c) => ({ ...c }))]; // Create a mutable copy
+            const newChordDuration = 2;
+            const newChordLabel = "";
 
-                let newChordToInsert: Chord;
-                let insertionPoint: number;
+            let newChordToInsert: Chord;
+            let insertionPoint: number;
 
-                if (side === "after") {
-                    const anchorChord = chords[indexToInsertRelative];
-                    if (!anchorChord) {
-                        console.error(
-                            "Timeline: Cannot add chord after non-existent chord index:",
-                            indexToInsertRelative,
-                        );
-                        return currentProgression;
-                    }
-                    const newStartTime =
-                        anchorChord.startTime + anchorChord.duration;
-                    newChordToInsert = {
-                        label: newChordLabel,
-                        startTime: newStartTime,
-                        duration: newChordDuration,
-                    };
-                    insertionPoint = indexToInsertRelative + 1;
-                } else {
-                    // side === 'before'
-                    const anchorChord = chords[indexToInsertRelative];
-                    if (!anchorChord) {
-                        console.error(
-                            "Timeline: Cannot add chord before non-existent chord index:",
-                            indexToInsertRelative,
-                        );
-                        return currentProgression;
-                    }
-                    const newStartTime = anchorChord.startTime;
-                    newChordToInsert = {
-                        label: newChordLabel,
-                        startTime: newStartTime,
-                        duration: newChordDuration,
-                    };
-                    insertionPoint = indexToInsertRelative;
+            if (side === "after") {
+                const anchorChord = chords[indexToInsertRelative];
+                if (!anchorChord) {
+                    console.error(
+                        "Timeline: Cannot add chord after non-existent chord index:",
+                        indexToInsertRelative,
+                    );
+                    return;
                 }
-
-                chords.splice(insertionPoint, 0, newChordToInsert);
-
-                // Adjust subsequent chords' start times to make space
-                // Starts from the chord immediately after the newly inserted one
-                for (let i = insertionPoint + 1; i < chords.length; i++) {
-                    const prevChord = chords[i - 1];
-                    chords[i].startTime =
-                        prevChord.startTime + prevChord.duration;
+                const newStartTime =
+                    anchorChord.startTime + anchorChord.duration;
+                newChordToInsert = {
+                    label: newChordLabel,
+                    startTime: newStartTime,
+                    duration: newChordDuration,
+                };
+                insertionPoint = indexToInsertRelative + 1;
+            } else {
+                // side === 'before'
+                const anchorChord = chords[indexToInsertRelative];
+                if (!anchorChord) {
+                    console.error(
+                        "Timeline: Cannot add chord before non-existent chord index:",
+                        indexToInsertRelative,
+                    );
+                    return;
                 }
+                const newStartTime = anchorChord.startTime;
+                newChordToInsert = {
+                    label: newChordLabel,
+                    startTime: newStartTime,
+                    duration: newChordDuration,
+                };
+                insertionPoint = indexToInsertRelative;
+            }
 
-                return chords;
-            });
+            chords.splice(insertionPoint, 0, newChordToInsert);
+
+            // Adjust subsequent chords' start times to make space
+            // Starts from the chord immediately after the newly inserted one
+            for (let i = insertionPoint + 1; i < chords.length; i++) {
+                const prevChord = chords[i - 1];
+                chords[i].startTime = prevChord.startTime + prevChord.duration;
+            }
+
+            setChordProgression(chords); // Saves to history
         },
-        [],
+        [chordProgression, setChordProgression],
     );
 
     const setActiveChord = useCallback((index: number | null) => {
@@ -192,33 +229,28 @@ export const useChordProgressionState = () => {
 
     const deleteChord = useCallback(
         (index: number) => {
-            setChordProgression((currentProgression) => {
-                if (index < 0 || index >= currentProgression.length) {
-                    console.error(
-                        "Timeline: Cannot delete chord at invalid index:",
-                        index,
-                    );
-                    return currentProgression;
-                }
+            if (index < 0 || index >= chordProgression.length) {
+                console.error(
+                    "Timeline: Cannot delete chord at invalid index:",
+                    index,
+                );
+                return;
+            }
 
-                const newProgression = [...currentProgression];
-                newProgression.splice(index, 1);
+            const newProgression = [...chordProgression];
+            newProgression.splice(index, 1);
 
-                // Clear active chord if we deleted it
-                if (index === activeChordIndex) {
-                    setActiveChordIndex(null);
-                } else if (
-                    activeChordIndex !== null &&
-                    index < activeChordIndex
-                ) {
-                    // Adjust active chord index if we deleted a chord before it
-                    setActiveChordIndex(activeChordIndex - 1);
-                }
+            // Clear active chord if we deleted it
+            if (index === activeChordIndex) {
+                setActiveChordIndex(null);
+            } else if (activeChordIndex !== null && index < activeChordIndex) {
+                // Adjust active chord index if we deleted a chord before it
+                setActiveChordIndex(activeChordIndex - 1);
+            }
 
-                return newProgression;
-            });
+            setChordProgression(newProgression); // Saves to history
         },
-        [activeChordIndex],
+        [chordProgression, setChordProgression, activeChordIndex],
     );
 
     const deleteActiveChord = useCallback(() => {
@@ -228,26 +260,36 @@ export const useChordProgressionState = () => {
     }, [activeChordIndex, deleteChord]);
 
     const addChordAtEnd = useCallback(() => {
-        setChordProgression((currentProgression) => {
-            const lastChord = currentProgression[currentProgression.length - 1];
-            const newStartTime = lastChord.startTime + lastChord.duration;
-            
-            return [...currentProgression, {
+        const lastChord = chordProgression[chordProgression.length - 1];
+        const newStartTime = lastChord.startTime + lastChord.duration;
+
+        const newProgression = [
+            ...chordProgression,
+            {
                 label: "",
                 startTime: newStartTime,
                 duration: 2,
-            }];
-        });
-    }, []);
+            },
+        ];
+
+        setChordProgression(newProgression); // Saves to history
+    }, [chordProgression, setChordProgression]);
 
     return {
         chordProgression,
         updateChordTime,
+        updateChordTimeLive,
+        saveStateToHistory,
         insertChordAtIndex,
         activeChordIndex,
         setActiveChord,
         deleteChord,
         deleteActiveChord,
         addChordAtEnd,
+        // Expose history controls
+        undo,
+        redo,
+        canUndo,
+        canRedo,
     };
 };

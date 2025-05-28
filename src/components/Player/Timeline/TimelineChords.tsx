@@ -8,6 +8,12 @@ interface Props {
     chordProgression: Chord[];
     isEditMode?: boolean;
     onChordUpdate: (index: number, duration: number, startTime: number) => void;
+    onChordUpdateLive?: (
+        index: number,
+        duration: number,
+        startTime: number,
+    ) => void;
+    onDragStart?: () => void;
     onInsertChord: (index: number, side: "before" | "after") => void;
     timelineRef: RefObject<HTMLDivElement | null>;
     currentTime?: number;
@@ -22,6 +28,8 @@ export const TimelineChords = ({
     chordProgression,
     isEditMode = true,
     onChordUpdate = () => {},
+    onChordUpdateLive,
+    onDragStart,
     onInsertChord,
     timelineRef,
     activeChordIndex,
@@ -71,6 +79,8 @@ export const TimelineChords = ({
                     pxPerUnit={pxPerUnit}
                     isEditMode={isEditMode}
                     onChordUpdate={onChordUpdate}
+                    onChordUpdateLive={onChordUpdateLive}
+                    onDragStart={onDragStart}
                     onInsertChord={onInsertChord}
                     isSelected={activeChordIndex === i}
                     onSelect={() => onChordSelect?.(i)}
@@ -84,6 +94,8 @@ export const TimelineChords = ({
                     pxPerUnit={pxPerUnit}
                     isEditMode={true}
                     onChordUpdate={onChordUpdate}
+                    onChordUpdateLive={onChordUpdateLive}
+                    onDragStart={onDragStart}
                     onInsertChord={onInsertChord}
                     onSelect={onAddChordAtEnd}
                 />

@@ -22,6 +22,7 @@ export interface DraggableResizableBlockProps {
     draggingClassName?: string; // applied **only while dragging**
     children?: React.ReactNode;
     onChange?: (id: string | number, start: number, duration: number) => void; // 🆕 fires during drag
+    onDragStart?: (id: string | number) => void; // 🆕 fires when drag starts
     onClick?: (e: React.MouseEvent<HTMLDivElement>) => void; // 🆕 click handler
 }
 
@@ -36,6 +37,7 @@ export default function DraggableResizableBlock({
     draggingClassName = "",
     children,
     onChange,
+    onDragStart,
     onClick,
 }: DraggableResizableBlockProps) {
     /* --------------------------------------------------
@@ -119,8 +121,13 @@ export default function DraggableResizableBlock({
         const dxUnits = pxToUnits(e.clientX - live.current.originX);
 
         // Mark as dragged if there's any movement
+        const wasNotDragged = !hasDragged;
         if (Math.abs(dxUnits) > 0.01) {
             setHasDragged(true);
+            // Call onDragStart only once when drag first begins
+            if (wasNotDragged && onDragStart) {
+                onDragStart(id);
+            }
         }
 
         if (live.current.mode === "move") {

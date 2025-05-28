@@ -17,6 +17,7 @@ import { TimelineSelectionControls } from "@/components/Player/Timeline/Timeline
 import { useTimelineSelection } from "@/components/Player/Timeline/hooks/useTimelineSelection";
 import type { TransportState } from "@/components/Player/hooks/useTransportState";
 import { useChordProgressionState } from "@/components/Player/hooks/useChordProgression";
+import { useUndoRedoShortcuts } from "@/components/Player/hooks/useUndoRedoShortcuts";
 
 export interface TimelineHandle {
     scrollToBeginning: () => void;
@@ -70,12 +71,26 @@ const Timeline = (
     const {
         chordProgression,
         updateChordTime,
+        updateChordTimeLive,
+        saveStateToHistory,
         insertChordAtIndex,
         activeChordIndex,
         setActiveChord,
         deleteActiveChord,
         addChordAtEnd,
+        undo,
+        redo,
+        canUndo,
+        canRedo,
     } = useChordProgressionState();
+
+    // Setup undo/redo keyboard shortcuts
+    useUndoRedoShortcuts({
+        undo,
+        redo,
+        canUndo,
+        canRedo,
+    });
 
     // Handle keyboard events for chord deletion
     useEffect(() => {
@@ -185,6 +200,8 @@ const Timeline = (
                         chordProgression={chordProgression}
                         isEditMode={true}
                         onChordUpdate={updateChordTime}
+                        onChordUpdateLive={updateChordTimeLive}
+                        onDragStart={saveStateToHistory}
                         timelineRef={containerRef}
                         onInsertChord={insertChordAtIndex}
                         activeChordIndex={activeChordIndex}

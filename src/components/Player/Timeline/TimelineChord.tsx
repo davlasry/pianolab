@@ -9,6 +9,12 @@ interface Props {
     isEditMode: boolean;
     pxPerUnit: number;
     onChordUpdate: (index: number, duration: number, startTime: number) => void;
+    onChordUpdateLive?: (
+        index: number,
+        duration: number,
+        startTime: number,
+    ) => void;
+    onDragStart?: () => void;
     onInsertChord: (index: number, side: "before" | "after") => void;
     i: number; // index for key
     isSelected?: boolean;
@@ -20,6 +26,8 @@ export const TimelineChord = ({
     isEditMode,
     pxPerUnit,
     onChordUpdate,
+    onChordUpdateLive,
+    onDragStart,
     onInsertChord,
     i,
     isSelected = false,
@@ -55,9 +63,13 @@ export const TimelineChord = ({
             onCommit={(id: number | string, start: number, duration: number) =>
                 onChordUpdate(id as number, duration, start)
             }
-            onChange={(id: number | string, start: number, duration: number) =>
-                onChordUpdate(id as number, duration, start)
+            onChange={
+                onChordUpdateLive
+                    ? (id: number | string, start: number, duration: number) =>
+                          onChordUpdateLive(id as number, duration, start)
+                    : undefined
             }
+            onDragStart={onDragStart ? () => onDragStart() : undefined}
             onClick={handleChordClick}
             className={cn(
                 "group z-10 flex flex-col items-center justify-center rounded-2xl p-2",
