@@ -8,6 +8,14 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
     plugins: [react(), tsconfigPaths(), tailwindcss()],
     base: "/",
+    test: {
+        globals: true,
+        environment: "jsdom",
+        setupFiles: "./vitest.setup.ts",
+        coverage: {
+            reporter: ["text", "html"],
+        },
+    },
     resolve: {
         alias: {
             "@": path.resolve(__dirname, "./src"),
