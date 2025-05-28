@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { CurrentChord } from "@/components/Player/CurrentChord.tsx";
+import { ChordEditor } from "@/components/Player/ChordEditor.tsx";
 import { usePlayerContext } from "@/components/Player/context/PlayerContext";
 import Controls from "@/components/Player/Controls/Controls.tsx";
 import Timeline, {
@@ -45,6 +46,7 @@ export const PlayerContent = () => {
 
             <div className="flex flex-col">
                 {/*<Keyboard activeNotes={activeNotes} components={realistic} />*/}
+                <ChordEditor />
                 <div className="flex">
                     <Controls handleMoveToBeginning={handleMoveToBeginning} />
                     <CurrentChord chord={activeChord} />

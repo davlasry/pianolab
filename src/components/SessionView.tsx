@@ -37,7 +37,7 @@ const SessionContent = () => {
     return (
         <>
             <div className="flex flex-1 flex-col overflow-hidden">
-                <div className="p-4">
+                <div className="">
                     <SessionHeader
                         session={session}
                         onOpenEditModal={handleOpenEditModal}

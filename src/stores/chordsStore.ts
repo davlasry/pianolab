@@ -93,6 +93,7 @@ interface ChordActions {
         duration: number,
         newStart: number,
     ) => void;
+    updateChordLabel: (index: number, label: string) => void;
     insertChordAtIndex: (index: number, side: "before" | "after") => void;
     deleteChord: (index: number) => void;
     deleteActiveChord: () => void;
@@ -156,6 +157,14 @@ const useChordsStore = create<ChordsStore>((set, get) => ({
                     duration,
                 );
                 return { chordProgression: result };
+            }),
+
+        updateChordLabel: (index, label) =>
+            set((state) => {
+                createChordSnapshot(state);
+                const newProgression = [...state.chordProgression];
+                newProgression[index] = { ...newProgression[index], label };
+                return { chordProgression: newProgression };
             }),
 
         insertChordAtIndex: (indexToInsertRelative, side) =>
