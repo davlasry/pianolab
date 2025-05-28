@@ -108,11 +108,13 @@ const Timeline = (
         [duration, resetZoom],
     );
 
-    // Throttled wheel → zoom
+    // Throttled wheel → scroll
     const onWheel = useThrottle((e: WheelEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        const newZoom = Math.max(1, zoomLevelRef.current - e.deltaY * 0.02);
-        updateZoom(newZoom);
+        // Only handle non-zoom wheel events (zoom is handled in ZoomableContainer)
+        if (!e.ctrlKey && outerRef.current) {
+            e.preventDefault();
+            outerRef.current.scrollLeft += e.deltaX || e.deltaY / 2;
+        }
     }, 50);
 
     // Click → seek and set end time
@@ -172,6 +174,7 @@ const Timeline = (
                     outerRef={outerRef}
                     innerRef={containerRef}
                     zoomLevel={zoomLevel}
+                    onZoomChange={updateZoom}
                     onWheel={onWheel}
                     onClick={onClick}
                 >
