@@ -3,12 +3,6 @@ import { useEffect, useState, useLayoutEffect } from "react";
 import type { Chord } from "@/components/Player/hooks/useChordProgression";
 import { TimelineChord } from "@/components/Player/Timeline/TimelineChord.tsx";
 
-export interface IEnrichedChord extends Chord {
-    originalStartTime: number;
-    originalDuration: number;
-    originalIndex: number;
-}
-
 interface Props {
     totalDuration: number;
     chordProgression: Chord[];
@@ -20,6 +14,7 @@ interface Props {
     activeChordIndex?: number | null;
     onChordSelect?: (index: number | null) => void;
     zoomLevel?: number;
+    onAddChordAtEnd?: () => void;
 }
 
 export const TimelineChords = ({
@@ -32,6 +27,7 @@ export const TimelineChords = ({
     activeChordIndex,
     onChordSelect,
     zoomLevel,
+    onAddChordAtEnd,
 }: Props) => {
     const [pxPerUnit, setPxPerUnit] = useState(1);
 
@@ -52,18 +48,14 @@ export const TimelineChords = ({
         return () => window.removeEventListener("resize", computeScale);
     }, []);
 
-    const enrichedChords: IEnrichedChord[] = chordProgression.map((chord) => {
-        return {
-            ...chord,
-            originalStartTime: chord.startTime,
-            originalDuration: chord.duration,
-            originalIndex: chordProgression.findIndex(
-                (c) => c.startTime === chord.startTime,
-            ),
-        };
-    });
-
     if (totalDuration <= 0) return null;
+
+    const lastChord = chordProgression[chordProgression.length - 1];
+    const addPlaceholderChord: Chord = {
+        label: "+",
+        startTime: lastChord.startTime + lastChord.duration,
+        duration: 2,
+    };
 
     return (
         <div
@@ -71,7 +63,7 @@ export const TimelineChords = ({
             ref={timelineRef}
             className="relative w-full flex-grow"
         >
-            {enrichedChords.map((chord, i) => (
+            {chordProgression.map((chord, i) => (
                 <TimelineChord
                     key={i}
                     i={i}
@@ -84,6 +76,18 @@ export const TimelineChords = ({
                     onSelect={() => onChordSelect?.(i)}
                 />
             ))}
+            {isEditMode && onAddChordAtEnd && (
+                <TimelineChord
+                    key="add-placeholder"
+                    i={chordProgression.length}
+                    chord={addPlaceholderChord}
+                    pxPerUnit={pxPerUnit}
+                    isEditMode={true}
+                    onChordUpdate={onChordUpdate}
+                    onInsertChord={onInsertChord}
+                    onSelect={onAddChordAtEnd}
+                />
+            )}
         </div>
     );
 };

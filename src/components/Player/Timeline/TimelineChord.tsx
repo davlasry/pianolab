@@ -1,11 +1,11 @@
 import { cn } from "@/lib/utils.ts";
-import type { IEnrichedChord } from "@/components/Player/Timeline/TimelineChords.tsx";
+import type { Chord } from "@/components/Player/hooks/useChordProgression";
 import DraggableResizableBlock from "@/components/shared/DraggableResizableBlock.tsx";
 import { useTransportTime } from "@/TransportTicker/transportTicker.ts";
 import { Button } from "@/components/ui/button";
 
 interface Props {
-    chord: IEnrichedChord;
+    chord: Chord;
     isEditMode: boolean;
     pxPerUnit: number;
     onChordUpdate: (index: number, duration: number, startTime: number) => void;

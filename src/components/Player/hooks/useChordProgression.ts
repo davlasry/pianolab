@@ -227,6 +227,19 @@ export const useChordProgressionState = () => {
         }
     }, [activeChordIndex, deleteChord]);
 
+    const addChordAtEnd = useCallback(() => {
+        setChordProgression((currentProgression) => {
+            const lastChord = currentProgression[currentProgression.length - 1];
+            const newStartTime = lastChord.startTime + lastChord.duration;
+            
+            return [...currentProgression, {
+                label: "",
+                startTime: newStartTime,
+                duration: 2,
+            }];
+        });
+    }, []);
+
     return {
         chordProgression,
         updateChordTime,
@@ -235,5 +248,6 @@ export const useChordProgressionState = () => {
         setActiveChord,
         deleteChord,
         deleteActiveChord,
+        addChordAtEnd,
     };
 };

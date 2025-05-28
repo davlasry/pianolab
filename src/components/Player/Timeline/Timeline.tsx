@@ -74,6 +74,7 @@ const Timeline = (
         activeChordIndex,
         setActiveChord,
         deleteActiveChord,
+        addChordAtEnd,
     } = useChordProgressionState();
 
     // Handle keyboard events for chord deletion
@@ -189,6 +190,7 @@ const Timeline = (
                         activeChordIndex={activeChordIndex}
                         onChordSelect={setActiveChord}
                         zoomLevel={zoomLevel}
+                        onAddChordAtEnd={addChordAtEnd}
                     />
 
                     <TimelineSelection
