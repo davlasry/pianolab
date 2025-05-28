@@ -1,3 +1,6 @@
+import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
 interface Props {
     resetZoom: () => void;
     zoomLevel: number;
@@ -9,15 +12,17 @@ export const TimelineZoomControls = ({ resetZoom, zoomLevel }: Props) => {
             <span className="rounded bg-muted/20 px-2 py-1 text-foreground">
                 {Math.round(zoomLevel * 100)}%
             </span>
-            <button
+            <Button
+                variant="ghost"
+                size="icon"
                 onClick={(e) => {
                     e.stopPropagation();
                     resetZoom();
                 }}
-                className="rounded bg-muted/20 px-2 py-1 text-foreground hover:bg-muted/30"
+                className="bg-muted/20 hover:bg-muted/30"
             >
-                Reset
-            </button>
+                <X size={14} />
+            </Button>
         </div>
     );
 };

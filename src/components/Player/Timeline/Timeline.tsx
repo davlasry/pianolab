@@ -111,7 +111,7 @@ const Timeline = (
     // Throttled wheel → zoom
     const onWheel = useThrottle((e: WheelEvent<HTMLDivElement>) => {
         e.preventDefault();
-        const newZoom = Math.max(1, zoomLevelRef.current - e.deltaY * 0.005);
+        const newZoom = Math.max(1, zoomLevelRef.current - e.deltaY * 0.02);
         updateZoom(newZoom);
     }, 50);
 

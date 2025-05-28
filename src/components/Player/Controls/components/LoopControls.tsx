@@ -1,4 +1,5 @@
 import { Repeat } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface LoopControlsProps {
     loopActive: boolean;
@@ -19,17 +20,15 @@ const LoopControls = ({
 }: LoopControlsProps) => {
     return (
         <div className="mt-2 flex items-center gap-4">
-            <button
+            <Button
                 onClick={onToggleLoop}
-                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs transition-colors ${
-                    loopActive
-                        ? "bg-destructive text-destructive-foreground"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
-                }`}
+                variant={loopActive ? "destructive" : "secondary"}
+                size="sm"
+                className="text-xs"
             >
                 <Repeat size={14} />
                 <span>{loopActive ? "Loop On" : "Loop"}</span>
-            </button>
+            </Button>
 
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span>Start:</span>

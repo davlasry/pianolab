@@ -32,7 +32,10 @@ export function useTimelineSelection({
     const [selectionStart, setSelectionStart] = useState<number | null>(null);
     const [selectionEnd, setSelectionEnd] = useState<number | null>(null);
     const [isCreatingLoop, setIsCreatingLoop] = useState(false);
-    const [activeLoop, setActiveLoop] = useState<{ start: number; end: number } | null>(null);
+    const [activeLoop, setActiveLoop] = useState<{
+        start: number;
+        end: number;
+    } | null>(null);
     const [isLoopActive, setIsLoopActive] = useState(false);
 
     // Get current transport time for loop monitoring
@@ -47,7 +50,9 @@ export function useTimelineSelection({
 
         // Check if current time has reached or passed the loop end
         if (currentTime >= activeLoop.end) {
-            console.log(`Loop detected: currentTime (${currentTime}) >= loop end (${activeLoop.end}), seeking to start (${activeLoop.start})`);
+            console.log(
+                `Loop detected: currentTime (${currentTime}) >= loop end (${activeLoop.end}), seeking to start (${activeLoop.start})`,
+            );
             // We've reached the end of the loop - jump back to start
             onSeek(activeLoop.start);
         }
@@ -81,21 +86,19 @@ export function useTimelineSelection({
             // Use current time as end if no end is set yet
             const currentTime = Tone.getTransport().seconds;
             const finalEnd = selectionEnd !== null ? selectionEnd : currentTime;
-            
+
             // Ensure start is always less than end
             const start = Math.min(selectionStart, finalEnd);
             const end = Math.max(selectionStart, finalEnd);
-            console.log("Selection:", { start, end });
 
             // Finalize the selection but keep it visible
             setSelectionEnd(end);
             setIsCreatingLoop(false); // Exit loop creation mode
-            
+
             // Activate the loop and seek to start
             const loopData = { start, end };
             setActiveLoop(loopData);
             setIsLoopActive(true);
-            console.log("Loop activated, seeking to start:", start);
             onSeek(start); // Seek to loop start
         }
     }, [selectionStart, selectionEnd, onSeek]);
@@ -110,14 +113,10 @@ export function useTimelineSelection({
 
     const toggleLoop = useCallback(() => {
         if (activeLoop) {
-            setIsLoopActive(prev => {
+            setIsLoopActive((prev) => {
                 const newState = !prev;
                 if (newState) {
-                    // When activating loop, seek to start
-                    console.log("Loop toggled ON, seeking to start:", activeLoop.start);
                     onSeek(activeLoop.start);
-                } else {
-                    console.log("Loop toggled OFF");
                 }
                 return newState;
             });

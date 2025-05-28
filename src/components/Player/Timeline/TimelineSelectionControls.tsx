@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 interface TimelineSelectionControlsProps {
     onSetStartAtPlayhead: () => void;
@@ -48,8 +49,8 @@ export function TimelineSelectionControls({
             )}
 
             {selectionStart !== null && (
-                <Button onClick={onResetSelection} variant="outline">
-                    Reset
+                <Button onClick={onResetSelection} variant="outline" size="icon">
+                    <X size={14} />
                 </Button>
             )}
 
