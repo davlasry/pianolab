@@ -1,12 +1,12 @@
-import { useHistoryStore } from "@/stores/historyStore";
+import { useHistoryActions } from "@/stores/historyStore";
 import { type Chord, useChordsActions } from "@/stores/chordsStore.ts";
 
 export const useGlobalUndoRedo = () => {
-    const historyStore = useHistoryStore();
+    const { undo: historyUndo, redo: historyRedo, canUndo, canRedo } = useHistoryActions();
     const chordsActions = useChordsActions();
 
     const undo = () => {
-        const snapshot = historyStore.undo();
+        const snapshot = historyUndo();
         if (!snapshot) return;
 
         // Route the snapshot to the appropriate store based on tag
@@ -29,7 +29,7 @@ export const useGlobalUndoRedo = () => {
     };
 
     const redo = () => {
-        const snapshot = historyStore.redo();
+        const snapshot = historyRedo();
         if (!snapshot) return;
 
         // Same routing logic as undo
@@ -48,7 +48,7 @@ export const useGlobalUndoRedo = () => {
     return {
         undo,
         redo,
-        canUndo: historyStore.canUndo,
-        canRedo: historyStore.canRedo,
+        canUndo,
+        canRedo,
     };
 };

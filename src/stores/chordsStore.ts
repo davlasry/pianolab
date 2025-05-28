@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { useHistoryStore } from "@/stores/historyStore";
+import { pushSnapshot } from "@/stores/historyStore";
 
 export interface Chord {
     label: string;
@@ -108,12 +108,12 @@ interface ChordsStore {
     actions: ChordActions;
 }
 
-const pushSnapshot = (state: { chordProgression: Chord[] }) => {
+const createChordSnapshot = (state: { chordProgression: Chord[] }) => {
     const snapshot = {
         tag: "chords",
         state: state.chordProgression.map((chord) => ({ ...chord })), // Deep copy
     };
-    useHistoryStore.getState().push(snapshot);
+    pushSnapshot(snapshot);
 };
 
 const useChordsStore = create<ChordsStore>((set, get) => ({
@@ -124,7 +124,7 @@ const useChordsStore = create<ChordsStore>((set, get) => ({
         /*─────────────────────────── core ──────────────────────────*/
         setChordProgression: (newProg) =>
             set((state) => {
-                pushSnapshot(state);
+                createChordSnapshot(state);
                 return { chordProgression: newProg };
             }),
 
@@ -137,7 +137,7 @@ const useChordsStore = create<ChordsStore>((set, get) => ({
         /*────────────────────────── editing ────────────────────────*/
         updateChordTime: (index, duration, newStart) =>
             set((state) => {
-                pushSnapshot(state);
+                createChordSnapshot(state);
                 const result = applyNoOverlapRule(
                     state.chordProgression,
                     index,
@@ -160,7 +160,7 @@ const useChordsStore = create<ChordsStore>((set, get) => ({
 
         insertChordAtIndex: (indexToInsertRelative, side) =>
             set((state) => {
-                pushSnapshot(state);
+                createChordSnapshot(state);
 
                 const chords = [
                     ...state.chordProgression.map((c) => ({ ...c })),
@@ -207,7 +207,7 @@ const useChordsStore = create<ChordsStore>((set, get) => ({
                 if (index < 0 || index >= state.chordProgression.length)
                     return {};
 
-                pushSnapshot(state);
+                createChordSnapshot(state);
 
                 const newProgression = [...state.chordProgression];
                 newProgression.splice(index, 1);
@@ -233,7 +233,7 @@ const useChordsStore = create<ChordsStore>((set, get) => ({
 
         addChordAtEnd: () =>
             set((state) => {
-                pushSnapshot(state);
+                createChordSnapshot(state);
 
                 const last =
                     state.chordProgression[state.chordProgression.length - 1];
