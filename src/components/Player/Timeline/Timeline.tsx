@@ -17,12 +17,8 @@ import { TimelineSelectionControls } from "@/components/Player/Timeline/Timeline
 import { useTimelineSelection } from "@/components/Player/Timeline/hooks/useTimelineSelection";
 import type { TransportState } from "@/components/Player/hooks/useTransportState";
 import { useUndoRedoShortcuts } from "@/components/Player/hooks/useUndoRedoShortcuts";
-import {
-    useChordProgression,
-    useActiveChordIndex,
-    useChordsActions,
-} from "@/stores/chordsStore.ts";
 import { useGlobalUndoRedo } from "@/hooks/useGlobalUndoRedo";
+import { useChordsActions } from "@/stores/chordsStore.ts";
 
 export interface TimelineHandle {
     scrollToBeginning: () => void;
@@ -73,27 +69,9 @@ const Timeline = (
         transportState,
     });
 
-    // const { undo, redo, canUndo, canRedo } = useHistoryStore();
-
-    const chordProgression = useChordProgression();
-    const activeChordIndex = useActiveChordIndex();
-    const {
-        updateChordTime,
-        updateChordTimeLive,
-        setChordProgression,
-        insertChordAtIndex,
-        setActiveChord,
-        deleteActiveChord,
-        addChordAtEnd,
-    } = useChordsActions();
-
     // Use global undo/redo system instead of chord store delegates
     const { undo, redo, canUndo, canRedo } = useGlobalUndoRedo();
-
-    // Save state to history before drag operations
-    const saveStateToHistory = useCallback(() => {
-        setChordProgression(chordProgression);
-    }, [chordProgression, setChordProgression]);
+    const { deleteActiveChord } = useChordsActions();
 
     // Setup undo/redo keyboard shortcuts
     useUndoRedoShortcuts({
@@ -208,17 +186,9 @@ const Timeline = (
                     {/*<TimelineTicks totalDuration={duration} />*/}
                     <TimelineChords
                         totalDuration={duration}
-                        chordProgression={chordProgression}
                         isEditMode={true}
-                        onChordUpdate={updateChordTime}
-                        onChordUpdateLive={updateChordTimeLive}
-                        onDragStart={saveStateToHistory}
                         timelineRef={containerRef}
-                        onInsertChord={insertChordAtIndex}
-                        activeChordIndex={activeChordIndex}
-                        onChordSelect={setActiveChord}
                         zoomLevel={zoomLevel}
-                        onAddChordAtEnd={addChordAtEnd}
                     />
 
                     <TimelineSelection

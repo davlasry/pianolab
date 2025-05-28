@@ -2,42 +2,36 @@ import type { RefObject } from "react";
 import { useEffect, useState, useLayoutEffect } from "react";
 import type { Chord } from "@/stores/chordsStore.ts";
 import { TimelineChord } from "@/components/Player/Timeline/TimelineChord.tsx";
+import {
+    useChordProgression,
+    useActiveChordIndex,
+    useChordsActions,
+} from "@/stores/chordsStore.ts";
 
 interface Props {
     totalDuration: number;
-    chordProgression: Chord[];
     isEditMode?: boolean;
-    onChordUpdate: (index: number, duration: number, startTime: number) => void;
-    onChordUpdateLive?: (
-        index: number,
-        duration: number,
-        startTime: number,
-    ) => void;
-    onDragStart?: () => void;
-    onInsertChord: (index: number, side: "before" | "after") => void;
     timelineRef: RefObject<HTMLDivElement | null>;
     currentTime?: number;
-    activeChordIndex?: number | null;
-    onChordSelect?: (index: number | null) => void;
     zoomLevel?: number;
-    onAddChordAtEnd?: () => void;
 }
 
 export const TimelineChords = ({
     totalDuration,
-    chordProgression,
     isEditMode = true,
-    onChordUpdate = () => {},
-    onChordUpdateLive,
-    onDragStart,
-    onInsertChord,
     timelineRef,
-    activeChordIndex,
-    onChordSelect,
     zoomLevel,
-    onAddChordAtEnd,
 }: Props) => {
     const [pxPerUnit, setPxPerUnit] = useState(1);
+    const chordProgression = useChordProgression();
+    const activeChordIndex = useActiveChordIndex();
+    const {
+        updateChordTime,
+        updateChordTimeLive,
+        insertChordAtIndex,
+        setActiveChord,
+        addChordAtEnd,
+    } = useChordsActions();
 
     const computeScale = () => {
         if (timelineRef.current && totalDuration > 0) {
@@ -45,11 +39,7 @@ export const TimelineChords = ({
         }
     };
 
-    useLayoutEffect(computeScale, [
-        totalDuration,
-        timelineRef.current,
-        zoomLevel,
-    ]);
+    useLayoutEffect(computeScale, [totalDuration, zoomLevel, timelineRef]);
     /* keep it responsive */
     useEffect(() => {
         window.addEventListener("resize", computeScale);
@@ -78,26 +68,24 @@ export const TimelineChords = ({
                     chord={chord}
                     pxPerUnit={pxPerUnit}
                     isEditMode={isEditMode}
-                    onChordUpdate={onChordUpdate}
-                    onChordUpdateLive={onChordUpdateLive}
-                    onDragStart={onDragStart}
-                    onInsertChord={onInsertChord}
+                    onChordUpdate={updateChordTime}
+                    onChordUpdateLive={updateChordTimeLive}
+                    onInsertChord={insertChordAtIndex}
                     isSelected={activeChordIndex === i}
-                    onSelect={() => onChordSelect?.(i)}
+                    onSelect={() => setActiveChord(i)}
                 />
             ))}
-            {isEditMode && onAddChordAtEnd && (
+            {isEditMode && (
                 <TimelineChord
                     key="add-placeholder"
                     i={chordProgression.length}
                     chord={addPlaceholderChord}
                     pxPerUnit={pxPerUnit}
                     isEditMode={true}
-                    onChordUpdate={onChordUpdate}
-                    onChordUpdateLive={onChordUpdateLive}
-                    onDragStart={onDragStart}
-                    onInsertChord={onInsertChord}
-                    onSelect={onAddChordAtEnd}
+                    onChordUpdate={updateChordTime}
+                    onChordUpdateLive={updateChordTimeLive}
+                    onInsertChord={insertChordAtIndex}
+                    onSelect={addChordAtEnd}
                 />
             )}
         </div>
