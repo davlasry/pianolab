@@ -72,22 +72,22 @@ export const TimelineChord = ({
             onDragStart={onDragStart ? () => onDragStart() : undefined}
             onClick={handleChordClick}
             className={cn(
-                "group z-10 flex flex-col items-center justify-center rounded-2xl p-2",
+                "group absolute z-10 flex flex-col items-center justify-center rounded-lg p-2.5 shadow-sm transition-colors duration-150 ease-in-out",
                 isCurrentChord
-                    ? "border border-zinc-600 bg-primary"
+                    ? "border border-primary/70 bg-primary text-primary-foreground"
                     : isSelected
-                      ? "border-2 border-blue-500 bg-accent/60 hover:bg-accent"
-                      : "border border-foreground/20 bg-accent/40 hover:bg-accent",
-                isEditMode && "cursor-move",
+                      ? "bg-card text-primary ring-2 ring-primary ring-offset-2 ring-offset-background"
+                      : "border border-border bg-card text-card-foreground hover:bg-accent hover:text-accent-foreground",
+                isEditMode && "cursor-grab",
             )}
-            draggingClassName="ring-2 ring-white/30"
+            draggingClassName="z-20 opacity-75 shadow-lg ring-2 ring-ring"
         >
             {isEditMode && (
                 <Button
                     onClick={handleAddAfter}
-                    className="pointer-events-auto absolute -top-7 left-full z-30 -translate-x-1/2 opacity-0 group-hover:opacity-100"
+                    className="pointer-events-auto absolute top-1.5 right-1.5 z-20 opacity-0 transition-opacity group-hover:opacity-100"
                     size="icon"
-                    variant="secondary"
+                    variant="ghost"
                     data-interactive-child="true"
                     title="Add chord after"
                 >
@@ -96,14 +96,21 @@ export const TimelineChord = ({
             )}
             <div
                 className={cn(
-                    "text-2xl",
+                    "truncate text-lg font-medium",
                     isCurrentChord
-                        ? "text-white"
-                        : "text-primary-foreground/50",
+                        ? "text-primary-foreground"
+                        : isSelected
+                          ? "text-primary"
+                          : "text-card-foreground",
                 )}
             >
-                {chord.label || (isEditMode && "?")}
+                {chord.label}
             </div>
+            {isEditMode && !chord.label && (
+                <div className="mt-0.5 text-base font-normal text-muted-foreground">
+                    ?
+                </div>
+            )}
         </DraggableResizableBlock>
     );
 };
