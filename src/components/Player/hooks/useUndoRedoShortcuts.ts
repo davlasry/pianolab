@@ -13,27 +13,23 @@ export const useUndoRedoShortcuts = ({
     canUndo,
     canRedo,
 }: UseUndoRedoShortcutsProps) => {
-    // Keyboard shortcut for undo (Cmd+Z)
+    // Combined keyboard shortcut for undo/redo (Cmd+Z / Cmd+Shift+Z)
     useShortcut({
         key: "z",
         handler: (e) => {
-            if (e.metaKey && !e.shiftKey) {
-                undo();
-            }
-        },
-        when: () => canUndo(),
-        description: "Undo last action",
-    });
-
-    // Keyboard shortcut for redo (Cmd+Shift+Z)
-    useShortcut({
-        key: "Z", // Capital Z for Shift+Z
-        handler: (e) => {
             if (e.metaKey && e.shiftKey) {
-                redo();
+                // Redo: Cmd+Shift+Z
+                if (canRedo()) {
+                    redo();
+                }
+            } else if (e.metaKey && !e.shiftKey) {
+                // Undo: Cmd+Z
+                if (canUndo()) {
+                    undo();
+                }
             }
         },
-        when: () => canRedo(),
-        description: "Redo last action",
+        when: () => canUndo() || canRedo(),
+        description: "Undo (Cmd+Z) / Redo (Cmd+Shift+Z)",
     });
 };

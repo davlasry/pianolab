@@ -1,48 +1,44 @@
-import { useHistoryActions } from "@/stores/historyStore";
-import { type Chord, useChordsActions } from "@/stores/chordsStore.ts";
+import { useHistoryActions, type Snapshot } from "@/stores/historyStore";
+import { type Chord, useChordsActions, useChordProgression } from "@/stores/chordsStore.ts";
 
 export const useGlobalUndoRedo = () => {
-    const { undo: historyUndo, redo: historyRedo, canUndo, canRedo } = useHistoryActions();
+    const {
+        undoWithCurrent,
+        redoWithCurrent,
+        canUndo,
+        canRedo,
+    } = useHistoryActions();
     const chordsActions = useChordsActions();
+    const chordProgression = useChordProgression();
 
-    const undo = () => {
-        const snapshot = historyUndo();
+    const buildCurrentChordSnapshot = (): Snapshot => ({
+        tag: "chords",
+        state: chordProgression.map((c) => ({ ...c })),
+    });
+
+    const applySnapshot = (snapshot?: Snapshot) => {
         if (!snapshot) return;
-
-        // Route the snapshot to the appropriate store based on tag
         switch (snapshot.tag) {
             case "chords":
                 chordsActions.updateProgressionPresent(
                     snapshot.state as Chord[],
                 );
                 break;
-            // Add more cases as new stores are added:
-            // case "notes":
-            //     useNoteStore.getState().updateNotesPresent(snapshot.state as Note[]);
-            //     break;
-            // case "arrangement":
-            //     useArrangementStore.getState().updateArrangementPresent(snapshot.state as Arrangement);
-            //     break;
             default:
                 console.warn(`Unknown snapshot tag: ${snapshot.tag}`);
         }
     };
 
-    const redo = () => {
-        const snapshot = historyRedo();
-        if (!snapshot) return;
+    const undo = () => {
+        const currentSnap = buildCurrentChordSnapshot();
+        const snapshot = undoWithCurrent(currentSnap);
+        applySnapshot(snapshot);
+    };
 
-        // Same routing logic as undo
-        switch (snapshot.tag) {
-            case "chords":
-                chordsActions.updateProgressionPresent(
-                    snapshot.state as Chord[],
-                );
-                break;
-            // Add more cases as new stores are added
-            default:
-                console.warn(`Unknown snapshot tag: ${snapshot.tag}`);
-        }
+    const redo = () => {
+        const currentSnap = buildCurrentChordSnapshot();
+        const snapshot = redoWithCurrent(currentSnap);
+        applySnapshot(snapshot);
     };
 
     return {

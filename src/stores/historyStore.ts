@@ -13,10 +13,10 @@ interface HistoryState {
     // Actions grouped together
     actions: {
         push: (snap: Snapshot) => void;
-        undo: () => Snapshot | undefined;
-        redo: () => Snapshot | undefined;
         canUndo: () => boolean;
         canRedo: () => boolean;
+        undoWithCurrent: (current: Snapshot) => Snapshot | undefined;
+        redoWithCurrent: (current: Snapshot) => Snapshot | undefined;
     };
 }
 
@@ -32,24 +32,33 @@ const useHistoryStore = create<HistoryState>((set, get) => ({
                 future: [],
             })),
 
-        undo: () => {
+        canUndo: () => get().past.length > 0,
+        canRedo: () => get().future.length > 0,
+
+        /*
+         * Undo that takes the current snapshot so it can be stored for redo
+         * flow. This keeps the present state in the `future` stack, allowing
+         * a subsequent redo to restore it.
+         */
+        undoWithCurrent: (current: Snapshot) => {
             const { past, future } = get();
             if (past.length === 0) return undefined;
             const previous = past[past.length - 1];
-            set({ past: past.slice(0, -1), future: [previous, ...future] });
+            set({ past: past.slice(0, -1), future: [current, ...future] });
             return previous;
         },
 
-        redo: () => {
+        /*
+         * Redo counterpart that stores the current snapshot on the `past`
+         * stack so that another undo can revert it.
+         */
+        redoWithCurrent: (current: Snapshot) => {
             const { past, future } = get();
             if (future.length === 0) return undefined;
             const next = future[0];
-            set({ past: [...past, next], future: future.slice(1) });
+            set({ past: [...past, current], future: future.slice(1) });
             return next;
         },
-
-        canUndo: () => get().past.length > 0,
-        canRedo: () => get().future.length > 0,
     },
 }));
 
