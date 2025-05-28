@@ -31,6 +31,7 @@ export const TimelineChords = ({
         insertChordAtIndex,
         setActiveChord,
         addChordAtEnd,
+        createChordSnapshot,
     } = useChordsActions();
 
     const computeScale = () => {
@@ -47,6 +48,10 @@ export const TimelineChords = ({
     }, []);
 
     if (totalDuration <= 0) return null;
+
+    const handleDragStart = () => {
+        createChordSnapshot();
+    };
 
     const lastChord = chordProgression[chordProgression.length - 1];
     const addPlaceholderChord: Chord = {
@@ -71,6 +76,7 @@ export const TimelineChords = ({
                     onChordUpdate={updateChordTime}
                     onChordUpdateLive={updateChordTimeLive}
                     onInsertChord={insertChordAtIndex}
+                    onDragStart={handleDragStart}
                     isSelected={activeChordIndex === i}
                     onSelect={() => setActiveChord(i)}
                 />
@@ -85,6 +91,7 @@ export const TimelineChords = ({
                     onChordUpdate={updateChordTime}
                     onChordUpdateLive={updateChordTimeLive}
                     onInsertChord={insertChordAtIndex}
+                    onDragStart={handleDragStart}
                     onSelect={addChordAtEnd}
                 />
             )}

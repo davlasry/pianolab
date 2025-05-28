@@ -97,6 +97,7 @@ interface ChordActions {
     deleteChord: (index: number) => void;
     deleteActiveChord: () => void;
     addChordAtEnd: () => void;
+    createChordSnapshot: () => void;
 }
 
 /*───────────────────────────────────────────────────────────────
@@ -137,7 +138,6 @@ const useChordsStore = create<ChordsStore>((set, get) => ({
         /*────────────────────────── editing ────────────────────────*/
         updateChordTime: (index, duration, newStart) =>
             set((state) => {
-                createChordSnapshot(state);
                 const result = applyNoOverlapRule(
                     state.chordProgression,
                     index,
@@ -246,6 +246,10 @@ const useChordsStore = create<ChordsStore>((set, get) => ({
                 const newProgression = [...state.chordProgression, newChord];
                 return { chordProgression: newProgression };
             }),
+
+        createChordSnapshot: () => {
+            createChordSnapshot(get());
+        },
     },
 }));
 
