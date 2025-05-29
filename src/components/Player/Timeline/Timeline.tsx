@@ -16,10 +16,9 @@ import { TimelineSelection } from "@/components/Player/Timeline/TimelineSelectio
 import { TimelineSelectionControls } from "@/components/Player/Timeline/TimelineSelectionControls";
 import { useTimelineSelection } from "@/components/Player/Timeline/hooks/useTimelineSelection";
 import type { TransportState } from "@/components/Player/hooks/useTransportState";
-import { useUndoRedoShortcuts } from "@/components/Player/hooks/useUndoRedoShortcuts";
-import { useGlobalUndoRedo } from "@/hooks/useGlobalUndoRedo";
-import { useChordsActions, useSelectedChordIndices } from "@/stores/chordsStore.ts";
-import { useShortcut } from "@/shortcuts/KeyboardShortcuts";
+import { useSelectedChordIndices, useActiveChordIndex } from "@/stores/chordsStore.ts";
+import { useTimelineShortcuts } from "./hooks/useTimelineShortcuts";
+
 
 export interface TimelineHandle {
     scrollToBeginning: () => void;
@@ -70,37 +69,13 @@ const Timeline = (
         transportState,
     });
 
-    // Use global undo/redo system instead of chord store delegates
-    const { undo, redo, canUndo, canRedo } = useGlobalUndoRedo();
-    const { deleteActiveChord, deleteSelectedChords } = useChordsActions();
     const selectedChordIndices = useSelectedChordIndices();
+    const activeChordIndex = useActiveChordIndex();
 
-    // Setup undo/redo keyboard shortcuts
-    useUndoRedoShortcuts({
-        undo,
-        redo,
-        canUndo,
-        canRedo,
-    });
-
-    // Handle keyboard events for chord deletion
-    const handleDelete = () => {
-        if (selectedChordIndices.length > 1) {
-            deleteSelectedChords();
-        } else {
-            deleteActiveChord();
-        }
-    };
-    
-    useShortcut({
-        key: "Delete",
-        handler: handleDelete,
-        description: "Delete selected chord(s)",
-    });
-    useShortcut({
-        key: "Backspace",
-        handler: handleDelete,
-        description: "Delete selected chord(s)",
+    // Setup all keyboard shortcuts
+    useTimelineShortcuts({
+        selectedChordIndices,
+        activeChordIndex
     });
 
     // Expose imperative API

@@ -22,6 +22,7 @@ import {
     useActiveChordIndex,
     useSelectedChordIndices,
     useChordsActions,
+    useEditModeTriggered,
 } from "@/stores/chordsStore";
 import {
     parseChord,
@@ -34,12 +35,15 @@ export const ChordEditor = () => {
     const chordProgression = useChordProgression();
     const activeChordIndex = useActiveChordIndex();
     const selectedChordIndices = useSelectedChordIndices();
+    const editModeTriggered = useEditModeTriggered();
     const { updateChordLabel, setActiveChord } = useChordsActions();
 
     const [editValue, setEditValue] = useState("");
     const [isEditing, setIsEditing] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
+    const [lastSeenEditTrigger, setLastSeenEditTrigger] = useState(0);
     const inputRef = useRef<HTMLInputElement>(null);
+    const prevActiveChordIndexRef = useRef<number | null>(null);
 
     const activeChord =
         activeChordIndex !== null ? chordProgression[activeChordIndex] : null;
@@ -59,27 +63,67 @@ export const ChordEditor = () => {
               )
             : [];
 
-    // Handle mounting animation
+    // Handle mounting animation and auto-focus
     useEffect(() => {
         if (activeChord) {
             setIsVisible(true);
             setEditValue(activeChord.label);
-            setIsEditing(false);
+
+            // Only auto-start editing if this is a new chord selection
+            const isNewChordSelection =
+                prevActiveChordIndexRef.current !== activeChordIndex;
+            if (isNewChordSelection) {
+                setIsEditing(true);
+            }
+
+            prevActiveChordIndexRef.current = activeChordIndex;
         } else {
             setIsVisible(false);
+            setIsEditing(false);
+            prevActiveChordIndexRef.current = null;
         }
-    }, [activeChord]);
+    }, [activeChord, activeChordIndex]);
 
-    // Focus input when starting to edit
+    // Focus input when starting to edit OR when active chord changes
     useEffect(() => {
         if (isEditing && inputRef.current) {
-            inputRef.current.focus();
-            inputRef.current.select();
+            // Small delay to ensure the input is rendered and visible
+            const timer = setTimeout(() => {
+                if (inputRef.current) {
+                    inputRef.current.focus();
+                    inputRef.current.select();
+                }
+            }, 50);
+            return () => clearTimeout(timer);
         }
-    }, [isEditing]);
+    }, [isEditing, activeChord]);
+
+    // Listen for external edit mode triggers (like Enter key)
+    useEffect(() => {
+        // Only enter edit mode if editModeTriggered has actually incremented
+        // and this specific trigger hasn't been processed yet.
+        if (
+            editModeTriggered > lastSeenEditTrigger &&
+            activeChord &&
+            !isEditing
+        ) {
+            setIsEditing(true);
+            setLastSeenEditTrigger(editModeTriggered); // Mark this trigger as processed
+        }
+    }, [
+        editModeTriggered,
+        activeChord,
+        isEditing,
+        lastSeenEditTrigger,
+        setLastSeenEditTrigger,
+    ]);
 
     // Only show editor when exactly one chord is selected
-    if (!activeChord || activeChordIndex === null || selectedChordIndices.length !== 1) {
+    if (
+        !activeChord ||
+        activeChordIndex === null ||
+        selectedChordIndices.length !== 1
+    ) {
         return null;
     }
 
@@ -90,8 +134,8 @@ export const ChordEditor = () => {
     const handleSave = () => {
         if (activeChordIndex !== null) {
             updateChordLabel(activeChordIndex, editValue);
-            setIsEditing(false);
         }
+        setIsEditing(false);
     };
 
     const handleCancel = () => {
@@ -108,9 +152,11 @@ export const ChordEditor = () => {
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === "Enter") {
             e.preventDefault();
+            e.stopPropagation();
             handleSave();
         } else if (e.key === "Escape") {
             e.preventDefault();
+            e.stopPropagation();
             handleCancel();
         }
     };

@@ -101,6 +101,8 @@ interface ChordActions {
     deleteChord: (index: number) => void;
     deleteActiveChord: () => void;
     deleteSelectedChords: () => void;
+    findChordAtTime: (time: number) => { chord: Chord; index: number } | null;
+    triggerEditMode: () => void;
     addChordAtEnd: () => void;
     addChordAtTime: (time: number) => void;
     createChordSnapshot: () => void;
@@ -114,6 +116,7 @@ interface ChordsStore {
     chordProgression: Chord[];
     activeChordIndex: number | null;
     selectedChordIndices: number[];
+    editModeTriggered: number; // Timestamp to trigger edit mode
     actions: ChordActions;
 }
 
@@ -176,6 +179,7 @@ const useChordsStore = create<ChordsStore>()(
             chordProgression: initialChordProgression,
             activeChordIndex: null,
             selectedChordIndices: [],
+            editModeTriggered: 0,
             actions: {
                 /*─────────────────────────── core ──────────────────────────*/
                 setChordProgression: (newProg) =>
@@ -471,6 +475,21 @@ const useChordsStore = create<ChordsStore>()(
                 createChordSnapshot: () => {
                     createChordSnapshot(get());
                 },
+
+                findChordAtTime: (time: number) => {
+                    const { chordProgression } = get();
+                    for (let i = 0; i < chordProgression.length; i++) {
+                        const chord = chordProgression[i];
+                        if (time >= chord.startTime && time < chord.startTime + chord.duration) {
+                            return { chord, index: i };
+                        }
+                    }
+                    return null;
+                },
+
+                triggerEditMode: () => {
+                    set({ editModeTriggered: Date.now() });
+                },
             },
         }),
         {
@@ -500,6 +519,8 @@ export const useActiveChordIndex = () =>
     useChordsStore((state) => state.activeChordIndex);
 export const useSelectedChordIndices = () =>
     useChordsStore((state) => state.selectedChordIndices);
+export const useEditModeTriggered = () =>
+    useChordsStore((state) => state.editModeTriggered);
 
 /*───────────────────────────────────────────────────────────────
   Actions hook
