@@ -13,7 +13,7 @@ import { useSpaceBarControl } from "@/components/Player/hooks/useSpaceBarControl
 interface TransportContextType {
     isReady: boolean;
     isPlaying: boolean;
-    currentTime: string;
+    currentTime: number;
     togglePlayPause: () => void;
     loopActive: boolean;
     loopStart: string;
@@ -90,23 +90,6 @@ export const TransportProvider = ({
         onResume: resume,
     });
 
-    const formatTime = useCallback((timeInMs: number): string => {
-        const clampedTime = Math.min(Math.max(timeInMs, 0), 359999999); // Max: 99:59:59:23
-
-        const hours = Math.floor(clampedTime / 3600000)
-            .toString()
-            .padStart(2, "0");
-        const minutes = Math.floor((clampedTime % 3600000) / 60000)
-            .toString()
-            .padStart(2, "0");
-        const seconds = Math.floor((clampedTime % 60000) / 1000)
-            .toString()
-            .padStart(2, "0");
-        const frames = Math.floor((clampedTime % 1000) / 41.6667) % 24; // Ensure frames stay within 0-23
-
-        return `${hours}:${minutes}:${seconds}:${frames.toString().padStart(2, "0")}`;
-    }, []);
-
     useEffect(() => {
         let animationFrameId: number;
         let lastTime: number;
@@ -162,7 +145,8 @@ export const TransportProvider = ({
     //     setLoopActive((prev) => !prev);
     // }, []);
 
-    const currentTime = formatTime(elapsedTime * 1000);
+    // const currentTime = formatTime(elapsedTime * 1000);
+    const currentTime = elapsedTime;
 
     const togglePlayPause = useCallback(() => {
         if (isPlaying) {

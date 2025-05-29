@@ -10,7 +10,7 @@ export const useTransportShortcuts = ({
     getTransport: () => TransportClass;
     isReady: boolean;
 }) => {
-    const SEEK_DELTA = 5; // seconds
+    const SEEK_DELTA = 0.5; // seconds
 
     useShortcut({
         key: "ArrowRight",

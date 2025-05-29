@@ -1,67 +1,80 @@
-import React from "react";
-import { Rewind, Play, Pause, Square, SkipForward } from "lucide-react";
+import { Play, Pause, Square, SkipBack, SkipForward } from "lucide-react";
+import { cn } from "@/lib/utils.ts";
 
-interface TransportControlsProps {
+export interface TransportControlsProps {
     isPlaying: boolean;
     isReady: boolean;
     onPlayPause: () => void;
     onStop: () => void;
-    onRewind: () => void;
-    onFastForward: () => void;
+    onReset?: () => void;
+    className?: string;
+    onRewind?: () => void;
+    onFastForward?: () => void;
 }
 
-const TransportControls: React.FC<TransportControlsProps> = ({
+export function TransportControls({
     isPlaying,
+    isReady,
     onPlayPause,
     onStop,
-    onRewind,
-    onFastForward,
-    isReady,
-}) => {
+    onReset,
+    className,
+}: TransportControlsProps) {
     return (
-        <div className="flex items-center justify-center gap-2 md:gap-4">
+        <div
+            className={cn(
+                "flex items-center justify-center space-x-4",
+                className,
+            )}
+        >
             <button
-                onClick={onRewind}
-                className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground active:bg-muted/80 md:p-3"
-                aria-label="Rewind"
+                onClick={onReset}
+                className="group relative flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800/50 transition-colors duration-200 hover:bg-zinc-800"
+                aria-label="Reset"
             >
-                <Rewind size={20} />
+                <SkipBack className="h-4 w-4 text-zinc-400 transition-colors group-hover:text-zinc-200" />
             </button>
 
             <button
                 onClick={onPlayPause}
-                disabled={!isReady}
-                className={`rounded-full p-4 transition-all duration-300 ${
+                className={cn(
+                    "group relative flex h-14 w-14 items-center justify-center rounded-full transition-all duration-200",
                     isPlaying
-                        ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                        : "bg-primary text-primary-foreground hover:bg-primary/90"
-                }`}
+                        ? "bg-zinc-700/80 ring-2 ring-zinc-500 hover:bg-zinc-700"
+                        : "bg-zinc-800/50 hover:bg-zinc-700/80",
+                )}
+                disabled={!isReady}
                 aria-label={isPlaying ? "Pause" : "Play"}
             >
                 {isPlaying ? (
-                    <Pause size={24} />
+                    <Pause className="h-5 w-5 text-white transition-colors" />
                 ) : (
-                    <Play size={24} className="ml-1" />
+                    <Play className="ml-0.5 h-5 w-5 text-zinc-300 transition-colors group-hover:text-white" />
                 )}
+                <div
+                    className={cn(
+                        "absolute inset-0 rounded-full border transition-all duration-300",
+                        isPlaying
+                            ? "border-zinc-500 group-hover:border-zinc-400"
+                            : "border-zinc-700 group-hover:border-zinc-600",
+                    )}
+                />
             </button>
 
             <button
                 onClick={onStop}
-                className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground active:bg-muted/80 md:p-3"
+                className="group relative flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800/50 transition-colors duration-200 hover:bg-zinc-800"
                 aria-label="Stop"
             >
-                <Square size={20} />
+                <Square className="h-4 w-4 text-zinc-400 transition-colors group-hover:text-zinc-200" />
             </button>
 
             <button
-                onClick={onFastForward}
-                className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground active:bg-muted/80 md:p-3"
-                aria-label="Fast Forward"
+                className="group relative flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800/50 transition-colors duration-200 hover:bg-zinc-800"
+                aria-label="Skip Forward"
             >
-                <SkipForward size={20} />
+                <SkipForward className="h-4 w-4 text-zinc-400 transition-colors group-hover:text-zinc-200" />
             </button>
         </div>
     );
-};
-
-export default TransportControls;
+}

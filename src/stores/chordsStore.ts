@@ -99,6 +99,7 @@ interface ChordActions {
     deleteChord: (index: number) => void;
     deleteActiveChord: () => void;
     addChordAtEnd: () => void;
+    addChordAtTime: (time: number) => void;
     createChordSnapshot: () => void;
 }
 
@@ -287,21 +288,57 @@ const useChordsStore = create<ChordsStore>()(
                     if (idx !== null) get().actions.deleteChord(idx);
                 },
 
-                addChordAtEnd: () =>
-                    set((state) => {
-                        createChordSnapshot(state);
+                addChordAtEnd: () => {
+                    const lastChord = get().chordProgression.at(-1);
+                    const newStart = lastChord
+                        ? lastChord.startTime + lastChord.duration
+                        : 0;
 
-                        const last =
-                            state.chordProgression[state.chordProgression.length - 1];
-                        const newStart = last.startTime + last.duration;
-                        const newChord: Chord = {
-                            label: "",
-                            startTime: newStart,
-                            duration: 2,
-                        };
-                        const newProgression = [...state.chordProgression, newChord];
-                        return { chordProgression: newProgression };
-                    }),
+                    const newChord: Chord = {
+                        label: "Cmaj7",
+                        startTime: newStart,
+                        duration: 1,
+                    };
+
+                    set((state) => ({
+                        chordProgression: [...state.chordProgression, newChord],
+                        activeChordIndex: state.chordProgression.length,
+                    }));
+                },
+
+                addChordAtTime(time: number) {
+                    const { chordProgression, actions } = get();
+                    
+                    // Check if there's already a chord at this exact timestamp
+                    const chordExists = chordProgression.some(
+                        (chord) => chord.startTime === time
+                    );
+                    
+                    if (chordExists) return;
+                    
+                    // Find the correct position to insert the new chord
+                    const insertIndex = chordProgression.findIndex(chord => chord.startTime > time);
+                    const targetIndex = insertIndex === -1 ? chordProgression.length : insertIndex;
+                    
+                    // Create the new chord
+                    const newChord: Chord = {
+                        label: "?",
+                        startTime: time,
+                        duration: 1,
+                    };
+                    
+                    // Insert the new chord
+                    const newProgression = [...chordProgression];
+                    newProgression.splice(targetIndex, 0, newChord);
+                    
+                    set({
+                        chordProgression: newProgression,
+                        activeChordIndex: targetIndex,
+                    });
+                    
+                    // Create a snapshot for undo/redo
+                    actions.createChordSnapshot();
+                },
 
                 createChordSnapshot: () => {
                     createChordSnapshot(get());
