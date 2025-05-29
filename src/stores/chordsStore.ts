@@ -101,6 +101,7 @@ interface ChordActions {
     addChordAtEnd: () => void;
     addChordAtTime: (time: number) => void;
     createChordSnapshot: () => void;
+    extendChordToBoundary: (index: number, side: "left" | "right") => void;
 }
 
 /*───────────────────────────────────────────────────────────────
@@ -339,6 +340,64 @@ const useChordsStore = create<ChordsStore>()(
                     // Create a snapshot for undo/redo
                     actions.createChordSnapshot();
                 },
+
+                extendChordToBoundary: (index, side) =>
+                    set((state) => {
+                        const { chordProgression } = state;
+                        const currentChord = chordProgression[index];
+                        if (!currentChord) return {}; // Current chord not found
+
+                        let newStartTime = currentChord.startTime;
+                        let newDuration = currentChord.duration;
+                        const minAllowedDuration = 0.1; // Consistent with applyNoOverlapRule default
+
+                        if (side === "left") {
+                            const prevChord = chordProgression[index - 1];
+                            if (prevChord) {
+                                const targetStartTime = prevChord.startTime + prevChord.duration;
+                                // Calculate potential new end time for current chord
+                                const currentChordEndTime = currentChord.startTime + currentChord.duration;
+                                const potentialNewDuration = currentChordEndTime - targetStartTime;
+
+                                if (potentialNewDuration >= minAllowedDuration) {
+                                    newStartTime = targetStartTime;
+                                    newDuration = potentialNewDuration;
+                                } else {
+                                    return {}; // Not enough space or invalid operation
+                                }
+                            } else {
+                                return {}; // No previous chord to extend to
+                            }
+                        } else { // side === "right"
+                            const nextChord = chordProgression[index + 1];
+                            if (nextChord) {
+                                const potentialNewDuration = nextChord.startTime - currentChord.startTime;
+                                if (potentialNewDuration >= minAllowedDuration) {
+                                    newDuration = potentialNewDuration;
+                                    // newStartTime remains currentChord.startTime
+                                } else {
+                                    return {}; // Not enough space or invalid operation
+                                }
+                            } else {
+                                return {}; // No next chord to extend to
+                            }
+                        }
+
+                        // If no change would occur, abort to prevent unnecessary snapshot/rerender
+                        if (newStartTime === currentChord.startTime && newDuration === currentChord.duration) {
+                            return {};
+                        }
+
+                        createChordSnapshot(state); // Create snapshot before modification
+
+                        const result = applyNoOverlapRule(
+                            state.chordProgression, // Pass original progression for rules
+                            index,
+                            newStartTime,
+                            newDuration,
+                        );
+                        return { chordProgression: result };
+                    }),
 
                 createChordSnapshot: () => {
                     createChordSnapshot(get());

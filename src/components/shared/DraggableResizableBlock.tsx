@@ -24,6 +24,7 @@ export interface DraggableResizableBlockProps {
     onChange?: (id: string | number, start: number, duration: number) => void; // 🆕 fires during drag
     onDragStart?: (id: string | number) => void; // 🆕 fires when drag starts
     onClick?: (e: React.MouseEvent<HTMLDivElement>) => void; // 🆕 click handler
+    onHandleDoubleClick?: (id: string | number, side: "left" | "right") => void; // 🆕 Double click on handle
 }
 
 export default function DraggableResizableBlock({
@@ -39,6 +40,7 @@ export default function DraggableResizableBlock({
     onChange,
     onDragStart,
     onClick,
+    onHandleDoubleClick,
 }: DraggableResizableBlockProps) {
     /* --------------------------------------------------
      * Refs & local state
@@ -57,6 +59,13 @@ export default function DraggableResizableBlock({
     const [, force] = useState({});
     const [isDragging, setIsDragging] = useState(false);
     const [hasDragged, setHasDragged] = useState(false);
+
+    // Refs for double click detection on handles
+    const lastHandlePointerDownTimeRef = useRef<{
+        side: "left" | "right" | null;
+        time: number;
+    }>({ side: null, time: 0 });
+    const DOUBLE_CLICK_THRESHOLD_MS = 300;
 
     const pxToUnits = (dxPx: number) => dxPx / pixelsPerUnit;
 
@@ -159,7 +168,7 @@ export default function DraggableResizableBlock({
         if (!el || !el.hasPointerCapture(e.pointerId)) return;
         el.releasePointerCapture(e.pointerId);
 
-        // If we didn't drag, treat it as a click
+        // If we didn't drag, treat it as a click (for the main block)
         if (!hasDragged && onClick) {
             // Create a synthetic MouseEvent from the PointerEvent
             const mouseEvent = {
@@ -173,6 +182,36 @@ export default function DraggableResizableBlock({
 
         setIsDragging(false);
         commit();
+    };
+
+    /* --------------------------------------------------
+     * Pointer handler for resize handles (detects double click)
+     * -------------------------------------------------- */
+    const handleResizeHandlePointerDown = (
+        e: React.PointerEvent<HTMLDivElement>,
+        side: "left" | "right",
+    ) => {
+        e.stopPropagation(); // Prevent main block's onPointerDown if we handle it here
+
+        const now = Date.now();
+        const { side: lastSide, time: lastTime } =
+            lastHandlePointerDownTimeRef.current;
+
+        if (side === lastSide && now - lastTime < DOUBLE_CLICK_THRESHOLD_MS) {
+            // Double click detected
+            if (onHandleDoubleClick) {
+                onHandleDoubleClick(id, side);
+            }
+            // Reset for next double click detection
+            lastHandlePointerDownTimeRef.current = { side: null, time: 0 };
+            e.preventDefault(); // Prevent any default action, like text selection
+            return; // Do not proceed to initiate resize
+        } else {
+            // Single click (or first click of a potential double click sequence)
+            lastHandlePointerDownTimeRef.current = { side, time: now };
+            // Proceed with normal resize initiation by calling the block's main onPointerDown
+            onPointerDown(e, side);
+        }
     };
 
     /* --------------------------------------------------
@@ -202,11 +241,11 @@ export default function DraggableResizableBlock({
             {/* resize handles */}
             <div
                 className="absolute top-0 left-0 h-full w-2 cursor-ew-resize"
-                onPointerDown={(e) => onPointerDown(e, "left")}
+                onPointerDown={(e) => handleResizeHandlePointerDown(e, "left")}
             />
             <div
                 className="absolute top-0 right-0 h-full w-2 cursor-ew-resize"
-                onPointerDown={(e) => onPointerDown(e, "right")}
+                onPointerDown={(e) => handleResizeHandlePointerDown(e, "right")}
             />
 
             {/* children */}

@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils.ts";
 import type { Chord } from "@/stores/chordsStore.ts";
+import { useChordsActions } from "@/stores/chordsStore.ts";
 import DraggableResizableBlock from "@/components/shared/DraggableResizableBlock.tsx";
 import { useTransportTime } from "@/TransportTicker/transportTicker.ts";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,6 @@ interface Props {
     chord: Chord;
     isEditMode: boolean;
     pxPerUnit: number;
-    onChordUpdate: (index: number, duration: number, startTime: number) => void;
     onChordUpdateLive?: (
         index: number,
         duration: number,
@@ -25,7 +25,6 @@ export const TimelineChord = ({
     chord,
     isEditMode,
     pxPerUnit,
-    onChordUpdate,
     onChordUpdateLive,
     onDragStart,
     onInsertChord,
@@ -34,6 +33,7 @@ export const TimelineChord = ({
     onSelect,
 }: Props) => {
     const currentTime = useTransportTime();
+    const { updateChordTime, extendChordToBoundary } = useChordsActions();
 
     const isCurrentChord =
         currentTime !== undefined &&
@@ -52,6 +52,14 @@ export const TimelineChord = ({
         onSelect?.();
     };
 
+    const handleChordHandleDoubleClick = (
+        chordId: string | number,
+        side: "left" | "right",
+    ) => {
+        const chordIndex = chordId as number;
+        extendChordToBoundary(chordIndex, side);
+    };
+
     return (
         <DraggableResizableBlock
             key={i}
@@ -61,7 +69,7 @@ export const TimelineChord = ({
             pixelsPerUnit={pxPerUnit}
             minDuration={0.25}
             onCommit={(id: number | string, start: number, duration: number) =>
-                onChordUpdate(id as number, duration, start)
+                updateChordTime(id as number, duration, start)
             }
             onChange={
                 onChordUpdateLive
@@ -71,6 +79,7 @@ export const TimelineChord = ({
             }
             onDragStart={onDragStart ? () => onDragStart() : undefined}
             onClick={handleChordClick}
+            onHandleDoubleClick={handleChordHandleDoubleClick}
             className={cn(
                 "group absolute top-8 bottom-1 z-10 flex flex-col items-center justify-center rounded-lg p-2.5 shadow-sm transition-colors duration-150 ease-in-out",
                 isCurrentChord && isSelected

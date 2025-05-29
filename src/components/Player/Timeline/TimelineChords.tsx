@@ -25,7 +25,6 @@ export const TimelineChords = ({
     const chordProgression = useChordProgression();
     const activeChordIndex = useActiveChordIndex();
     const {
-        updateChordTime,
         updateChordTimeLive,
         insertChordAtIndex,
         setActiveChord,
@@ -73,7 +72,6 @@ export const TimelineChords = ({
                     chord={chord}
                     pxPerUnit={pxPerUnit}
                     isEditMode={isEditMode}
-                    onChordUpdate={updateChordTime}
                     onChordUpdateLive={updateChordTimeLive}
                     onInsertChord={insertChordAtIndex}
                     onDragStart={handleDragStart}
