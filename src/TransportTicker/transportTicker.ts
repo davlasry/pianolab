@@ -1,8 +1,24 @@
 // transportTicker.ts
 import { useSyncExternalStore } from "react";
 
-/** Mutable source of truth */
+// Constants for localStorage
+const PLAYHEAD_POSITION_KEY = "pianolab_playhead_position";
+
+/** Mutable source of truth - initialize from localStorage if available */
 let time = 0;
+
+// Try to restore time from localStorage on initial load
+try {
+    const savedTime = localStorage.getItem(PLAYHEAD_POSITION_KEY);
+    if (savedTime) {
+        const parsedTime = parseFloat(savedTime);
+        if (!isNaN(parsedTime) && parsedTime > 0) {
+            time = parsedTime;
+        }
+    }
+} catch (error) {
+    console.error("Error reading from localStorage:", error);
+}
 const listeners = new Set<() => void>();
 
 function emit() {

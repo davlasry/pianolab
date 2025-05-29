@@ -5,12 +5,23 @@ import { useTransportState } from "@/components/Player/hooks/useTransportState.t
 import { transportTicker } from "@/TransportTicker/transportTicker.ts";
 import { useChordProgression } from "@/stores/chordsStore.ts";
 
+// Constants for localStorage - must match the key in transportTicker.ts
+const PLAYHEAD_POSITION_KEY = "pianolab_playhead_position";
+
 type ActiveNote = {
     midi: number;
     hand: "left" | "right";
 };
 
 export const usePlayer = (notes: Note[]) => {
+    // Function to save current playhead position to localStorage
+    const savePlayheadPosition = useCallback(() => {
+        const currentTime = Tone.getTransport().seconds;
+        if (currentTime > 0) {
+            localStorage.setItem(PLAYHEAD_POSITION_KEY, currentTime.toString());
+            console.log(`Saved position: ${currentTime}s`);
+        }
+    }, []);
     const chordProgression = useChordProgression();
     const [activeNotes, setActiveNotes] = useState<ActiveNote[]>([]);
     const [activeChord, setActiveChord] = useState<string>("");
@@ -35,11 +46,35 @@ export const usePlayer = (notes: Note[]) => {
             playerRef.current?.dispose(); // if re-loading
 
             try {
+                // Initialize Tone.js first but don't await it here to prevent blocking
+                // This prevents the infinite loading issue
+                Tone.start();
+
                 playerRef.current = new Tone.Player({
                     url,
                     autostart: false,
                     onload: () => {
+                        // Set audio duration first
                         setAudioDuration(playerRef.current!.buffer.duration);
+
+                        // After audio is loaded, try to restore position from localStorage
+                        const savedPosition = localStorage.getItem(
+                            PLAYHEAD_POSITION_KEY,
+                        );
+                        if (savedPosition) {
+                            const time = parseFloat(savedPosition);
+                            console.log(
+                                `Audio loaded, restoring position: ${time}s`,
+                            );
+
+                            // Validate the time is within the audio duration
+                            const duration = playerRef.current!.buffer.duration;
+                            if (!isNaN(time) && time > 0 && time < duration) {
+                                // Set the transport time directly
+                                Tone.getTransport().seconds = time;
+                                transportTicker.set(time);
+                            }
+                        }
                     },
                     onerror: (err) => {
                         console.error("Error loading audio:", err);
@@ -47,8 +82,13 @@ export const usePlayer = (notes: Note[]) => {
                 }).toDestination();
 
                 playerRef.current.sync(); // follow the Transport
+
+                // Return a resolved promise to indicate loading has started
+                // This fixes the infinite loading issue
+                return Promise.resolve();
             } catch (error) {
                 console.error("Failed to load audio:", error);
+                return Promise.reject(error);
             }
         },
         [],
@@ -145,13 +185,19 @@ export const usePlayer = (notes: Note[]) => {
     const pause = useCallback(() => {
         Tone.getTransport().pause();
         synthRef.current?.releaseAll(0); // fade out anything already playing
-    }, []);
+
+        // Save position to localStorage when paused
+        savePlayheadPosition();
+    }, [savePlayheadPosition]);
 
     const resume = useCallback(() => {
         Tone.getTransport().start();
     }, []);
 
     const stop = useCallback(() => {
+        // Save position to localStorage before stopping
+        savePlayheadPosition();
+
         Tone.getTransport().stop(); // freeze & rewind the clock
         Tone.getTransport().cancel(); // clear all future MIDI events
 
@@ -165,7 +211,7 @@ export const usePlayer = (notes: Note[]) => {
 
         setActiveNotes([]); // GUI reset
         setActiveChord(""); // GUI reset
-    }, []);
+    }, [savePlayheadPosition]);
 
     /** tidy up when the component unmounts */
     useEffect(
@@ -183,25 +229,34 @@ export const usePlayer = (notes: Note[]) => {
             setAudioDuration(0);
             Tone.getTransport().stop();
         },
-        [],
+        [stop],
     );
 
-    const seek = useCallback((time: number) => {
-        // 1 – silence and clear GUI
-        setActiveNotes([]);
+    const seek = useCallback(
+        (time: number) => {
+            // 1 – silence and clear GUI
+            setActiveNotes([]);
 
-        // 2 – jump the transport
-        Tone.getTransport().seconds = time;
-        transportTicker.set(time);
+            // 2 – jump the transport
+            Tone.getTransport().seconds = time;
+            transportTicker.set(time);
 
-        // find last played chord before the time
-        const last = chordProgression
-            .slice()
-            .reverse()
-            .find((e) => e.startTime <= time);
+            // find last played chord before the time
+            const last = chordProgression
+                .slice()
+                .reverse()
+                .find((e) => e.startTime <= time);
 
-        if (last) setActiveChord(last.label);
-    }, []);
+            if (last) setActiveChord(last.label);
+
+            // Save position to localStorage when seeking (only if initiated by user action)
+            // We don't want to overwrite the saved position during initial restoration
+            if (audioDuration > 0) {
+                savePlayheadPosition();
+            }
+        },
+        [chordProgression, savePlayheadPosition, audioDuration],
+    );
 
     const seekToBeginning = useCallback(() => {
         seek(0);
