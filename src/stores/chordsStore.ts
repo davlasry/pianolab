@@ -84,6 +84,8 @@ interface ChordActions {
     setChordProgression: (newProg: Chord[]) => void;
     updateProgressionPresent: (newProg: Chord[]) => void;
     setActiveChord: (index: number | null) => void;
+    setSelectedChords: (indices: number[]) => void;
+    toggleChordSelection: (index: number) => void;
     updateChordTime: (
         index: number,
         duration: number,
@@ -98,6 +100,7 @@ interface ChordActions {
     insertChordAtIndex: (index: number, side: "before" | "after") => void;
     deleteChord: (index: number) => void;
     deleteActiveChord: () => void;
+    deleteSelectedChords: () => void;
     addChordAtEnd: () => void;
     addChordAtTime: (time: number) => void;
     createChordSnapshot: () => void;
@@ -110,6 +113,7 @@ interface ChordActions {
 interface ChordsStore {
     chordProgression: Chord[];
     activeChordIndex: number | null;
+    selectedChordIndices: number[];
     actions: ChordActions;
 }
 
@@ -171,6 +175,7 @@ const useChordsStore = create<ChordsStore>()(
         (set, get) => ({
             chordProgression: initialChordProgression,
             activeChordIndex: null,
+            selectedChordIndices: [],
             actions: {
                 /*─────────────────────────── core ──────────────────────────*/
                 setChordProgression: (newProg) =>
@@ -183,7 +188,34 @@ const useChordsStore = create<ChordsStore>()(
                     set({ chordProgression: newProg }),
 
                 /*───────────────────────── selection ───────────────────────*/
-                setActiveChord: (index) => set({ activeChordIndex: index }),
+                setActiveChord: (index) => set({
+                    activeChordIndex: index,
+                    selectedChordIndices: index !== null ? [index] : []
+                }),
+
+                setSelectedChords: (indices) => set({
+                    selectedChordIndices: indices,
+                    activeChordIndex: indices.length === 1 ? indices[0] : null
+                }),
+
+                toggleChordSelection: (index) => set((state) => {
+                    const currentSelected = state.selectedChordIndices;
+                    const isSelected = currentSelected.includes(index);
+                    
+                    let newSelected: number[];
+                    if (isSelected) {
+                        // Remove from selection
+                        newSelected = currentSelected.filter(i => i !== index);
+                    } else {
+                        // Add to selection
+                        newSelected = [...currentSelected, index].sort((a, b) => a - b);
+                    }
+                    
+                    return {
+                        selectedChordIndices: newSelected,
+                        activeChordIndex: newSelected.length === 1 ? newSelected[0] : null
+                    };
+                }),
 
                 /*────────────────────────── editing ────────────────────────*/
                 updateChordTime: (index, duration, newStart) =>
@@ -271,22 +303,57 @@ const useChordsStore = create<ChordsStore>()(
                         newProgression.splice(index, 1);
 
                         let newActive = state.activeChordIndex;
+                        let newSelectedIndices = state.selectedChordIndices;
+                        
+                        // Update active chord index
                         if (index === state.activeChordIndex) newActive = null;
                         else if (
                             state.activeChordIndex !== null &&
                             index < state.activeChordIndex
                         )
                             newActive = state.activeChordIndex - 1;
+                        
+                        // Update selected chord indices
+                        newSelectedIndices = newSelectedIndices
+                            .filter(i => i !== index) // Remove deleted chord
+                            .map(i => i > index ? i - 1 : i); // Shift indices after deleted chord
 
                         return {
                             chordProgression: newProgression,
                             activeChordIndex: newActive,
+                            selectedChordIndices: newSelectedIndices,
                         };
                     }),
 
                 deleteActiveChord: () => {
                     const idx = get().activeChordIndex;
                     if (idx !== null) get().actions.deleteChord(idx);
+                },
+
+                deleteSelectedChords: () => {
+                    const { selectedChordIndices, chordProgression } = get();
+                    if (selectedChordIndices.length === 0) return;
+                    
+                    createChordSnapshot(get());
+                    
+                    // Sort indices in descending order to delete from end to beginning
+                    // This prevents index shifting issues during deletion
+                    const sortedIndices = [...selectedChordIndices].sort((a, b) => b - a);
+                    
+                    const newProgression = [...chordProgression];
+                    
+                    // Delete chords from end to beginning
+                    for (const index of sortedIndices) {
+                        if (index >= 0 && index < newProgression.length) {
+                            newProgression.splice(index, 1);
+                        }
+                    }
+                    
+                    set({
+                        chordProgression: newProgression,
+                        activeChordIndex: null,
+                        selectedChordIndices: [],
+                    });
                 },
 
                 addChordAtEnd: () => {
@@ -304,6 +371,7 @@ const useChordsStore = create<ChordsStore>()(
                     set((state) => ({
                         chordProgression: [...state.chordProgression, newChord],
                         activeChordIndex: state.chordProgression.length,
+                        selectedChordIndices: [state.chordProgression.length],
                     }));
                 },
 
@@ -335,6 +403,7 @@ const useChordsStore = create<ChordsStore>()(
                     set({
                         chordProgression: newProgression,
                         activeChordIndex: targetIndex,
+                        selectedChordIndices: [targetIndex],
                     });
                     
                     // Create a snapshot for undo/redo
@@ -429,6 +498,8 @@ export const useChordProgression = () =>
     useChordsStore((state) => state.chordProgression);
 export const useActiveChordIndex = () =>
     useChordsStore((state) => state.activeChordIndex);
+export const useSelectedChordIndices = () =>
+    useChordsStore((state) => state.selectedChordIndices);
 
 /*───────────────────────────────────────────────────────────────
   Actions hook

@@ -18,7 +18,7 @@ import { useTimelineSelection } from "@/components/Player/Timeline/hooks/useTime
 import type { TransportState } from "@/components/Player/hooks/useTransportState";
 import { useUndoRedoShortcuts } from "@/components/Player/hooks/useUndoRedoShortcuts";
 import { useGlobalUndoRedo } from "@/hooks/useGlobalUndoRedo";
-import { useChordsActions } from "@/stores/chordsStore.ts";
+import { useChordsActions, useSelectedChordIndices } from "@/stores/chordsStore.ts";
 import { useShortcut } from "@/shortcuts/KeyboardShortcuts";
 
 export interface TimelineHandle {
@@ -72,7 +72,8 @@ const Timeline = (
 
     // Use global undo/redo system instead of chord store delegates
     const { undo, redo, canUndo, canRedo } = useGlobalUndoRedo();
-    const { deleteActiveChord } = useChordsActions();
+    const { deleteActiveChord, deleteSelectedChords } = useChordsActions();
+    const selectedChordIndices = useSelectedChordIndices();
 
     // Setup undo/redo keyboard shortcuts
     useUndoRedoShortcuts({
@@ -83,15 +84,23 @@ const Timeline = (
     });
 
     // Handle keyboard events for chord deletion
+    const handleDelete = () => {
+        if (selectedChordIndices.length > 1) {
+            deleteSelectedChords();
+        } else {
+            deleteActiveChord();
+        }
+    };
+    
     useShortcut({
         key: "Delete",
-        handler: () => deleteActiveChord(),
-        description: "Delete selected chord",
+        handler: handleDelete,
+        description: "Delete selected chord(s)",
     });
     useShortcut({
         key: "Backspace",
-        handler: () => deleteActiveChord(),
-        description: "Delete selected chord",
+        handler: handleDelete,
+        description: "Delete selected chord(s)",
     });
 
     // Expose imperative API

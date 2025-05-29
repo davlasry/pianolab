@@ -33,7 +33,7 @@ export const TimelineChord = ({
     onSelect,
 }: Props) => {
     const currentTime = useTransportTime();
-    const { updateChordTime, extendChordToBoundary } = useChordsActions();
+    const { updateChordTime, extendChordToBoundary, toggleChordSelection } = useChordsActions();
 
     const isCurrentChord =
         currentTime !== undefined &&
@@ -48,8 +48,13 @@ export const TimelineChord = ({
         onInsertChord(i, "after");
     };
 
-    const handleChordClick = () => {
-        onSelect?.();
+    const handleChordClick = (e: React.MouseEvent) => {
+        if (e.metaKey || e.ctrlKey) {
+            // Cmd+click (Mac) or Ctrl+click (Windows/Linux) for multi-selection
+            toggleChordSelection(i);
+        } else {
+            onSelect?.();
+        }
     };
 
     const handleChordHandleDoubleClick = (
@@ -78,7 +83,7 @@ export const TimelineChord = ({
                     : undefined
             }
             onDragStart={onDragStart ? () => onDragStart() : undefined}
-            onClick={handleChordClick}
+            onClick={(e) => handleChordClick(e)}
             onHandleDoubleClick={handleChordHandleDoubleClick}
             className={cn(
                 "group absolute top-8 bottom-1 z-10 flex flex-col items-center justify-center rounded-lg p-2.5 shadow-sm transition-colors duration-150 ease-in-out",

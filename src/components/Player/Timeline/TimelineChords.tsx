@@ -2,7 +2,7 @@ import type { RefObject } from "react";
 import { useEffect, useState, useLayoutEffect } from "react";
 import {
     useChordProgression,
-    useActiveChordIndex,
+    useSelectedChordIndices,
     useChordsActions,
 } from "@/stores/chordsStore.ts";
 import { TimelineChord } from "@/components/Player/Timeline/TimelineChord.tsx";
@@ -23,7 +23,7 @@ export const TimelineChords = ({
 }: Props) => {
     const [pxPerUnit, setPxPerUnit] = useState(1);
     const chordProgression = useChordProgression();
-    const activeChordIndex = useActiveChordIndex();
+    const selectedChordIndices = useSelectedChordIndices();
     const {
         updateChordTimeLive,
         insertChordAtIndex,
@@ -75,7 +75,7 @@ export const TimelineChords = ({
                     onChordUpdateLive={updateChordTimeLive}
                     onInsertChord={insertChordAtIndex}
                     onDragStart={handleDragStart}
-                    isSelected={activeChordIndex === i}
+                    isSelected={selectedChordIndices.includes(i)}
                     onSelect={() => setActiveChord(i)}
                 />
             ))}

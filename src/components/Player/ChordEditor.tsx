@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import {
     useChordProgression,
     useActiveChordIndex,
+    useSelectedChordIndices,
     useChordsActions,
 } from "@/stores/chordsStore";
 import {
@@ -32,6 +33,7 @@ import {
 export const ChordEditor = () => {
     const chordProgression = useChordProgression();
     const activeChordIndex = useActiveChordIndex();
+    const selectedChordIndices = useSelectedChordIndices();
     const { updateChordLabel, setActiveChord } = useChordsActions();
 
     const [editValue, setEditValue] = useState("");
@@ -76,7 +78,8 @@ export const ChordEditor = () => {
         }
     }, [isEditing]);
 
-    if (!activeChord || activeChordIndex === null) {
+    // Only show editor when exactly one chord is selected
+    if (!activeChord || activeChordIndex === null || selectedChordIndices.length !== 1) {
         return null;
     }
 
