@@ -192,34 +192,45 @@ const useChordsStore = create<ChordsStore>()(
                     set({ chordProgression: newProg }),
 
                 /*───────────────────────── selection ───────────────────────*/
-                setActiveChord: (index) => set({
-                    activeChordIndex: index,
-                    selectedChordIndices: index !== null ? [index] : []
-                }),
+                setActiveChord: (index) =>
+                    set({
+                        activeChordIndex: index,
+                        selectedChordIndices: index !== null ? [index] : [],
+                    }),
 
-                setSelectedChords: (indices) => set({
-                    selectedChordIndices: indices,
-                    activeChordIndex: indices.length === 1 ? indices[0] : null
-                }),
+                setSelectedChords: (indices) =>
+                    set({
+                        selectedChordIndices: indices,
+                        activeChordIndex:
+                            indices.length === 1 ? indices[0] : null,
+                    }),
 
-                toggleChordSelection: (index) => set((state) => {
-                    const currentSelected = state.selectedChordIndices;
-                    const isSelected = currentSelected.includes(index);
-                    
-                    let newSelected: number[];
-                    if (isSelected) {
-                        // Remove from selection
-                        newSelected = currentSelected.filter(i => i !== index);
-                    } else {
-                        // Add to selection
-                        newSelected = [...currentSelected, index].sort((a, b) => a - b);
-                    }
-                    
-                    return {
-                        selectedChordIndices: newSelected,
-                        activeChordIndex: newSelected.length === 1 ? newSelected[0] : null
-                    };
-                }),
+                toggleChordSelection: (index) =>
+                    set((state) => {
+                        const currentSelected = state.selectedChordIndices;
+                        const isSelected = currentSelected.includes(index);
+
+                        let newSelected: number[];
+                        if (isSelected) {
+                            // Remove from selection
+                            newSelected = currentSelected.filter(
+                                (i) => i !== index,
+                            );
+                        } else {
+                            // Add to selection
+                            newSelected = [...currentSelected, index].sort(
+                                (a, b) => a - b,
+                            );
+                        }
+
+                        return {
+                            selectedChordIndices: newSelected,
+                            activeChordIndex:
+                                newSelected.length === 1
+                                    ? newSelected[0]
+                                    : null,
+                        };
+                    }),
 
                 /*────────────────────────── editing ────────────────────────*/
                 updateChordTime: (index, duration, newStart) =>
@@ -248,7 +259,10 @@ const useChordsStore = create<ChordsStore>()(
                     set((state) => {
                         createChordSnapshot(state);
                         const newProgression = [...state.chordProgression];
-                        newProgression[index] = { ...newProgression[index], label };
+                        newProgression[index] = {
+                            ...newProgression[index],
+                            label,
+                        };
                         return { chordProgression: newProgression };
                     }),
 
@@ -288,9 +302,14 @@ const useChordsStore = create<ChordsStore>()(
                         }
 
                         chords.splice(insertionPoint, 0, newChordToInsert);
-                        for (let i = insertionPoint + 1; i < chords.length; i++) {
+                        for (
+                            let i = insertionPoint + 1;
+                            i < chords.length;
+                            i++
+                        ) {
                             const prev = chords[i - 1];
-                            chords[i].startTime = prev.startTime + prev.duration;
+                            chords[i].startTime =
+                                prev.startTime + prev.duration;
                         }
 
                         return { chordProgression: chords };
@@ -308,7 +327,7 @@ const useChordsStore = create<ChordsStore>()(
 
                         let newActive = state.activeChordIndex;
                         let newSelectedIndices = state.selectedChordIndices;
-                        
+
                         // Update active chord index
                         if (index === state.activeChordIndex) newActive = null;
                         else if (
@@ -316,11 +335,11 @@ const useChordsStore = create<ChordsStore>()(
                             index < state.activeChordIndex
                         )
                             newActive = state.activeChordIndex - 1;
-                        
+
                         // Update selected chord indices
                         newSelectedIndices = newSelectedIndices
-                            .filter(i => i !== index) // Remove deleted chord
-                            .map(i => i > index ? i - 1 : i); // Shift indices after deleted chord
+                            .filter((i) => i !== index) // Remove deleted chord
+                            .map((i) => (i > index ? i - 1 : i)); // Shift indices after deleted chord
 
                         return {
                             chordProgression: newProgression,
@@ -337,22 +356,24 @@ const useChordsStore = create<ChordsStore>()(
                 deleteSelectedChords: () => {
                     const { selectedChordIndices, chordProgression } = get();
                     if (selectedChordIndices.length === 0) return;
-                    
+
                     createChordSnapshot(get());
-                    
+
                     // Sort indices in descending order to delete from end to beginning
                     // This prevents index shifting issues during deletion
-                    const sortedIndices = [...selectedChordIndices].sort((a, b) => b - a);
-                    
+                    const sortedIndices = [...selectedChordIndices].sort(
+                        (a, b) => b - a,
+                    );
+
                     const newProgression = [...chordProgression];
-                    
+
                     // Delete chords from end to beginning
                     for (const index of sortedIndices) {
                         if (index >= 0 && index < newProgression.length) {
                             newProgression.splice(index, 1);
                         }
                     }
-                    
+
                     set({
                         chordProgression: newProgression,
                         activeChordIndex: null,
@@ -381,35 +402,40 @@ const useChordsStore = create<ChordsStore>()(
 
                 addChordAtTime(time: number) {
                     const { chordProgression, actions } = get();
-                    
+
                     // Check if there's already a chord at this exact timestamp
                     const chordExists = chordProgression.some(
-                        (chord) => chord.startTime === time
+                        (chord) => chord.startTime === time,
                     );
-                    
+
                     if (chordExists) return;
-                    
+
                     // Find the correct position to insert the new chord
-                    const insertIndex = chordProgression.findIndex(chord => chord.startTime > time);
-                    const targetIndex = insertIndex === -1 ? chordProgression.length : insertIndex;
-                    
+                    const insertIndex = chordProgression.findIndex(
+                        (chord) => chord.startTime > time,
+                    );
+                    const targetIndex =
+                        insertIndex === -1
+                            ? chordProgression.length
+                            : insertIndex;
+
                     // Create the new chord
                     const newChord: Chord = {
-                        label: "?",
+                        label: "",
                         startTime: time,
                         duration: 1,
                     };
-                    
+
                     // Insert the new chord
                     const newProgression = [...chordProgression];
                     newProgression.splice(targetIndex, 0, newChord);
-                    
+
                     set({
                         chordProgression: newProgression,
                         activeChordIndex: targetIndex,
                         selectedChordIndices: [targetIndex],
                     });
-                    
+
                     // Create a snapshot for undo/redo
                     actions.createChordSnapshot();
                 },
@@ -427,12 +453,18 @@ const useChordsStore = create<ChordsStore>()(
                         if (side === "left") {
                             const prevChord = chordProgression[index - 1];
                             if (prevChord) {
-                                const targetStartTime = prevChord.startTime + prevChord.duration;
+                                const targetStartTime =
+                                    prevChord.startTime + prevChord.duration;
                                 // Calculate potential new end time for current chord
-                                const currentChordEndTime = currentChord.startTime + currentChord.duration;
-                                const potentialNewDuration = currentChordEndTime - targetStartTime;
+                                const currentChordEndTime =
+                                    currentChord.startTime +
+                                    currentChord.duration;
+                                const potentialNewDuration =
+                                    currentChordEndTime - targetStartTime;
 
-                                if (potentialNewDuration >= minAllowedDuration) {
+                                if (
+                                    potentialNewDuration >= minAllowedDuration
+                                ) {
                                     newStartTime = targetStartTime;
                                     newDuration = potentialNewDuration;
                                 } else {
@@ -441,11 +473,16 @@ const useChordsStore = create<ChordsStore>()(
                             } else {
                                 return {}; // No previous chord to extend to
                             }
-                        } else { // side === "right"
+                        } else {
+                            // side === "right"
                             const nextChord = chordProgression[index + 1];
                             if (nextChord) {
-                                const potentialNewDuration = nextChord.startTime - currentChord.startTime;
-                                if (potentialNewDuration >= minAllowedDuration) {
+                                const potentialNewDuration =
+                                    nextChord.startTime -
+                                    currentChord.startTime;
+                                if (
+                                    potentialNewDuration >= minAllowedDuration
+                                ) {
                                     newDuration = potentialNewDuration;
                                     // newStartTime remains currentChord.startTime
                                 } else {
@@ -457,7 +494,10 @@ const useChordsStore = create<ChordsStore>()(
                         }
 
                         // If no change would occur, abort to prevent unnecessary snapshot/rerender
-                        if (newStartTime === currentChord.startTime && newDuration === currentChord.duration) {
+                        if (
+                            newStartTime === currentChord.startTime &&
+                            newDuration === currentChord.duration
+                        ) {
                             return {};
                         }
 
@@ -480,7 +520,10 @@ const useChordsStore = create<ChordsStore>()(
                     const { chordProgression } = get();
                     for (let i = 0; i < chordProgression.length; i++) {
                         const chord = chordProgression[i];
-                        if (time >= chord.startTime && time < chord.startTime + chord.duration) {
+                        if (
+                            time >= chord.startTime &&
+                            time < chord.startTime + chord.duration
+                        ) {
                             return { chord, index: i };
                         }
                     }
@@ -497,11 +540,17 @@ const useChordsStore = create<ChordsStore>()(
             storage: zustandStorage,
             merge: (persistedState: unknown, currentState: ChordsStore) => {
                 // On first load, use persisted state if it exists
-                if (persistedState && typeof persistedState === 'object' && persistedState !== null) {
+                if (
+                    persistedState &&
+                    typeof persistedState === "object" &&
+                    persistedState !== null
+                ) {
                     const state = persistedState as Partial<ChordsStore>;
                     return {
                         ...currentState,
-                        chordProgression: state.chordProgression || currentState.chordProgression,
+                        chordProgression:
+                            state.chordProgression ||
+                            currentState.chordProgression,
                     };
                 }
                 return currentState;
