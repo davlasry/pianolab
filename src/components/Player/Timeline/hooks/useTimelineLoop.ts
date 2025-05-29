@@ -24,7 +24,7 @@ interface UseTimelineSelectionReturn {
     toggleLoop: () => void;
 }
 
-export function useTimelineSelection({
+export function useTimelineLoop({
     duration,
     onSeek,
     transportState,

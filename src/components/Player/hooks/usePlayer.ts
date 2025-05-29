@@ -4,8 +4,9 @@ import type { Note } from "@/components/Player/hooks/useMidiNotes.ts";
 import { useTransportState } from "@/components/Player/hooks/useTransportState.ts";
 import { transportTicker } from "@/TransportTicker/transportTicker.ts";
 import { useChordProgression } from "@/stores/chordsStore.ts";
+import { usePlayheadActions } from "@/stores/playheadStore.ts";
 
-// Constants for localStorage - must match the key in transportTicker.ts
+// Key for storing playhead position in localStorage
 const PLAYHEAD_POSITION_KEY = "pianolab_playhead_position";
 
 type ActiveNote = {
@@ -19,9 +20,12 @@ export const usePlayer = (notes: Note[]) => {
         const currentTime = Tone.getTransport().seconds;
         if (currentTime > 0) {
             localStorage.setItem(PLAYHEAD_POSITION_KEY, currentTime.toString());
-            console.log(`Saved position: ${currentTime}s`);
         }
     }, []);
+
+    // Get the action to set restored position from Zustand store
+    const { setRestoredPosition } = usePlayheadActions();
+
     const chordProgression = useChordProgression();
     const [activeNotes, setActiveNotes] = useState<ActiveNote[]>([]);
     const [activeChord, setActiveChord] = useState<string>("");
@@ -55,24 +59,24 @@ export const usePlayer = (notes: Note[]) => {
                     autostart: false,
                     onload: () => {
                         // Set audio duration first
-                        setAudioDuration(playerRef.current!.buffer.duration);
+                        const duration = playerRef.current!.buffer.duration;
+                        setAudioDuration(duration);
 
                         // After audio is loaded, try to restore position from localStorage
                         const savedPosition = localStorage.getItem(
                             PLAYHEAD_POSITION_KEY,
                         );
+
                         if (savedPosition) {
                             const time = parseFloat(savedPosition);
-                            console.log(
-                                `Audio loaded, restoring position: ${time}s`,
-                            );
 
                             // Validate the time is within the audio duration
-                            const duration = playerRef.current!.buffer.duration;
                             if (!isNaN(time) && time > 0 && time < duration) {
                                 // Set the transport time directly
                                 Tone.getTransport().seconds = time;
                                 transportTicker.set(time);
+
+                                setRestoredPosition(time);
                             }
                         }
                     },
@@ -91,7 +95,7 @@ export const usePlayer = (notes: Note[]) => {
                 return Promise.reject(error);
             }
         },
-        [],
+        [setRestoredPosition],
     );
 
     const buildNotesPart = useCallback(() => {
@@ -108,13 +112,13 @@ export const usePlayer = (notes: Note[]) => {
         notesPartRef.current?.dispose();
 
         notesPartRef.current = new Tone.Part((_time, ev) => {
-            // 🔵 GUI ─ mark key ON
+            // GUI ─ mark key ON
             setActiveNotes((keys) => [
                 ...keys,
                 { midi: ev.midi, hand: ev.midi > 75 ? "right" : "left" },
             ]); // add without deduping for speed
 
-            // 🔊 AUDIO ─ play the note
+            // AUDIO ─ play the note
             // synthRef.current!.triggerAttackRelease(
             //     ev.note,
             //     ev.dur,
@@ -122,7 +126,7 @@ export const usePlayer = (notes: Note[]) => {
             //     ev.vel,
             // );
 
-            // 🔴 GUI ─ schedule key OFF
+            // GUI ─ schedule key OFF
             Tone.getTransport().scheduleOnce(() => {
                 setActiveNotes((keys) =>
                     keys.filter((k) => k.midi !== ev.midi),
@@ -143,11 +147,11 @@ export const usePlayer = (notes: Note[]) => {
         chordPartRef.current = new Tone.Part((_time, ev) => {
             setActiveChord(ev.chord); // add without deduping for speed
         }, events).start(0); // start at t=0 on the transport
-    }, []);
+    }, [chordProgression]);
 
     /** build (or rebuild) a Parts from the Midi object and chord progressions*/
     const buildPart = useCallback(() => {
-        // 🔊 AUDIO – create a synth once
+        // AUDIO – create a synth once
         // synthRef.current ??= new Tone.PolySynth().toDestination();
 
         buildNotesPart();

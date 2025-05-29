@@ -13,7 +13,7 @@ interface TimelineSelectionControlsProps {
     onToggleLoop: () => void;
 }
 
-export function TimelineSelectionControls({
+export function TimelineLoopControls({
     onSetStartAtPlayhead,
     onSubmitSelection,
     onResetSelection,
@@ -49,7 +49,11 @@ export function TimelineSelectionControls({
             )}
 
             {selectionStart !== null && (
-                <Button onClick={onResetSelection} variant="outline" size="icon">
+                <Button
+                    onClick={onResetSelection}
+                    variant="outline"
+                    size="icon"
+                >
                     <X size={14} />
                 </Button>
             )}

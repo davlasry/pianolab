@@ -1,7 +1,8 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { CurrentChord } from "@/components/Player/CurrentChord.tsx";
 import { ChordEditor } from "@/components/Player/ChordEditor.tsx";
 import { usePlayerContext } from "@/components/Player/context/PlayerContext";
+import { useRestoredPosition, usePlayheadActions } from "@/stores/playheadStore.ts";
 import Controls from "@/components/Player/Controls/Controls.tsx";
 import Timeline, {
     type TimelineHandle,
@@ -26,6 +27,29 @@ export const PlayerContent = () => {
     // Register keyboard shortcuts
     useTransportShortcuts({ seek, getTransport, isReady });
     useChordShortcuts();
+    
+    // Get the restored position and action to clear it from Zustand store
+    const restoredPosition = useRestoredPosition();
+    const { setRestoredPosition } = usePlayheadActions();
+    
+    // React to changes in the restored position
+    useEffect(() => {
+        if (restoredPosition !== null && timelineRef.current && audioDuration > 0) {
+            // Only center if we have a valid audio duration and the time is within range
+            if (restoredPosition > 0 && restoredPosition < audioDuration) {
+                // Add a small delay to ensure the timeline is fully rendered
+                setTimeout(() => {
+                    timelineRef.current?.scrollToTime(restoredPosition, true);
+                    
+                    // Clear the restored position after handling it
+                    setRestoredPosition(null);
+                }, 200);
+            } else {
+                // Invalid position, just clear it
+                setRestoredPosition(null);
+            }
+        }
+    }, [restoredPosition, audioDuration, setRestoredPosition]);
 
     const handleMoveToBeginning = () => {
         seekToBeginning();

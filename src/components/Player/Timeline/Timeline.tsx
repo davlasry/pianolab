@@ -1,28 +1,32 @@
-import type { MouseEvent, WheelEvent, Ref } from "react";
+import type { Ref } from "react";
 import {
     forwardRef,
     useRef,
     useImperativeHandle,
-    useCallback,
     useEffect,
 } from "react";
 import { useTimelineZoom } from "@/components/Player/Timeline/useTimelineZoom";
-import { useThrottle } from "@/components/Player/Timeline/useThrottle";
+import { useTimelineScroll } from "@/components/Player/Timeline/hooks/useTimelineScroll";
+import { useTimelineWheel } from "@/components/Player/Timeline/hooks/useTimelineWheel";
+import { useInitialScrollPosition } from "@/components/Player/Timeline/hooks/useInitialScrollPosition";
 import { ZoomableContainer } from "@/components/Player/Timeline/ZoomableContainer";
 import { Playhead } from "@/components/Player/Timeline/Playhead";
 import { TimelineChords } from "@/components/Player/Timeline/TimelineChords";
 import { TimelineZoomControls } from "@/components/Player/Timeline/TimelineZoomControls";
 import { TimelineSelection } from "@/components/Player/Timeline/TimelineSelection";
-import { TimelineSelectionControls } from "@/components/Player/Timeline/TimelineSelectionControls";
-import { useTimelineSelection } from "@/components/Player/Timeline/hooks/useTimelineSelection";
+import { TimelineLoopControls } from "@/components/Player/Timeline/TimelineLoopControls";
+import { useTimelineLoop } from "@/components/Player/Timeline/hooks/useTimelineLoop";
+import { useTimelineClick } from "@/components/Player/Timeline/hooks/useTimelineClick";
 import type { TransportState } from "@/components/Player/hooks/useTransportState";
-import { useSelectedChordIndices, useActiveChordIndex } from "@/stores/chordsStore.ts";
+import {
+    useSelectedChordIndices,
+    useActiveChordIndex,
+} from "@/stores/chordsStore.ts";
 import { useTimelineShortcuts } from "./hooks/useTimelineShortcuts";
-
 
 export interface TimelineHandle {
     scrollToBeginning: () => void;
-    scrollToTime: (time: number) => void;
+    scrollToTime: (time: number, center?: boolean) => void;
     resetZoom: () => void;
 }
 
@@ -37,9 +41,9 @@ const Timeline = (
     { duration, onSeek, transportState }: TimelineProps,
     ref: Ref<TimelineHandle>,
 ) => {
-    const outerRef = useRef<HTMLDivElement>(null);
-    const containerRef = useRef<HTMLDivElement>(null);
     const barRef = useRef<HTMLDivElement>(null);
+    const { outerRef, containerRef, scrollToTime, scrollToBeginning } =
+        useTimelineScroll(duration);
 
     const { zoomLevel, updateZoom, resetZoom } = useTimelineZoom();
 
@@ -63,7 +67,7 @@ const Timeline = (
         activeLoop,
         isLoopActive,
         toggleLoop,
-    } = useTimelineSelection({
+    } = useTimelineLoop({
         duration,
         onSeek,
         transportState,
@@ -75,73 +79,43 @@ const Timeline = (
     // Setup all keyboard shortcuts
     useTimelineShortcuts({
         selectedChordIndices,
-        activeChordIndex
+        activeChordIndex,
+    });
+
+    // Use initial scroll position hook to center playhead on mount
+    useInitialScrollPosition({
+        duration,
+        containerRef,
+        scrollToTime,
     });
 
     // Expose imperative API
     useImperativeHandle(
         ref,
         () => ({
-            scrollToBeginning: () => {
-                if (outerRef.current) outerRef.current.scrollLeft = 0;
-            },
-            scrollToTime: (time: number) => {
-                if (!outerRef.current || !containerRef.current) return;
-                const pct = Math.min(Math.max(time / duration, 0), 1);
-                const margin = outerRef.current.clientWidth * 0.1;
-                outerRef.current.scrollLeft =
-                    pct * containerRef.current.scrollWidth - margin;
-            },
+            scrollToBeginning,
+            scrollToTime,
             resetZoom,
         }),
-        [duration, resetZoom],
+        [scrollToBeginning, scrollToTime, resetZoom],
     );
 
-    // Throttled wheel → scroll
-    const onWheel = useThrottle((e: WheelEvent<HTMLDivElement>) => {
-        // Only handle non-zoom wheel events (zoom is handled in ZoomableContainer)
-        if (!e.ctrlKey && outerRef.current) {
-            e.preventDefault();
-            outerRef.current.scrollLeft += e.deltaX || e.deltaY / 2;
-        }
-    }, 50);
+    // Handle wheel events for scrolling
+    const onWheel = useTimelineWheel(outerRef);
 
-    // Click → seek and set end time
-    const onClick = useCallback(
-        (e: MouseEvent<HTMLDivElement>) => {
-            // Check if we clicked on a chord block or any of its children
-            const target = e.target as HTMLElement;
-            const isChordClick = target.closest(
-                '[data-component="DraggableResizableBlock"]',
-            );
-            if (isChordClick) return;
-
-            if (!containerRef.current) return;
-            const rect = containerRef.current.getBoundingClientRect();
-            const percent = (e.clientX - rect.left) / rect.width;
-            const time = percent * duration;
-
-            if (!Number.isFinite(time) || time < 0) return;
-
-            // Always seek to clicked position
-            onSeek(time);
-
-            // Only set end time if we're actively creating a loop
-            if (isCreatingLoop) {
-                handleSetEndTime(time);
-            }
-
-            if (barRef.current) {
-                const x = percent * containerRef.current.scrollWidth;
-                barRef.current.style.transform = `translateX(${x}px)`;
-            }
-        },
-        [duration, onSeek, handleSetEndTime, isCreatingLoop],
-    );
+    // Handle click events for seeking and setting end time
+    const onClick = useTimelineClick({
+        containerRef,
+        barRef,
+        duration,
+        onSeek,
+        isCreatingLoop,
+        onSetEndTime: handleSetEndTime,
+    });
 
     return (
         <div className="relative flex flex-col gap-2">
-            <TimelineSelectionControls
+            <TimelineLoopControls
                 onSetStartAtPlayhead={handleSetStartAtPlayhead}
                 onSubmitSelection={handleSubmitSelection}
                 onResetSelection={handleResetSelection}
