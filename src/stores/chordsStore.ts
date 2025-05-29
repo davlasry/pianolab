@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 import { pushSnapshot } from "@/stores/historyStore";
 
 export interface Chord {
@@ -118,149 +119,212 @@ const createChordSnapshot = (state: { chordProgression: Chord[] }) => {
     pushSnapshot(snapshot);
 };
 
-const useChordsStore = create<ChordsStore>((set, get) => ({
-    chordProgression: initialChordProgression,
-    activeChordIndex: null,
+/*───────────────────────────────────────────────────────────────
+  Local-storage persistence helpers (throttled write)
+───────────────────────────────────────────────────────────────*/
+const createThrottledSetItem = (delay = 500) => {
+    let timeout: ReturnType<typeof setTimeout> | null = null;
+    let latestKey = "";
+    let latestValue = "";
+    return (key: string, value: string) => {
+        latestKey = key;
+        latestValue = value;
+        if (timeout) return;
+        timeout = setTimeout(() => {
+            try {
+                localStorage.setItem(latestKey, latestValue);
+            } catch {
+                /* ignore write errors, e.g. Safari private mode */
+            }
+            timeout = null;
+        }, delay);
+    };
+};
 
-    actions: {
-        /*─────────────────────────── core ──────────────────────────*/
-        setChordProgression: (newProg) =>
-            set((state) => {
-                createChordSnapshot(state);
-                return { chordProgression: newProg };
-            }),
+const throttledSetItem = createThrottledSetItem();
 
-        updateProgressionPresent: (newProg) =>
-            set({ chordProgression: newProg }),
-
-        /*───────────────────────── selection ───────────────────────*/
-        setActiveChord: (index) => set({ activeChordIndex: index }),
-
-        /*────────────────────────── editing ────────────────────────*/
-        updateChordTime: (index, duration, newStart) =>
-            set((state) => {
-                const result = applyNoOverlapRule(
-                    state.chordProgression,
-                    index,
-                    newStart,
-                    duration,
-                );
-                return { chordProgression: result };
-            }),
-
-        updateChordTimeLive: (index, duration, newStart) =>
-            set((state) => {
-                const result = applyNoOverlapRule(
-                    state.chordProgression,
-                    index,
-                    newStart,
-                    duration,
-                );
-                return { chordProgression: result };
-            }),
-
-        updateChordLabel: (index, label) =>
-            set((state) => {
-                createChordSnapshot(state);
-                const newProgression = [...state.chordProgression];
-                newProgression[index] = { ...newProgression[index], label };
-                return { chordProgression: newProgression };
-            }),
-
-        insertChordAtIndex: (indexToInsertRelative, side) =>
-            set((state) => {
-                createChordSnapshot(state);
-
-                const chords = [
-                    ...state.chordProgression.map((c) => ({ ...c })),
-                ];
-                const newChordDuration = 2;
-                const newChordLabel = "";
-
-                let newChordToInsert: Chord;
-                let insertionPoint: number;
-
-                if (side === "after") {
-                    const anchor = chords[indexToInsertRelative];
-                    if (!anchor) return {};
-                    const newStart = anchor.startTime + anchor.duration;
-                    newChordToInsert = {
-                        label: newChordLabel,
-                        startTime: newStart,
-                        duration: newChordDuration,
-                    };
-                    insertionPoint = indexToInsertRelative + 1;
-                } else {
-                    const anchor = chords[indexToInsertRelative];
-                    if (!anchor) return {};
-                    const newStart = anchor.startTime;
-                    newChordToInsert = {
-                        label: newChordLabel,
-                        startTime: newStart,
-                        duration: newChordDuration,
-                    };
-                    insertionPoint = indexToInsertRelative;
-                }
-
-                chords.splice(insertionPoint, 0, newChordToInsert);
-                for (let i = insertionPoint + 1; i < chords.length; i++) {
-                    const prev = chords[i - 1];
-                    chords[i].startTime = prev.startTime + prev.duration;
-                }
-
-                return { chordProgression: chords };
-            }),
-
-        deleteChord: (index) =>
-            set((state) => {
-                if (index < 0 || index >= state.chordProgression.length)
-                    return {};
-
-                createChordSnapshot(state);
-
-                const newProgression = [...state.chordProgression];
-                newProgression.splice(index, 1);
-
-                let newActive = state.activeChordIndex;
-                if (index === state.activeChordIndex) newActive = null;
-                else if (
-                    state.activeChordIndex !== null &&
-                    index < state.activeChordIndex
-                )
-                    newActive = state.activeChordIndex - 1;
-
-                return {
-                    chordProgression: newProgression,
-                    activeChordIndex: newActive,
-                };
-            }),
-
-        deleteActiveChord: () => {
-            const idx = get().activeChordIndex;
-            if (idx !== null) get().actions.deleteChord(idx);
-        },
-
-        addChordAtEnd: () =>
-            set((state) => {
-                createChordSnapshot(state);
-
-                const last =
-                    state.chordProgression[state.chordProgression.length - 1];
-                const newStart = last.startTime + last.duration;
-                const newChord: Chord = {
-                    label: "",
-                    startTime: newStart,
-                    duration: 2,
-                };
-                const newProgression = [...state.chordProgression, newChord];
-                return { chordProgression: newProgression };
-            }),
-
-        createChordSnapshot: () => {
-            createChordSnapshot(get());
-        },
+const zustandStorage = createJSONStorage<ChordsStore>(() => ({
+    getItem: (name: string) => {
+        try {
+            return localStorage.getItem(name);
+        } catch {
+            return null;
+        }
+    },
+    setItem: throttledSetItem,
+    removeItem: (name: string) => {
+        try {
+            localStorage.removeItem(name);
+        } catch {
+            /* ignore */
+        }
     },
 }));
+
+/*───────────────────────────────────────────────────────────────
+  Chords store with persistence
+───────────────────────────────────────────────────────────────*/
+const useChordsStore = create<ChordsStore>()(
+    persist(
+        (set, get) => ({
+            chordProgression: initialChordProgression,
+            activeChordIndex: null,
+            actions: {
+                /*─────────────────────────── core ──────────────────────────*/
+                setChordProgression: (newProg) =>
+                    set((state) => {
+                        createChordSnapshot(state);
+                        return { chordProgression: newProg };
+                    }),
+
+                updateProgressionPresent: (newProg) =>
+                    set({ chordProgression: newProg }),
+
+                /*───────────────────────── selection ───────────────────────*/
+                setActiveChord: (index) => set({ activeChordIndex: index }),
+
+                /*────────────────────────── editing ────────────────────────*/
+                updateChordTime: (index, duration, newStart) =>
+                    set((state) => {
+                        const result = applyNoOverlapRule(
+                            state.chordProgression,
+                            index,
+                            newStart,
+                            duration,
+                        );
+                        return { chordProgression: result };
+                    }),
+
+                updateChordTimeLive: (index, duration, newStart) =>
+                    set((state) => {
+                        const result = applyNoOverlapRule(
+                            state.chordProgression,
+                            index,
+                            newStart,
+                            duration,
+                        );
+                        return { chordProgression: result };
+                    }),
+
+                updateChordLabel: (index, label) =>
+                    set((state) => {
+                        createChordSnapshot(state);
+                        const newProgression = [...state.chordProgression];
+                        newProgression[index] = { ...newProgression[index], label };
+                        return { chordProgression: newProgression };
+                    }),
+
+                insertChordAtIndex: (indexToInsertRelative, side) =>
+                    set((state) => {
+                        createChordSnapshot(state);
+
+                        const chords = [
+                            ...state.chordProgression.map((c) => ({ ...c })),
+                        ];
+                        const newChordDuration = 2;
+                        const newChordLabel = "";
+
+                        let newChordToInsert: Chord;
+                        let insertionPoint: number;
+
+                        if (side === "after") {
+                            const anchor = chords[indexToInsertRelative];
+                            if (!anchor) return {};
+                            const newStart = anchor.startTime + anchor.duration;
+                            newChordToInsert = {
+                                label: newChordLabel,
+                                startTime: newStart,
+                                duration: newChordDuration,
+                            };
+                            insertionPoint = indexToInsertRelative + 1;
+                        } else {
+                            const anchor = chords[indexToInsertRelative];
+                            if (!anchor) return {};
+                            const newStart = anchor.startTime;
+                            newChordToInsert = {
+                                label: newChordLabel,
+                                startTime: newStart,
+                                duration: newChordDuration,
+                            };
+                            insertionPoint = indexToInsertRelative;
+                        }
+
+                        chords.splice(insertionPoint, 0, newChordToInsert);
+                        for (let i = insertionPoint + 1; i < chords.length; i++) {
+                            const prev = chords[i - 1];
+                            chords[i].startTime = prev.startTime + prev.duration;
+                        }
+
+                        return { chordProgression: chords };
+                    }),
+
+                deleteChord: (index) =>
+                    set((state) => {
+                        if (index < 0 || index >= state.chordProgression.length)
+                            return {};
+
+                        createChordSnapshot(state);
+
+                        const newProgression = [...state.chordProgression];
+                        newProgression.splice(index, 1);
+
+                        let newActive = state.activeChordIndex;
+                        if (index === state.activeChordIndex) newActive = null;
+                        else if (
+                            state.activeChordIndex !== null &&
+                            index < state.activeChordIndex
+                        )
+                            newActive = state.activeChordIndex - 1;
+
+                        return {
+                            chordProgression: newProgression,
+                            activeChordIndex: newActive,
+                        };
+                    }),
+
+                deleteActiveChord: () => {
+                    const idx = get().activeChordIndex;
+                    if (idx !== null) get().actions.deleteChord(idx);
+                },
+
+                addChordAtEnd: () =>
+                    set((state) => {
+                        createChordSnapshot(state);
+
+                        const last =
+                            state.chordProgression[state.chordProgression.length - 1];
+                        const newStart = last.startTime + last.duration;
+                        const newChord: Chord = {
+                            label: "",
+                            startTime: newStart,
+                            duration: 2,
+                        };
+                        const newProgression = [...state.chordProgression, newChord];
+                        return { chordProgression: newProgression };
+                    }),
+
+                createChordSnapshot: () => {
+                    createChordSnapshot(get());
+                },
+            },
+        }),
+        {
+            name: "chords-storage",
+            storage: zustandStorage,
+            merge: (persistedState: unknown, currentState: ChordsStore) => {
+                // On first load, use persisted state if it exists
+                if (persistedState && typeof persistedState === 'object' && persistedState !== null) {
+                    const state = persistedState as Partial<ChordsStore>;
+                    return {
+                        ...currentState,
+                        chordProgression: state.chordProgression || currentState.chordProgression,
+                    };
+                }
+                return currentState;
+            },
+        },
+    ),
+);
 
 /*───────────────────────────────────────────────────────────────
   Selector hooks

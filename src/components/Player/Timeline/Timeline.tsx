@@ -19,6 +19,7 @@ import type { TransportState } from "@/components/Player/hooks/useTransportState
 import { useUndoRedoShortcuts } from "@/components/Player/hooks/useUndoRedoShortcuts";
 import { useGlobalUndoRedo } from "@/hooks/useGlobalUndoRedo";
 import { useChordsActions } from "@/stores/chordsStore.ts";
+import { useShortcut } from "@/shortcuts/KeyboardShortcuts";
 
 export interface TimelineHandle {
     scrollToBeginning: () => void;
@@ -82,17 +83,16 @@ const Timeline = (
     });
 
     // Handle keyboard events for chord deletion
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Delete" || e.key === "Backspace") {
-                e.preventDefault();
-                deleteActiveChord();
-            }
-        };
-
-        window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [deleteActiveChord]);
+    useShortcut({
+        key: "Delete",
+        handler: () => deleteActiveChord(),
+        description: "Delete selected chord",
+    });
+    useShortcut({
+        key: "Backspace",
+        handler: () => deleteActiveChord(),
+        description: "Delete selected chord",
+    });
 
     // Expose imperative API
     useImperativeHandle(

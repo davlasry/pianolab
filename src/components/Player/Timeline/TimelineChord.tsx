@@ -72,12 +72,14 @@ export const TimelineChord = ({
             onDragStart={onDragStart ? () => onDragStart() : undefined}
             onClick={handleChordClick}
             className={cn(
-                "group absolute z-10 flex flex-col items-center justify-center rounded-lg p-2.5 shadow-sm transition-colors duration-150 ease-in-out",
-                isCurrentChord
-                    ? "border border-primary/70 bg-primary text-primary-foreground"
-                    : isSelected
-                      ? "bg-card text-primary ring-2 ring-primary ring-offset-2 ring-offset-background"
-                      : "border border-border bg-card text-card-foreground hover:bg-accent hover:text-accent-foreground",
+                "group absolute top-8 bottom-1 z-10 flex flex-col items-center justify-center rounded-lg p-2.5 shadow-sm transition-colors duration-150 ease-in-out",
+                isCurrentChord && isSelected
+                    ? "bg-primary text-primary-foreground ring-1 ring-white/70 ring-inset"
+                    : isCurrentChord
+                      ? "border border-primary/70 bg-primary text-primary-foreground"
+                      : isSelected
+                        ? "bg-card text-primary ring-1 ring-primary ring-inset"
+                        : "border border-border bg-card text-card-foreground hover:bg-accent hover:text-accent-foreground",
                 isEditMode && "cursor-grab",
             )}
             draggingClassName="z-20 opacity-75 shadow-lg ring-2 ring-ring"
@@ -96,7 +98,7 @@ export const TimelineChord = ({
             )}
             <div
                 className={cn(
-                    "truncate text-lg font-medium",
+                    "truncate text-sm font-medium",
                     isCurrentChord
                         ? "text-primary-foreground"
                         : isSelected
