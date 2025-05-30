@@ -153,6 +153,7 @@ const Timeline = (
                         barRef={barRef}
                         containerRef={containerRef}
                         outerRef={outerRef}
+                        zoomLevel={zoomLevel}
                     />
                 </ZoomableContainer>
             </div>

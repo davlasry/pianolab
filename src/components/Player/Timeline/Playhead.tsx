@@ -12,6 +12,7 @@ interface PlayheadProps {
     barRef: React.RefObject<HTMLDivElement | null>;
     containerRef: React.RefObject<HTMLDivElement | null>;
     outerRef: React.RefObject<HTMLDivElement | null>;
+    zoomLevel: number;
 }
 
 export function Playhead({
@@ -20,6 +21,7 @@ export function Playhead({
     barRef,
     containerRef,
     outerRef,
+    zoomLevel,
 }: PlayheadProps) {
     const [outerWidth, setOuterWidth] = useState(0);
     const percent = useProgressPercent(duration);
@@ -68,12 +70,14 @@ export function Playhead({
     // Drive playhead animation + scrolling
     useEffect(() => {
         if (barRef.current && containerRef.current) {
-            const totalWidth = containerRef.current.scrollWidth;
-            const x = percent * totalWidth;
+            // Calculate base width without zoom
+            const baseWidth = containerRef.current.scrollWidth / zoomLevel;
+            // Apply zoom to the position calculation
+            const x = percent * baseWidth * zoomLevel;
             barRef.current.style.transform = `translateX(${x}px)`;
         }
         scrollIfNeeded(percent);
-    }, [barRef, containerRef, percent, scrollIfNeeded]);
+    }, [barRef, containerRef, percent, scrollIfNeeded, zoomLevel]);
 
     return (
         <div
