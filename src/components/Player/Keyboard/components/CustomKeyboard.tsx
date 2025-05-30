@@ -49,7 +49,7 @@ export const CustomBlackKey: CustomKeyComponent = ({
     className = "",
 }: CustomKeyProps) => (
     <div
-        className={`absolute z-10 h-full w-full cursor-pointer rounded-md shadow-lg transition-all duration-75 ${active || isChordNote ? ACTIVE_CLASSES : INACTIVE_BLACK_CLASSES} ${className} `}
+        className={`absolute z-10 h-full w-full cursor-pointer rounded-md border-2 border-black shadow-lg transition-all duration-75 ${active || isChordNote ? ACTIVE_CLASSES : INACTIVE_BLACK_CLASSES} ${className} `}
     >
         {/* Subtle inner shadow to give keys depth */}
         {/*<div*/}

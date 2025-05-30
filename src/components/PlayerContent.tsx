@@ -83,12 +83,14 @@ export const PlayerContent = () => {
             </div>
 
             <div className="flex flex-col">
-                <Keyboard
-                    activeNotes={activeNotes}
-                    activeChord={activeChord}
-                    components={customKeyboard}
-                    // keyRange={[40, 80]}
-                />
+                <div className="">
+                    <Keyboard
+                        activeNotes={activeNotes}
+                        activeChord={activeChord}
+                        components={customKeyboard}
+                        keyRange={[40, 81]}
+                    />
+                </div>
 
                 <div className="flex">
                     <Controls handleMoveToBeginning={handleMoveToBeginning} />
