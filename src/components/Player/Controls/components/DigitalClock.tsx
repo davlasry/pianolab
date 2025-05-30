@@ -15,7 +15,7 @@ const DigitalClock = () => {
 
     return (
         <div
-            className={`flex-1 overflow-hidden border border-muted bg-muted transition-all duration-300 ${isPlaying ? "shadow-primary/20" : ""}`}
+            className={`flex-1 overflow-hidden border border-muted transition-all duration-300 ${isPlaying ? "shadow-primary/20" : ""}`}
         >
             <div className="p-2">
                 <div className="flex flex-col items-center gap-6 md:flex-row">

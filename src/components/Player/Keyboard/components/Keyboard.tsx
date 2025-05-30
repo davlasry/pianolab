@@ -14,6 +14,7 @@ import { useMouse } from "@/components/Player/Keyboard/interactivity/useMouse.ts
 import { useKeyboard } from "@/components/Player/Keyboard/interactivity/useKeyboard.ts";
 import { useTouch } from "@/components/Player/Keyboard/interactivity/useTouch";
 import { useKeyboardNotes } from "@/components/Player/hooks/useKeyboardNotes";
+import { useShowChordNotes } from "@/components/Player/Keyboard/stores/keyboardStore.ts";
 
 interface KeyboardProps {
     /**
@@ -114,6 +115,8 @@ const Keyboard = (props: KeyboardProps) => {
         components,
     } = props;
 
+    const showChordNotes = useShowChordNotes();
+
     const { playedNotes, chordNotes } = useKeyboardNotes({
         activeNotes: activeNotes || [],
         activeChord: activeChord || "",
@@ -169,7 +172,9 @@ const Keyboard = (props: KeyboardProps) => {
                     midiNumber={midiNumber}
                     firstNoteMidiNumber={first}
                     active={state.activeKeys.includes(midiNumber)}
-                    isChordNote={chordNotes.includes(midiNumber)}
+                    isChordNote={
+                        showChordNotes && chordNotes.includes(midiNumber)
+                    }
                     onMouseDown={handleMouseEvents}
                     onMouseUp={handleMouseEvents}
                     onMouseLeave={handleMouseEvents}
