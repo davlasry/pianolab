@@ -13,6 +13,7 @@ import { useKlavier } from "@/components/Player/Keyboard/state/useKlavier.ts";
 import { useMouse } from "@/components/Player/Keyboard/interactivity/useMouse.ts";
 import { useKeyboard } from "@/components/Player/Keyboard/interactivity/useKeyboard.ts";
 import { useTouch } from "@/components/Player/Keyboard/interactivity/useTouch";
+import { useKeyboardNotes } from "@/components/Player/hooks/useKeyboardNotes";
 
 interface KeyboardProps {
     /**
@@ -91,7 +92,8 @@ interface KeyboardProps {
         whiteKey?: CustomKeyComponent;
         label?: CustomLabelComponent;
     };
-    activeNotes?: any[];
+    activeNotes?: { midi: number; hand: "left" | "right" }[];
+    activeChord?: string;
 }
 
 const Keyboard = (props: KeyboardProps) => {
@@ -99,6 +101,7 @@ const Keyboard = (props: KeyboardProps) => {
     const {
         defaultActiveKeys,
         activeNotes,
+        activeChord,
         onKeyPress,
         onKeyRelease,
         onChange,
@@ -111,7 +114,12 @@ const Keyboard = (props: KeyboardProps) => {
         components,
     } = props;
 
-    const activeKeys = activeNotes?.map((note) => note.midi) || [];
+    const { playedNotes, chordNotes } = useKeyboardNotes({
+        activeNotes: activeNotes || [],
+        activeChord: activeChord || "",
+    });
+
+    const activeKeys = playedNotes;
 
     const [first, last] = keyRange;
     const {
@@ -154,13 +162,14 @@ const Keyboard = (props: KeyboardProps) => {
     });
 
     return (
-        <div style={rootStyles} ref={klavierRootRef}>
+        <div style={rootStyles} ref={klavierRootRef} className="relative">
             {range(first, last + 1).map((midiNumber) => (
                 <Key
                     key={midiNumber}
                     midiNumber={midiNumber}
                     firstNoteMidiNumber={first}
                     active={state.activeKeys.includes(midiNumber)}
+                    isChordNote={chordNotes.includes(midiNumber)}
                     onMouseDown={handleMouseEvents}
                     onMouseUp={handleMouseEvents}
                     onMouseLeave={handleMouseEvents}

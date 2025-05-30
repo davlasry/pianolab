@@ -9,14 +9,21 @@ const classNames = {
     white: "klavier-realistic-key-white",
 };
 
-function buildClassName(color: KeyColor, active: boolean) {
+function buildClassName(
+    color: KeyColor,
+    active: boolean,
+    isChordNote?: boolean,
+) {
     const baseClass = classNames[color];
-    return active ? `${baseClass} active` : baseClass;
+    const classes = [baseClass];
+    if (active) classes.push("active");
+    if (isChordNote) classes.push("chord-note");
+    return classes.join(" ");
 }
 
 const WhiteKey = (props: CustomKeyProps) => {
-    const { active } = props;
-    const className = buildClassName("white", active);
+    const { active, isChordNote, className } = props;
+    const _className = `${className} ${buildClassName("white", active, isChordNote)}`;
     const state = active ? "active" : "default";
     const SVG = whiteKeyVariants[state];
 
@@ -27,7 +34,7 @@ const WhiteKey = (props: CustomKeyProps) => {
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             preserveAspectRatio="none"
-            className={className}
+            className={_className}
         >
             {SVG}
             <defs>
@@ -223,8 +230,8 @@ const WhiteKey = (props: CustomKeyProps) => {
 };
 
 const BlackKey = (props: CustomKeyProps) => {
-    const { active } = props;
-    const className = buildClassName("black", active);
+    const { active, isChordNote } = props;
+    const className = buildClassName("black", active, isChordNote);
     const state = active ? "active" : "default";
     const SVG = blackKeyVariants[state];
 

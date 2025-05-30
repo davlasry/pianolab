@@ -12,10 +12,12 @@ export type KeymapItem = { key: string; midiNumber: number };
 
 export type Keymap = Array<KeymapItem>;
 
-export type CustomKeyProps = {
+export interface CustomKeyProps {
     active: boolean;
     note: Note;
-};
+    isChordNote?: boolean;
+    className?: string;
+}
 
 export type CustomKeyComponent = React.ComponentType<CustomKeyProps>;
 

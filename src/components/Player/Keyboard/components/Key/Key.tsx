@@ -16,6 +16,7 @@ type KeyProps = {
     midiNumber: number;
     firstNoteMidiNumber: number;
     active: boolean;
+    isChordNote?: boolean;
     onMouseDown: React.MouseEventHandler;
     onMouseUp: React.MouseEventHandler;
     onMouseLeave: React.MouseEventHandler;
@@ -33,6 +34,7 @@ type KeyProps = {
 const Key = React.memo((props: KeyProps) => {
     const {
         active,
+        isChordNote,
         midiNumber,
         firstNoteMidiNumber,
         height,
@@ -65,17 +67,31 @@ const Key = React.memo((props: KeyProps) => {
     // Determine if the key is in the left hand or right hand range (below or above middle C)
     const handPosition = midiNumber < 60 ? "left-hand" : "right-hand";
 
+    // Determine key state for styling
+    const keyState = active 
+        ? 'bg-red-500' 
+        : isChordNote 
+            ? note.keyColor === 'black' 
+                ? 'bg-emerald-700' 
+                : 'bg-emerald-500/20' 
+            : '';
+
     return (
         <div
             style={style}
             data-midi-number={midiNumber}
-            className={handPosition}
+            className={`${handPosition} ${keyState} transition-colors duration-100`}
             onMouseDown={onMouseDown}
             onMouseUp={onMouseUp}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
         >
-            <KeyComponent active={active} note={note} />
+            <KeyComponent 
+                note={note} 
+                active={active} 
+                isChordNote={isChordNote} 
+                className={keyState}
+            />
             {Label ? (
                 <Label
                     active={active}

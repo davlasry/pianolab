@@ -1,37 +1,34 @@
-import type { CustomKeyProps } from "@/components/Player/Keyboard/types.ts";
+import type {
+    CustomKeyComponent,
+    Note,
+} from "@/components/Player/Keyboard/types.ts";
 
-const WhiteKey = (props: CustomKeyProps) => {
-    const { active } = props;
+interface CustomKeyProps {
+    active: boolean;
+    note: Note;
+    isChordNote?: boolean;
+    className?: string;
+}
 
-    return (
-        <div
-            style={{
-                width: "100%",
-                height: "100%",
-                backgroundColor: active ? "red" : "white",
-                border: "1px solid #000",
-                borderRadius: "0 0 2px 2px",
-            }}
-        />
-    );
-};
-
-const BlackKey = (props: CustomKeyProps) => {
-    const { active } = props;
-
-    return (
-        <div
-            style={{
-                width: "100%",
-                height: "100%",
-                backgroundColor: active ? "red" : "black",
-                borderRadius: "0 0 2px 2px",
-            }}
-        />
-    );
-};
+const baseClasses = "w-full h-full transition-colors duration-100";
 
 export const defaultKeyComponents = {
-    blackKey: BlackKey,
-    whiteKey: WhiteKey,
-};
+    whiteKey: ({ active, isChordNote }: CustomKeyProps) => (
+        <div
+            className={` ${baseClasses} ${
+                active ? "bg-red-500" : isChordNote ? "bg-primary" : "bg-white"
+            } border border-gray-300`}
+        />
+    ),
+    blackKey: ({ active, isChordNote }: CustomKeyProps) => (
+        <div
+            className={` ${baseClasses} ${
+                active
+                    ? "bg-red-700"
+                    : isChordNote
+                      ? "bg-primary"
+                      : "bg-gray-900"
+            } border-r border-l border-gray-800`}
+        />
+    ),
+} satisfies Record<string, CustomKeyComponent>;
