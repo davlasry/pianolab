@@ -4,8 +4,14 @@ import { debounce } from "lodash-es";
 const STORAGE_KEY = "timeline-zoom-level";
 const DEBOUNCE_MS = 300;
 
-export const useTimelineZoom = () => {
+interface ZoomAnchor {
+    contentAnchor: number;
+    viewportAnchor: number;
+}
+
+export const useTimelineZoom = (outerRef: React.RefObject<HTMLDivElement>) => {
     const [zoomLevel, setZoomLevel] = useState(1);
+    const zoomAnchorRef = useRef<ZoomAnchor | null>(null);
 
     // Load saved zoom level on mount
     useEffect(() => {
@@ -30,10 +36,44 @@ export const useTimelineZoom = () => {
         }, DEBOUNCE_MS),
     ).current;
 
-    // Update zoom level and trigger debounced save
-    const updateZoom = (newZoom: number) => {
+    // Handle zoom changes with optional anchor points
+    const handleZoomChange = (
+        newZoom: number,
+        contentAnchor?: number,
+        viewportAnchor?: number,
+    ) => {
+        if (newZoom === zoomLevel) return;
+
+        if (contentAnchor !== undefined && viewportAnchor !== undefined) {
+            zoomAnchorRef.current = { contentAnchor, viewportAnchor };
+        } else {
+            zoomAnchorRef.current = null;
+        }
+
         setZoomLevel(newZoom);
         debouncedSave(newZoom);
+    };
+
+    // Apply scroll adjustment after zoom level changes
+    useEffect(() => {
+        if (zoomAnchorRef.current && outerRef.current) {
+            const { contentAnchor, viewportAnchor } = zoomAnchorRef.current;
+            const outerElement = outerRef.current;
+
+            // Calculate and apply the new scroll position
+            const newScrollLeft = contentAnchor * zoomLevel - viewportAnchor;
+            const maxScrollLeft = outerElement.scrollWidth - outerElement.clientWidth;
+            outerElement.scrollLeft = Math.max(0, Math.min(newScrollLeft, maxScrollLeft));
+
+            // Clear the anchor details after applying them
+            zoomAnchorRef.current = null;
+        }
+    }, [zoomLevel, outerRef]);
+
+    // Reset zoom level and clear anchors
+    const resetZoom = () => {
+        zoomAnchorRef.current = null;
+        handleZoomChange(1);
     };
 
     // Clean up the debounced function
@@ -45,7 +85,7 @@ export const useTimelineZoom = () => {
 
     return {
         zoomLevel,
-        updateZoom,
-        resetZoom: () => updateZoom(1),
+        handleZoomChange,
+        resetZoom,
     };
 };
