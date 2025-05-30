@@ -1,5 +1,10 @@
-import type { Ref } from "react";
-import { forwardRef, useRef, useImperativeHandle } from "react";
+import {
+    type Ref,
+    useEffect,
+    forwardRef,
+    useRef,
+    useImperativeHandle,
+} from "react";
 import { useTimelineZoom } from "@/components/Player/Timeline/useTimelineZoom";
 import { useTimelineScroll } from "@/components/Player/Timeline/hooks/useTimelineScroll";
 import { useTimelineWheel } from "@/components/Player/Timeline/hooks/useTimelineWheel";
@@ -40,7 +45,66 @@ const Timeline = (
     const { outerRef, containerRef, scrollToTime, scrollToBeginning } =
         useTimelineScroll(duration);
 
-    const { zoomLevel, updateZoom, resetZoom } = useTimelineZoom();
+    const {
+        zoomLevel,
+        updateZoom,
+        resetZoom: originalResetZoom,
+    } = useTimelineZoom();
+
+    // Ref to store anchor points received from ZoomableContainer
+    const zoomAnchorRef = useRef<{
+        contentAnchor: number;
+        viewportAnchor: number;
+    } | null>(null);
+
+    // This function will be passed to ZoomableContainer's onZoomChange
+    const handleZoomChangeWithAnchors = (
+        newZoom: number,
+        contentAnchor?: number,
+        viewportAnchor?: number,
+    ) => {
+        if (newZoom === zoomLevel) return; // No actual change in zoom level
+
+        if (contentAnchor !== undefined && viewportAnchor !== undefined) {
+            // If anchor points are provided (i.e., zoom-to-cursor event)
+            zoomAnchorRef.current = { contentAnchor, viewportAnchor };
+        } else {
+            // If no anchors (e.g., zoom from buttons, or if ZoomableContainer doesn't provide them)
+            zoomAnchorRef.current = null;
+        }
+        updateZoom(newZoom); // Call the original updateZoom from your hook
+    };
+
+    // useEffect to apply scroll adjustment after zoomLevel has changed
+    useEffect(() => {
+        if (zoomAnchorRef.current && outerRef.current) {
+            const { contentAnchor, viewportAnchor } = zoomAnchorRef.current;
+            const outerElement = outerRef.current;
+
+            // Calculate the new scrollLeft position
+            const newScrollLeft = contentAnchor * zoomLevel - viewportAnchor;
+
+            const maxScrollLeft =
+                outerElement.scrollWidth - outerElement.clientWidth;
+            outerElement.scrollLeft = Math.max(
+                0,
+                Math.min(newScrollLeft, maxScrollLeft),
+            );
+
+            // Important: Clear the anchor details after applying them
+            // so normal scrolls or subsequent non-anchored zooms don't re-apply this.
+            zoomAnchorRef.current = null;
+        }
+    }, [zoomLevel, outerRef]); // Runs when zoomLevel (from useTimelineZoom) or outerRef changes
+
+    const resetZoom = () => {
+        zoomAnchorRef.current = null; // Clear anchors on reset
+        originalResetZoom(); // Call the original resetZoom from your hook
+        // Optionally, reset scroll position too:
+        // if (outerRef.current) {
+        //     outerRef.current.scrollLeft = 0; // Or center it, etc.
+        // }
+    };
 
     const {
         selectionStart,
@@ -124,7 +188,7 @@ const Timeline = (
                     outerRef={outerRef}
                     innerRef={containerRef}
                     zoomLevel={zoomLevel}
-                    onZoomChange={updateZoom}
+                    onZoomChange={handleZoomChangeWithAnchors}
                     onWheel={onWheel}
                     onClick={onClick}
                 >
