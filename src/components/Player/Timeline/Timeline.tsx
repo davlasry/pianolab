@@ -1,10 +1,5 @@
 import type { Ref } from "react";
-import {
-    forwardRef,
-    useRef,
-    useImperativeHandle,
-    useEffect,
-} from "react";
+import { forwardRef, useRef, useImperativeHandle } from "react";
 import { useTimelineZoom } from "@/components/Player/Timeline/useTimelineZoom";
 import { useTimelineScroll } from "@/components/Player/Timeline/hooks/useTimelineScroll";
 import { useTimelineWheel } from "@/components/Player/Timeline/hooks/useTimelineWheel";
@@ -46,14 +41,6 @@ const Timeline = (
         useTimelineScroll(duration);
 
     const { zoomLevel, updateZoom, resetZoom } = useTimelineZoom();
-
-    // Use a ref to store the current zoom level for the throttled wheel handler
-    const zoomLevelRef = useRef(zoomLevel);
-
-    // Update the ref whenever zoomLevel changes
-    useEffect(() => {
-        zoomLevelRef.current = zoomLevel;
-    }, [zoomLevel]);
 
     const {
         selectionStart,
