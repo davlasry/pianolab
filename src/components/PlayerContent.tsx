@@ -61,18 +61,20 @@ export const PlayerContent = () => {
             className="flex flex-1 flex-col overflow-hidden"
             data-testid="player-content"
         >
-            <div className="mb-6 flex flex-1 flex-col">
+            <div className="flex flex-1 flex-col">
                 <Timeline
                     duration={audioDuration}
                     onSeek={seek}
                     ref={timelineRef}
                     transportState={transportState}
                 />
+                
+                {/* ChordEditor is now always visible and positioned right below the Timeline */}
+                <ChordEditor />
             </div>
 
             <div className="flex flex-col">
                 {/*<Keyboard activeNotes={activeNotes} components={realistic} />*/}
-                <ChordEditor />
                 <div className="flex">
                     <Controls handleMoveToBeginning={handleMoveToBeginning} />
                     <CurrentChord chord={activeChord} />

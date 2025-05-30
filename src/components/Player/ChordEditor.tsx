@@ -36,14 +36,13 @@ export const ChordEditor = () => {
     const activeChordIndex = useActiveChordIndex();
     const selectedChordIndices = useSelectedChordIndices();
     const editModeTriggered = useEditModeTriggered();
-    const { updateChordLabel, setActiveChord } = useChordsActions();
+    const { updateChordLabel } = useChordsActions();
 
     const [editValue, setEditValue] = useState("");
     const [isEditing, setIsEditing] = useState(false);
-    const [isVisible, setIsVisible] = useState(false);
-    const [lastSeenEditTrigger, setLastSeenEditTrigger] = useState(0);
     const inputRef = useRef<HTMLInputElement>(null);
     const prevActiveChordIndexRef = useRef<number | null>(null);
+    const lastSeenEditTrigger = useRef(0);
 
     const activeChord =
         activeChordIndex !== null ? chordProgression[activeChordIndex] : null;
@@ -66,7 +65,6 @@ export const ChordEditor = () => {
     // Handle mounting animation and auto-focus
     useEffect(() => {
         if (activeChord) {
-            setIsVisible(true);
             setEditValue(activeChord.label);
 
             // Only auto-start editing if this is a new chord selection
@@ -78,7 +76,6 @@ export const ChordEditor = () => {
 
             prevActiveChordIndexRef.current = activeChordIndex;
         } else {
-            setIsVisible(false);
             setIsEditing(false);
             prevActiveChordIndexRef.current = null;
         }
@@ -103,19 +100,17 @@ export const ChordEditor = () => {
         // Only enter edit mode if editModeTriggered has actually incremented
         // and this specific trigger hasn't been processed yet.
         if (
-            editModeTriggered > lastSeenEditTrigger &&
+            editModeTriggered > lastSeenEditTrigger.current &&
             activeChord &&
             !isEditing
         ) {
             setIsEditing(true);
-            setLastSeenEditTrigger(editModeTriggered); // Mark this trigger as processed
+            lastSeenEditTrigger.current = editModeTriggered; // Mark this trigger as processed
         }
     }, [
         editModeTriggered,
         activeChord,
-        isEditing,
-        lastSeenEditTrigger,
-        setLastSeenEditTrigger,
+        isEditing
     ]);
 
     // Only show editor when exactly one chord is selected
@@ -143,10 +138,6 @@ export const ChordEditor = () => {
             setEditValue(activeChord.label);
         }
         setIsEditing(false);
-    };
-
-    const handleClose = () => {
-        setActiveChord(null);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -188,16 +179,7 @@ export const ChordEditor = () => {
 
     return (
         <div
-            className={cn(
-                "border-b border-border/40 bg-gradient-to-r from-card/30 to-card/60 backdrop-blur-sm",
-                "transform overflow-hidden transition-all duration-150 ease-out",
-                isVisible
-                    ? "max-h-[200px] translate-y-0"
-                    : "max-h-0 -translate-y-full",
-            )}
-            style={{
-                transitionProperty: "transform, max-height",
-            }}
+            className="border-b border-border/40 bg-gradient-to-r from-card/30 to-card/60 backdrop-blur-sm"
         >
             <div className="px-4 py-3">
                 {/* Header with chord position info */}
@@ -216,14 +198,7 @@ export const ChordEditor = () => {
                             <span>{activeChord.duration.toFixed(1)}s</span>
                         </div>
                     </div>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={handleClose}
-                        className="h-6 w-6 text-muted-foreground hover:text-foreground"
-                    >
-                        <X className="h-3 w-3" />
-                    </Button>
+
                 </div>
 
                 {/* Chord Analysis & Editing */}
