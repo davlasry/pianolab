@@ -13,6 +13,7 @@ import Timeline, {
 import { useTransportShortcuts } from "@/components/Player/hooks/useTransportShortcuts.ts";
 import { useChordShortcuts } from "@/components/Player/hooks/useChordShortcuts";
 import { Keyboard } from "@/components/Player/Keyboard/components/Keyboard.tsx";
+import { customKeyboard } from "@/components/Player/Keyboard/components/CustomKeyboard.tsx";
 
 export const PlayerContent = () => {
     const timelineRef = useRef<TimelineHandle>(null);
@@ -85,7 +86,8 @@ export const PlayerContent = () => {
                 <Keyboard
                     activeNotes={activeNotes}
                     activeChord={activeChord}
-                    // components={realistic}
+                    components={customKeyboard}
+                    // keyRange={[40, 80]}
                 />
 
                 <div className="flex">
