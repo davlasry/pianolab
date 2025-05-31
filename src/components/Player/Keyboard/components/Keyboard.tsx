@@ -5,10 +5,20 @@ import type {
     CustomLabelComponent,
 } from "@/components/Player/Keyboard/types.ts";
 import { DEFAULT_KEYMAP } from "@/components/Player/Keyboard/keymap.ts";
-import { DEFAULT_NOTE_RANGE } from "@/components/Player/Keyboard/lib/constants.ts";
+import {
+    DEFAULT_NOTE_RANGE,
+    DEFAULT_WHITE_KEY_FIXED_WIDTH_PX,
+    DEFAULT_BLACK_KEY_FIXED_WIDTH_PX,
+} from "@/components/Player/Keyboard/lib/constants.ts";
 import { range } from "@/components/Player/Keyboard/lib/range.ts";
-import { Key } from "@/components/Player/Keyboard/components/Key";
-import { isMidiNumber } from "@/components/Player/Keyboard/lib/midi.ts";
+import {
+    Key,
+    getAbsoluteKeyPosition,
+} from "@/components/Player/Keyboard/components/Key/Key";
+import {
+    isMidiNumber,
+    midiToNote,
+} from "@/components/Player/Keyboard/lib/midi.ts";
 import { useKlavier } from "@/components/Player/Keyboard/state/useKlavier.ts";
 import { useMouse } from "@/components/Player/Keyboard/interactivity/useMouse.ts";
 import { useKeyboard } from "@/components/Player/Keyboard/interactivity/useKeyboard.ts";
@@ -80,6 +90,18 @@ interface KeyboardProps {
     blackKeyHeight?: React.CSSProperties["height"];
 
     /**
+     * Fixed width for white keys in pixels.
+     * @defaultValue 50
+     */
+    whiteKeyFixedWidth?: number;
+
+    /**
+     * Fixed width for black keys in pixels.
+     * @defaultValue 30
+     */
+    blackKeyFixedWidth?: number;
+
+    /**
      * Allows replacing default components for black and white keys.
      * Important: avoid defining components directly in the prop object, as it can cause performance issues.
      * @example:
@@ -97,6 +119,10 @@ interface KeyboardProps {
     activeChord?: string;
 }
 
+// Constants for key layout
+const WHITE_KEY_MICRO_COLUMN_SPAN = 12;
+// const BLACK_KEY_MICRO_COLUMN_SPAN = 8; // Will be used in Key.tsx
+
 const Keyboard = (props: KeyboardProps) => {
     const klavierRootRef = useRef<HTMLDivElement>(null);
     const {
@@ -109,9 +135,11 @@ const Keyboard = (props: KeyboardProps) => {
         keyRange = DEFAULT_NOTE_RANGE,
         interactive = true,
         keyMap = DEFAULT_KEYMAP,
-        width,
+        width, // This is now the visible width of the scroll container
         height,
         blackKeyHeight,
+        whiteKeyFixedWidth = DEFAULT_WHITE_KEY_FIXED_WIDTH_PX,
+        blackKeyFixedWidth = DEFAULT_BLACK_KEY_FIXED_WIDTH_PX,
         components,
     } = props;
 
@@ -135,10 +163,7 @@ const Keyboard = (props: KeyboardProps) => {
         onKeyRelease,
         onChange,
     });
-    const rootStyles = useMemo(
-        () => getRootStyles(width, height),
-        [width, height],
-    );
+
     const interactivitySettings = determineInteractivitySettings(interactive);
     validateRange(keyRange);
 
@@ -157,34 +182,89 @@ const Keyboard = (props: KeyboardProps) => {
     });
     useTouch({
         enabled: interactivitySettings.touch,
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        klavierRootRef,
+        klavierRootRef: klavierRootRef as React.RefObject<HTMLDivElement>,
         pressKey,
         releaseKey,
     });
 
+    const microColumnWidth = whiteKeyFixedWidth / WHITE_KEY_MICRO_COLUMN_SPAN;
+
+    const totalMicroColumns = useMemo(() => {
+        // Calculate the end column of the last physical key
+        // to determine the total number of micro-columns needed.
+        let maxCol = 0;
+        for (let i = first; i <= last; i++) {
+            const noteDetails = midiToNote(i);
+            const keySpecificSpan =
+                noteDetails.keyColor === "white"
+                    ? WHITE_KEY_MICRO_COLUMN_SPAN
+                    : 8; // Assuming black keys span 8 from Key.tsx logic
+            const keyStartCol =
+                getAbsoluteKeyPosition(i) - getAbsoluteKeyPosition(first) + 1;
+            const keyEndCol = keyStartCol + keySpecificSpan - 1;
+            if (keyEndCol > maxCol) {
+                maxCol = keyEndCol;
+            }
+        }
+        // A simpler approach: find the starting position of the key *after* the last key
+        // If the last key is note X, find the start of X+1.
+        // This represents the total span needed.
+        // However, getAbsoluteKeyPosition is relative to C0, so we need to adjust.
+        const firstKeyStartPos = getAbsoluteKeyPosition(first);
+        const theoreticalKeyAfterLastStartPos = getAbsoluteKeyPosition(
+            last + 1,
+        );
+
+        // Total columns from the start of the first key to the start of the key theoretically after the last.
+        // This should give the correct number of micro-columns for the range.
+        return theoreticalKeyAfterLastStartPos - firstKeyStartPos;
+    }, [first, last]);
+
+    const innerContainerWidth = totalMicroColumns * microColumnWidth;
+
+    const rootStyles = useMemo(
+        () => getRootStyles(width, height), // Pass outer width and height
+        [width, height],
+    );
+
+    const innerContainerStyles: React.CSSProperties = useMemo(
+        () => ({
+            display: "grid",
+            position: "relative",
+            height: "100%", // Fill the scrollable container's height
+            width: `${innerContainerWidth}px`,
+            gridTemplateColumns: `repeat(${totalMicroColumns}, ${microColumnWidth}px)`,
+            alignItems: "stretch", // Keep this from original rootStyles
+            WebkitUserSelect: "none", // Keep this
+            userSelect: "none", // Keep this
+        }),
+        [innerContainerWidth, totalMicroColumns, microColumnWidth],
+    );
+
     return (
         <div style={rootStyles} ref={klavierRootRef} className="relative">
-            {range(first, last + 1).map((midiNumber) => (
-                <Key
-                    key={midiNumber}
-                    midiNumber={midiNumber}
-                    firstNoteMidiNumber={first}
-                    active={state.activeKeys.includes(midiNumber)}
-                    isChordNote={
-                        showChordNotes && chordNotes.includes(midiNumber)
-                    }
-                    onMouseDown={handleMouseEvents}
-                    onMouseUp={handleMouseEvents}
-                    onMouseLeave={handleMouseEvents}
-                    onMouseEnter={handleMouseEvents}
-                    height={height}
-                    blackKeyHeight={blackKeyHeight}
-                    components={components}
-                    keymap={keyMap}
-                />
-            ))}
+            <div style={innerContainerStyles}>
+                {range(first, last + 1).map((midiNumber) => (
+                    <Key
+                        key={midiNumber}
+                        midiNumber={midiNumber}
+                        firstNoteMidiNumber={first}
+                        active={state.activeKeys.includes(midiNumber)}
+                        isChordNote={
+                            showChordNotes && chordNotes.includes(midiNumber)
+                        }
+                        onMouseDown={handleMouseEvents}
+                        onMouseUp={handleMouseEvents}
+                        onMouseLeave={handleMouseEvents}
+                        onMouseEnter={handleMouseEvents}
+                        blackKeyHeight={blackKeyHeight}
+                        whiteKeyFixedWidth={whiteKeyFixedWidth}
+                        blackKeyFixedWidth={blackKeyFixedWidth}
+                        components={components}
+                        keymap={keyMap}
+                    />
+                ))}
+            </div>
         </div>
     );
 };
@@ -193,14 +273,13 @@ const getRootStyles = (
     width: React.CSSProperties["width"],
     height: React.CSSProperties["height"],
 ): React.CSSProperties => ({
-    display: "grid",
-    alignItems: "stretch",
-    gridAutoColumns: "1fr",
     position: "relative",
     WebkitUserSelect: "none",
     userSelect: "none",
-    width,
+    width, // This is the visible width of the scroll container
     height,
+    overflowX: "auto", // Enable horizontal scrolling
+    overflowY: "hidden", // Typically you don't want vertical scroll on the keyboard itself
 });
 
 type InteractivitySettings = {

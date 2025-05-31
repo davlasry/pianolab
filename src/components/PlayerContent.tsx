@@ -67,7 +67,7 @@ export const PlayerContent = () => {
 
     return (
         <div
-            className="flex flex-1 flex-col overflow-hidden"
+            className="flex w-full flex-1 flex-col overflow-hidden"
             data-testid="player-content"
         >
             <div className="flex flex-1 flex-col">
@@ -88,6 +88,7 @@ export const PlayerContent = () => {
                         activeNotes={activeNotes}
                         activeChord={activeChord}
                         components={customKeyboard}
+                        height={120}
                         keyRange={[40, 81]}
                     />
                 </div>

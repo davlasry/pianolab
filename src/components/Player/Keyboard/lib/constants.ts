@@ -10,3 +10,5 @@ export const BLACK_KEY_MIDI_NUMBERS = [
 
 export const DEFAULT_NOTE_RANGE: [number, number] = [21, 108];
 export const DEFAULT_BLACK_KEY_HEIGHT = "67.5%";
+export const DEFAULT_WHITE_KEY_FIXED_WIDTH_PX = 50;
+export const DEFAULT_BLACK_KEY_FIXED_WIDTH_PX = 30;

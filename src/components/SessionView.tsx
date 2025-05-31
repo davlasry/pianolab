@@ -48,10 +48,8 @@ const SessionContent = () => {
                     />
                 </div>
 
-                <div className="flex flex-1">
-                    <div className="flex flex-1">
-                        <PlayerContent />
-                    </div>
+                <div className="flex w-full flex-1">
+                    <PlayerContent />
                 </div>
             </div>
 
