@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 
-interface TimelineSelectionControlsProps {
+export interface TimelineLoopControlsProps {
     onSetStartAtPlayhead: () => void;
     onSubmitSelection: () => void;
     onResetSelection: () => void;
@@ -23,7 +23,7 @@ export function TimelineLoopControls({
     activeLoop,
     isLoopActive,
     onToggleLoop,
-}: TimelineSelectionControlsProps) {
+}: TimelineLoopControlsProps) {
     return (
         <div className="flex items-center gap-2">
             <Button

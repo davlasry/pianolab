@@ -9,6 +9,7 @@ import { TimelineChords } from "@/components/Player/Timeline/TimelineChords";
 import { TimelineZoomControls } from "@/components/Player/Timeline/TimelineZoomControls";
 import { TimelineSelection } from "@/components/Player/Timeline/TimelineSelection";
 import { TimelineLoopControls } from "@/components/Player/Timeline/TimelineLoopControls";
+import { TimelineAuxControls } from "@/components/Player/Timeline/TimelineAuxControls";
 import { useTimelineLoop } from "@/components/Player/Timeline/hooks/useTimelineLoop";
 import { useTimelineClick } from "@/components/Player/Timeline/hooks/useTimelineClick";
 import type { TransportState } from "@/components/Player/hooks/useTransportState";
@@ -102,17 +103,20 @@ const Timeline = (
 
     return (
         <div className="relative flex flex-col gap-2">
-            <TimelineLoopControls
-                onSetStartAtPlayhead={handleSetStartAtPlayhead}
-                onSubmitSelection={handleSubmitSelection}
-                onResetSelection={handleResetSelection}
-                selectionStart={selectionStart}
-                isSelectionComplete={isSelectionComplete}
-                isCreatingLoop={isCreatingLoop}
-                activeLoop={activeLoop}
-                isLoopActive={isLoopActive}
-                onToggleLoop={toggleLoop}
-            />
+            <div className="flex items-center justify-between">
+                <TimelineLoopControls
+                    onSetStartAtPlayhead={handleSetStartAtPlayhead}
+                    onSubmitSelection={handleSubmitSelection}
+                    onResetSelection={handleResetSelection}
+                    selectionStart={selectionStart}
+                    isSelectionComplete={isSelectionComplete}
+                    isCreatingLoop={isCreatingLoop}
+                    activeLoop={activeLoop}
+                    isLoopActive={isLoopActive}
+                    onToggleLoop={toggleLoop}
+                />
+                <TimelineAuxControls />
+            </div>
 
             <div className="relative">
                 <TimelineZoomControls
