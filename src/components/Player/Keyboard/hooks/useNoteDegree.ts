@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Note, Interval, Chord } from "tonal";
+import { Note, Chord } from "tonal";
 
 interface UseNoteDegreeProps {
     midiNumber: number;
@@ -7,54 +7,44 @@ interface UseNoteDegreeProps {
     isActive: boolean;
 }
 
-export function useNoteDegree({ midiNumber, activeChord, isActive }: UseNoteDegreeProps) {
+/** Functional degree names for each semitone from the root (0-11). */
+const DEGREE_BY_CHROMA: Record<number, string> = {
+    0: "R",
+    1: "b2",
+    2: "2",
+    3: "b3",
+    4: "3",
+    5: "4",
+    6: "b5", // use "#4" if you prefer lydian spelling
+    7: "5",
+    8: "#5", // or "b6"
+    9: "6",
+    10: "b7",
+    11: "7",
+};
+
+export function useNoteDegree({
+    midiNumber,
+    activeChord,
+    isActive,
+}: UseNoteDegreeProps) {
     return useMemo(() => {
-        // Only calculate degree if there's an active chord and the note is active
-        if (!activeChord || !isActive) {
-            return null;
-        }
+        if (!isActive || !activeChord) return null;
 
-        try {
-            // Convert MIDI number to note name
-            const noteName = Note.fromMidi(midiNumber);
-            if (!noteName) return null;
+        // 1. MIDI → note name (e.g. "E4")
+        const noteName = Note.fromMidi(midiNumber); // ♫ 61 → "Db4"
+        if (!noteName) return null; // safety guard
 
-            // Get the chord information
-            const chord = Chord.get(activeChord);
-            if (!chord.tonic) return null;
+        // 2. Parse chord and obtain tonic
+        const { tonic } = Chord.get(activeChord); // e.g. "F#"
+        if (!tonic) return null; // unrecognised symbol
 
-            // Calculate the interval between the root and the note
-            const interval = Interval.distance(chord.tonic, noteName);
-            
-            // Convert interval to degree notation
-            const intervalToNotation: Record<string, string> = {
-                "1P": "R", // Root
-                "2m": "b2",
-                "2M": "2",
-                "3m": "b3",
-                "3M": "3",
-                "4P": "4",
-                "4A": "#4",
-                "5d": "b5",
-                "5P": "5",
-                "5A": "#5",
-                "6m": "b6",
-                "6M": "6",
-                "7m": "b7",
-                "7M": "7",
-                "8P": "R", // Octave
-                "9m": "b9",
-                "9M": "9",
-                "11P": "11",
-                "11A": "#11",
-                "13m": "b13",
-                "13M": "13"
-            };
+        // 3. Compare pitch-classes (0-11)
+        const noteChroma = Note.get(noteName).chroma!;
+        const rootChroma = Note.get(tonic).chroma!;
+        const distance = (noteChroma - rootChroma + 12) % 12;
 
-            return intervalToNotation[interval] || interval;
-        } catch (error) {
-            console.warn("Error calculating note degree:", error);
-            return null;
-        }
+        // 4. Translate to functional degree
+        return DEGREE_BY_CHROMA[distance] ?? null;
     }, [midiNumber, activeChord, isActive]);
-} 
+}
