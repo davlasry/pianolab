@@ -24,7 +24,10 @@ import { useMouse } from "@/components/Player/Keyboard/interactivity/useMouse.ts
 import { useKeyboard } from "@/components/Player/Keyboard/interactivity/useKeyboard.ts";
 import { useTouch } from "@/components/Player/Keyboard/interactivity/useTouch";
 import { useKeyboardNotes } from "@/components/Player/hooks/useKeyboardNotes";
-import { useShowChordNotes } from "@/components/Player/Keyboard/stores/keyboardStore.ts";
+import {
+    useShowChordNotes,
+    useShowNoteDegrees,
+} from "@/components/Player/Keyboard/stores/keyboardStore.ts";
 
 interface KeyboardProps {
     /**
@@ -117,6 +120,7 @@ interface KeyboardProps {
     };
     activeNotes?: { midi: number; hand: "left" | "right" }[];
     activeChord?: string;
+    showNoteDegrees?: boolean;
 }
 
 // Constants for key layout
@@ -144,6 +148,7 @@ const Keyboard = (props: KeyboardProps) => {
     } = props;
 
     const showChordNotes = useShowChordNotes();
+    const showNoteDegrees = useShowNoteDegrees();
 
     const { playedNotes, chordNotes } = useKeyboardNotes({
         activeNotes: activeNotes || [],
@@ -284,6 +289,7 @@ const Keyboard = (props: KeyboardProps) => {
                         blackKeyFixedWidth={blackKeyFixedWidth}
                         components={components}
                         keymap={keyMap}
+                        showNoteDegrees={showNoteDegrees}
                     />
                 ))}
             </div>

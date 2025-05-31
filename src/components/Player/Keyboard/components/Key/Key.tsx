@@ -36,6 +36,7 @@ type KeyProps = {
     whiteKeyFixedWidth?: number; // Added
     blackKeyFixedWidth?: number; // Added
     activeChord?: string; // Added for degree calculation
+    showNoteDegrees?: boolean; // <-- Add new prop
 };
 
 const Key = React.memo((props: KeyProps) => {
@@ -52,6 +53,7 @@ const Key = React.memo((props: KeyProps) => {
         onMouseEnter,
         onMouseLeave,
         activeChord,
+        showNoteDegrees, // <-- Destructure new prop
     } = props;
     const note = midiToNote(midiNumber);
     const KeyComponent = getKeyComponent(components, note.keyColor);
@@ -84,9 +86,12 @@ const Key = React.memo((props: KeyProps) => {
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
         >
-            <div className="pointer-events-none absolute bottom-full left-1/2 z-[2] mb-0 -translate-x-1/2 rounded-sm px-1.5 py-1 text-xs text-neutral-600 dark:text-neutral-400">
-                {degreeText}
-            </div>
+            {showNoteDegrees &&
+                degreeText && ( // <-- Conditional rendering
+                    <div className="pointer-events-none absolute bottom-full left-1/2 z-[2] mb-0 -translate-x-1/2 rounded-sm px-1.5 py-1 text-xs text-neutral-600 dark:text-neutral-400">
+                        {degreeText}
+                    </div>
+                )}
             <KeyComponent
                 note={note}
                 active={active}
