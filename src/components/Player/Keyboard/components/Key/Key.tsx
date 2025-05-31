@@ -11,6 +11,7 @@ import {
     MIDI_NUMBER_C0,
 } from "@/components/Player/Keyboard/lib/constants.ts";
 import { defaultKeyComponents } from "@/components/Player/Keyboard/components/Key/defaultKeyComponents.tsx";
+import { useNoteDegree } from "@/components/Player/Keyboard/hooks/useNoteDegree.ts";
 
 // Updated KeyProps to include fixed width props
 // These are passed down from Keyboard.tsx but widths are primarily controlled
@@ -34,6 +35,7 @@ type KeyProps = {
     keymap: Keymap | undefined;
     whiteKeyFixedWidth?: number; // Added
     blackKeyFixedWidth?: number; // Added
+    activeChord?: string; // Added for degree calculation
 };
 
 const Key = React.memo((props: KeyProps) => {
@@ -49,25 +51,13 @@ const Key = React.memo((props: KeyProps) => {
         onMouseUp,
         onMouseEnter,
         onMouseLeave,
-        // whiteKeyFixedWidth, // Destructured but not directly used for styling width
-        // blackKeyFixedWidth, // Destructured but not directly used for styling width
+        activeChord,
     } = props;
     const note = midiToNote(midiNumber);
     const KeyComponent = getKeyComponent(components, note.keyColor);
     const style = useMemo(
-        () =>
-            getKeyStyles(
-                midiNumber,
-                firstNoteMidiNumber,
-                blackKeyHeight,
-                // props.whiteKeyFixedWidth, // No longer passing these directly for styling
-                // props.blackKeyFixedWidth
-            ),
-        [
-            midiNumber,
-            firstNoteMidiNumber,
-            blackKeyHeight /*, props.whiteKeyFixedWidth, props.blackKeyFixedWidth*/,
-        ],
+        () => getKeyStyles(midiNumber, firstNoteMidiNumber, blackKeyHeight),
+        [midiNumber, firstNoteMidiNumber, blackKeyHeight],
     );
     const Label = components?.label;
     const keyboardShortcut = useMemo(
@@ -77,16 +67,26 @@ const Key = React.memo((props: KeyProps) => {
 
     const handPosition = midiNumber < 60 ? "left-hand" : "right-hand";
 
+    // Use the hook to get the degree text
+    const degreeText = useNoteDegree({
+        midiNumber,
+        activeChord,
+        isActive: active, // Pass the 'active' prop from KeyProps
+    });
+
     return (
         <div
             style={style}
             data-midi-number={midiNumber}
-            className={`${handPosition} transition-colors duration-100`}
+            className={`${handPosition} relative transition-colors duration-100`}
             onMouseDown={onMouseDown}
             onMouseUp={onMouseUp}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
         >
+            <div className="pointer-events-none absolute bottom-full left-1/2 z-[2] mb-0 -translate-x-1/2 rounded-sm px-1.5 py-1 text-xs text-neutral-600 dark:text-neutral-400">
+                {degreeText}
+            </div>
             <KeyComponent
                 note={note}
                 active={active}

@@ -150,15 +150,13 @@ const Keyboard = (props: KeyboardProps) => {
         activeChord: activeChord || "",
     });
 
-    const activeKeys = playedNotes;
-
     const [first, last] = keyRange;
     const {
         state,
         actions: { pressKey, releaseKey },
     } = useKlavier({
         defaultActiveKeys,
-        activeKeys,
+        activeKeys: playedNotes,
         onKeyPress,
         onKeyRelease,
         onChange,
@@ -222,9 +220,24 @@ const Keyboard = (props: KeyboardProps) => {
 
     const innerContainerWidth = totalMicroColumns * microColumnWidth;
 
+    // Retrieve paddingTop for the degree bar height, default to 1.5rem (h-6)
+    const defaultPaddingTop = "1.5rem";
+    const rootPaddingTop = useMemo(() => {
+        // This is a bit of a workaround to extract the value if height is an object
+        // or to use a default. A more robust solution might involve a dedicated prop for bar height.
+        if (
+            typeof height === "string" &&
+            (height.endsWith("rem") || height.endsWith("px"))
+        ) {
+            // Assuming the paddingTop should match a specific value if overall height is also specific
+            // This logic might need to be more sophisticated based on actual use cases for `height` prop
+        }
+        return defaultPaddingTop;
+    }, []);
+
     const rootStyles = useMemo(
-        () => getRootStyles(width, height), // Pass outer width and height
-        [width, height],
+        () => getRootStyles(width, height, rootPaddingTop),
+        [width, height, rootPaddingTop],
     );
 
     const innerContainerStyles: React.CSSProperties = useMemo(
@@ -243,6 +256,14 @@ const Keyboard = (props: KeyboardProps) => {
 
     return (
         <div style={rootStyles} ref={klavierRootRef} className="relative">
+            {/* Continuous Degree Bar */}
+            <div
+                style={{
+                    width: `${innerContainerWidth}px`,
+                    height: rootPaddingTop, // Use the determined padding/height
+                }}
+                className="pointer-events-none absolute top-0 left-0 z-[1] bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-800"
+            />
             <div style={innerContainerStyles}>
                 {range(first, last + 1).map((midiNumber) => (
                     <Key
@@ -253,6 +274,7 @@ const Keyboard = (props: KeyboardProps) => {
                         isChordNote={
                             showChordNotes && chordNotes.includes(midiNumber)
                         }
+                        activeChord={activeChord}
                         onMouseDown={handleMouseEvents}
                         onMouseUp={handleMouseEvents}
                         onMouseLeave={handleMouseEvents}
@@ -272,6 +294,7 @@ const Keyboard = (props: KeyboardProps) => {
 const getRootStyles = (
     width: React.CSSProperties["width"],
     height: React.CSSProperties["height"],
+    paddingTopValue: React.CSSProperties["paddingTop"] = "1.5rem", // Default padding for degree text
 ): React.CSSProperties => ({
     position: "relative",
     WebkitUserSelect: "none",
@@ -280,6 +303,7 @@ const getRootStyles = (
     height,
     overflowX: "auto", // Enable horizontal scrolling
     overflowY: "hidden", // Typically you don't want vertical scroll on the keyboard itself
+    paddingTop: paddingTopValue,
 });
 
 type InteractivitySettings = {
