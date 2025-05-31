@@ -88,7 +88,7 @@ export const PlayerContent = () => {
                         activeNotes={activeNotes}
                         activeChord={activeChord}
                         components={customKeyboard}
-                        height={120}
+                        height={180}
                         keyRange={[40, 81]}
                     />
                 </div>
