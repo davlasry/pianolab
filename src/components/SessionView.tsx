@@ -8,6 +8,8 @@ import { LinkedPiecesDisplay } from "@/components/LinkedPiecesDisplay";
 import { SessionStatusDisplay } from "@/components/SessionStatusDisplay";
 import { TransportTickerProvider } from "@/TransportTicker/TransportTickerProvider.tsx";
 import { KeyboardShortcutProvider } from "@/shortcuts/KeyboardShortcuts.tsx";
+import { useSetSessionId } from "@/stores/sessionStore";
+import { useEffect } from "react";
 
 const SessionContent = () => {
     const {
@@ -66,6 +68,17 @@ const SessionContent = () => {
 
 export const SessionView = () => {
     const { sessionId } = useParams();
+    const setSessionId = useSetSessionId();
+    
+    // Update session ID in the store whenever it changes
+    useEffect(() => {
+        setSessionId(sessionId || null);
+        
+        // Clean up session ID when component unmounts
+        return () => {
+            setSessionId(null);
+        };
+    }, [sessionId, setSessionId]);
 
     if (!sessionId) {
         return (

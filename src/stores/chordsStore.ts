@@ -1,23 +1,15 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { pushSnapshot } from "@/stores/historyStore";
+import { supabase } from "@/supabase";
+import type { Json } from "src/types/database.types";
+import { useSessionStore } from "@/stores/sessionStore";
 
 export interface Chord {
     label: string;
     startTime: number;
     duration: number;
 }
-
-export const initialChordProgression: Chord[] = [
-    { label: "F#m", startTime: 0, duration: 2 },
-    { label: "C#7b9", startTime: 2, duration: 2 },
-    { label: "F#m", startTime: 4, duration: 2 },
-    { label: "B7#11", startTime: 6, duration: 2 },
-    { label: "E", startTime: 8, duration: 2 },
-    { label: "A7", startTime: 10, duration: 2 },
-    { label: "Abm", startTime: 12, duration: 2 },
-    { label: "Gdim7", startTime: 14, duration: 2 },
-];
 
 /*───────────────────────────────────────────────────────────────
   Helper: collision-aware update (unchanged from previous code)
@@ -129,54 +121,142 @@ const createChordSnapshot = (state: { chordProgression: Chord[] }) => {
 };
 
 /*───────────────────────────────────────────────────────────────
-  Local-storage persistence helpers (throttled write)
+  Supabase persistence helpers (throttled write)
 ───────────────────────────────────────────────────────────────*/
-const createThrottledSetItem = (delay = 500) => {
+const createThrottledSaveToSupabase = (delay = 500) => {
     let timeout: ReturnType<typeof setTimeout> | null = null;
-    let latestKey = "";
-    let latestValue = "";
-    return (key: string, value: string) => {
-        latestKey = key;
-        latestValue = value;
+    let latestSessionId = "";
+    let latestChords: Chord[] = [];
+
+    return (sessionId: string, chords: Chord[]) => {
+        latestSessionId = sessionId;
+        latestChords = [...chords];
         if (timeout) return;
-        timeout = setTimeout(() => {
+
+        timeout = setTimeout(async () => {
+            if (!latestSessionId) {
+                console.warn("No session ID available to save chords");
+                timeout = null;
+                return;
+            }
+
             try {
-                localStorage.setItem(latestKey, latestValue);
-            } catch {
-                /* ignore write errors, e.g. Safari private mode */
+                await supabase
+                    .from("sessions")
+                    .update({ chords: latestChords as unknown as Json })
+                    .eq("id", latestSessionId);
+            } catch (error) {
+                console.error("Error saving chords to Supabase:", error);
             }
             timeout = null;
         }, delay);
     };
 };
 
-const throttledSetItem = createThrottledSetItem();
+const throttledSaveToSupabase = createThrottledSaveToSupabase();
 
+// Get the current session ID from the session store
+const getCurrentSessionId = (): string | null => {
+    return useSessionStore.getState().sessionId;
+};
+
+// Custom storage adapter for Zustand that uses Supabase
 const zustandStorage = createJSONStorage<ChordsStore>(() => ({
-    getItem: (name: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    getItem: async (_name: string) => {
+        const sessionId = getCurrentSessionId();
+        if (!sessionId) return null;
+
         try {
-            return localStorage.getItem(name);
-        } catch {
+            const { data, error } = await supabase
+                .from("sessions")
+                .select("chords")
+                .eq("id", sessionId)
+                .single();
+
+            if (error) throw error;
+            if (!data || !data.chords) return null;
+
+            // Convert the data to the format expected by Zustand
+            const state = JSON.parse(
+                JSON.stringify({
+                    state: {
+                        chordProgression: data.chords,
+                        activeChordIndex: null,
+                        selectedChordIndices: [],
+                        editModeTriggered: 0,
+                    },
+                }),
+            );
+            return JSON.stringify(state);
+        } catch (error) {
+            console.error("Error loading chords from Supabase:", error);
             return null;
         }
     },
-    setItem: throttledSetItem,
-    removeItem: (name: string) => {
+    setItem: (_name: string, value: string) => {
         try {
-            localStorage.removeItem(name);
-        } catch {
-            /* ignore */
+            const sessionId = getCurrentSessionId();
+            if (!sessionId) {
+                console.warn("No session ID available to save chords");
+                return;
+            }
+
+            const parsedValue = JSON.parse(value);
+            const chords = parsedValue?.state?.chordProgression || [];
+
+            throttledSaveToSupabase(sessionId, chords);
+        } catch (error) {
+            console.error("Error parsing chords for Supabase:", error);
         }
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    removeItem: (_name: string) => {
+        // Not needed for Supabase implementation
     },
 }));
 
 /*───────────────────────────────────────────────────────────────
   Chords store with persistence
 ───────────────────────────────────────────────────────────────*/
+// Add a listener to reload chords when session ID changes
+let previousSessionId: string | null = null;
+useSessionStore.subscribe((state) => {
+    const currentSessionId = state.sessionId;
+    
+    // Only reload if the session ID actually changed
+    if (currentSessionId && currentSessionId !== previousSessionId) {
+        previousSessionId = currentSessionId;
+        
+        // Force reload chords from Supabase
+        const reloadChords = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from("sessions")
+                    .select("chords")
+                    .eq("id", currentSessionId)
+                    .single();
+
+                if (error) throw error;
+                if (!data || !data.chords) return;
+
+                // Update the chord progression in the store
+                // Need to cast through unknown first for type safety
+                const chords = data.chords as unknown as Chord[];
+                useChordsStore.getState().actions.updateProgressionPresent(chords);
+            } catch (error) {
+                console.error("Error reloading chords for new session:", error);
+            }
+        };
+        
+        reloadChords();
+    }
+});
+
 const useChordsStore = create<ChordsStore>()(
     persist(
         (set, get) => ({
-            chordProgression: initialChordProgression,
+            chordProgression: [],
             activeChordIndex: null,
             selectedChordIndices: [],
             editModeTriggered: 0,

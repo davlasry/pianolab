@@ -12,7 +12,7 @@ type PlayerContextType = ReturnType<typeof usePlayer> & {
     notes: Note[];
     setHand: (id: string, hand: "L" | "R" | null) => void;
     isReady: boolean;
-    session: ReturnType<typeof useFetchSession>["session"];
+session: ReturnType<typeof useFetchSession>["session"];
     isLoading: boolean;
     error: string | null;
 };

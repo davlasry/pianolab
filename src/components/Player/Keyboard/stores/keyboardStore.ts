@@ -2,38 +2,41 @@ import { create } from "zustand";
 
 // Define the actions interface
 interface KeyboardActions {
-  toggleShowChordNotes: () => void;
-  toggleShowNoteDegrees: () => void;
-  // Add other actions here in the future
+    toggleShowChordNotes: () => void;
+    toggleShowNoteDegrees: () => void;
+    // Add other actions here in the future
 }
 
 // Define the state interface
 interface KeyboardState {
-  showChordNotes: boolean;
-  showNoteDegrees: boolean;
-  actions: KeyboardActions;
+    showChordNotes: boolean;
+    showNoteDegrees: boolean;
+    actions: KeyboardActions;
 }
 
 // Create the store but don't export it directly
 const useKeyboardStore = create<KeyboardState>((set) => ({
-  showChordNotes: true, // Default to showing chord notes
-  showNoteDegrees: false, // Default to hiding note degrees
-  
-  // Group all actions together
-  actions: {
-    toggleShowChordNotes: () =>
-      set((state) => ({ showChordNotes: !state.showChordNotes })),
-    toggleShowNoteDegrees: () =>
-      set((state) => ({ showNoteDegrees: !state.showNoteDegrees })),
-  },
+    showChordNotes: false,
+    showNoteDegrees: true,
+
+    // Group all actions together
+    actions: {
+        toggleShowChordNotes: () =>
+            set((state) => ({ showChordNotes: !state.showChordNotes })),
+        toggleShowNoteDegrees: () =>
+            set((state) => ({ showNoteDegrees: !state.showNoteDegrees })),
+    },
 }));
 
 // Export selector hooks for specific state
-export const useShowChordNotes = () => useKeyboardStore((state) => state.showChordNotes);
-export const useShowNoteDegrees = () => useKeyboardStore((state) => state.showNoteDegrees);
+export const useShowChordNotes = () =>
+    useKeyboardStore((state) => state.showChordNotes);
+export const useShowNoteDegrees = () =>
+    useKeyboardStore((state) => state.showNoteDegrees);
 
 // Export actions hook
-export const useKeyboardActions = () => useKeyboardStore((state) => state.actions);
+export const useKeyboardActions = () =>
+    useKeyboardStore((state) => state.actions);
 
 // Export internal store for advanced usage (undo/redo, etc.)
-export const keyboardStoreInternal = useKeyboardStore; 
+export const keyboardStoreInternal = useKeyboardStore;
