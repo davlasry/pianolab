@@ -157,6 +157,14 @@ export const usePlayer = (notes: Note[]) => {
         buildNotesPart();
         buildChordProgressionPart();
     }, [buildChordProgressionPart, buildNotesPart]);
+    
+    // Rebuild the chord progression part whenever chord progression changes
+    useEffect(() => {
+        // Only rebuild if the chord part already exists and we're not in a stopped state
+        if (chordPartRef.current && transportState !== "stopped") {
+            buildChordProgressionPart();
+        }
+    }, [chordProgression, buildChordProgressionPart, transportState]);
 
     const play = useCallback(
         async (audioOffset = 0) => {
