@@ -7,6 +7,7 @@ import { KeyboardControls } from "src/components/Player/Controls/KeyboardControl
 import { TransportProvider } from "@/components/Player/Controls/context/TransportContext.tsx";
 import { usePlayerContext } from "@/components/Player/context/PlayerContext.tsx";
 import DigitalClock from "@/components/Player/Controls/components/DigitalClock.tsx";
+import { PlaybackRateControl } from "@/components/Player/Controls/components/PlaybackRateControl.tsx";
 
 function Controls({
     handleMoveToBeginning,
@@ -44,6 +45,10 @@ function Controls({
         >
             <div className="flex flex-1 items-center gap-4 bg-muted">
                 <DigitalClock />
+
+                <div className="flex items-center gap-2">
+                    <PlaybackRateControl />
+                </div>
 
                 <KeyboardControls
                     showChordNotes={showChordNotes}
