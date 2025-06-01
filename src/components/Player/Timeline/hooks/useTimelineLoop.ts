@@ -18,7 +18,6 @@ interface UseTimelineSelectionReturn {
     handleResetSelection: () => void;
     isSelectionComplete: boolean;
     isCreatingLoop: boolean;
-    // Loop functionality
     activeLoop: { start: number; end: number } | null;
     isLoopActive: boolean;
     toggleLoop: () => void;
@@ -60,7 +59,7 @@ export function useTimelineLoop({
 
     const handleSetStartAtPlayhead = useCallback(() => {
         const currentTime = Tone.getTransport().seconds;
-        console.log("currentTime =====>", currentTime);
+
         if (currentTime >= 0 && currentTime <= duration) {
             setSelectionStart(currentTime);
             setSelectionEnd(null); // Reset end when starting new loop
@@ -132,7 +131,6 @@ export function useTimelineLoop({
         handleResetSelection,
         isSelectionComplete: isCreatingLoop,
         isCreatingLoop,
-        // Loop functionality
         activeLoop,
         isLoopActive,
         toggleLoop,
