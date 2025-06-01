@@ -41,7 +41,7 @@ export function TimelineLoopControls({
                     onClick={onToggleLoop}
                     variant={isLoopActive ? "default" : "outline"}
                     className={
-                        isLoopActive ? "bg-green-600 hover:bg-green-700" : ""
+                        isLoopActive ? "bg-primary hover:bg-primary/80" : ""
                     }
                 >
                     {isLoopActive ? "Loop On" : "Loop Off"}
