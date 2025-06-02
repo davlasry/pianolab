@@ -27,6 +27,7 @@ import { useKeyboardNotes } from "@/components/Player/hooks/useKeyboardNotes";
 import {
     useShowChordNotes,
     useShowNoteDegrees,
+    useZoomLevel,
 } from "@/components/Player/Keyboard/stores/keyboardStore.ts";
 
 interface KeyboardProps {
@@ -149,6 +150,11 @@ const Keyboard = (props: KeyboardProps) => {
 
     const showChordNotes = useShowChordNotes();
     const showNoteDegrees = useShowNoteDegrees();
+    const zoomLevel = useZoomLevel();
+
+    // Apply zoom to key widths
+    const scaledWhiteKeyWidth = whiteKeyFixedWidth * zoomLevel;
+    const scaledBlackKeyWidth = blackKeyFixedWidth * zoomLevel;
 
     const { playedNotes, chordNotes } = useKeyboardNotes({
         activeNotes: activeNotes || [],
@@ -190,7 +196,7 @@ const Keyboard = (props: KeyboardProps) => {
         releaseKey,
     });
 
-    const microColumnWidth = whiteKeyFixedWidth / WHITE_KEY_MICRO_COLUMN_SPAN;
+    const microColumnWidth = scaledWhiteKeyWidth / WHITE_KEY_MICRO_COLUMN_SPAN;
 
     const totalMicroColumns = useMemo(() => {
         // Calculate the end column of the last physical key
@@ -285,8 +291,8 @@ const Keyboard = (props: KeyboardProps) => {
                         onMouseLeave={handleMouseEvents}
                         onMouseEnter={handleMouseEvents}
                         blackKeyHeight={blackKeyHeight}
-                        whiteKeyFixedWidth={whiteKeyFixedWidth}
-                        blackKeyFixedWidth={blackKeyFixedWidth}
+                        whiteKeyFixedWidth={scaledWhiteKeyWidth}
+                        blackKeyFixedWidth={scaledBlackKeyWidth}
                         components={components}
                         keymap={keyMap}
                         showNoteDegrees={showNoteDegrees}

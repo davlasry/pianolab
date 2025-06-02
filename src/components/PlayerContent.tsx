@@ -14,6 +14,7 @@ import { useTransportShortcuts } from "@/components/Player/hooks/useTransportSho
 import { useChordShortcuts } from "@/components/Player/hooks/useChordShortcuts";
 import { Keyboard } from "@/components/Player/Keyboard/components/Keyboard.tsx";
 import { customKeyboard } from "@/components/Player/Keyboard/components/CustomKeyboard.tsx";
+import { ZoomControls } from "@/components/Player/Keyboard/components/ZoomControls.tsx";
 
 export const PlayerContent = () => {
     const timelineRef = useRef<TimelineHandle>(null);
@@ -82,7 +83,12 @@ export const PlayerContent = () => {
                 <ChordEditor />
             </div>
 
-            <div className="flex flex-col">
+            <div className="relative flex flex-col">
+                {/* Add ZoomControls in the position shown in the screenshot */}
+                <div className="absolute right-6 bottom-20 z-10">
+                    <ZoomControls />
+                </div>
+
                 <div className="">
                     <Keyboard
                         activeNotes={activeNotes}
