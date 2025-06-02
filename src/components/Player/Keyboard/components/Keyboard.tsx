@@ -27,6 +27,7 @@ import { useKeyboardNotes } from "@/components/Player/hooks/useKeyboardNotes";
 import {
     useShowChordNotes,
     useShowNoteDegrees,
+    useShowNoteNames,
     useZoomLevel,
 } from "@/components/Player/Keyboard/stores/keyboardStore.ts";
 
@@ -150,6 +151,7 @@ const Keyboard = (props: KeyboardProps) => {
 
     const showChordNotes = useShowChordNotes();
     const showNoteDegrees = useShowNoteDegrees();
+    const showNoteNames = useShowNoteNames();
     const zoomLevel = useZoomLevel();
 
     // Apply zoom to key widths
@@ -296,6 +298,7 @@ const Keyboard = (props: KeyboardProps) => {
                         components={components}
                         keymap={keyMap}
                         showNoteDegrees={showNoteDegrees}
+                        showNoteNames={showNoteNames}
                     />
                 ))}
             </div>

@@ -5,6 +5,7 @@ import { KeyboardControls } from "@/components/Player/Controls/KeyboardControls"
 import {
     useShowChordNotes,
     useShowNoteDegrees,
+    useShowNoteNames,
     useKeyboardStore,
 } from "../stores/keyboardStore";
 
@@ -18,9 +19,9 @@ export const KeyboardToolbar: React.FC<KeyboardToolbarProps> = ({
     // Get state and actions from the keyboard store
     const showChordNotes = useShowChordNotes();
     const showNoteDegrees = useShowNoteDegrees();
-    const { toggleShowChordNotes, toggleShowNoteDegrees } = useKeyboardStore(
-        (state) => state.actions,
-    );
+    const showNoteNames = useShowNoteNames();
+    const { toggleShowChordNotes, toggleShowNoteDegrees, toggleShowNoteNames } =
+        useKeyboardStore((state) => state.actions);
 
     return (
         <div className="flex w-full items-center justify-between border-b border-neutral-800 bg-neutral-900/90 px-4 py-2 backdrop-blur-sm">
@@ -31,6 +32,8 @@ export const KeyboardToolbar: React.FC<KeyboardToolbarProps> = ({
                     toggleShowChordNotes={toggleShowChordNotes}
                     showNoteDegrees={showNoteDegrees}
                     toggleShowNoteDegrees={toggleShowNoteDegrees}
+                    showNoteNames={showNoteNames}
+                    toggleShowNoteNames={toggleShowNoteNames}
                 />
             </div>
 

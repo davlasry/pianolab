@@ -1,5 +1,8 @@
 import React, { useMemo } from "react";
-import { midiToNote } from "@/components/Player/Keyboard/lib/midi.ts";
+import {
+    midiToNote,
+    midiToNoteName,
+} from "@/components/Player/Keyboard/lib/midi.ts";
 import type {
     CustomKeyComponent,
     CustomLabelComponent,
@@ -37,6 +40,7 @@ type KeyProps = {
     blackKeyFixedWidth?: number; // Added
     activeChord?: string; // Added for degree calculation
     showNoteDegrees?: boolean; // <-- Add new prop
+    showNoteNames?: boolean; // <-- Add new prop for note names
 };
 
 const Key = React.memo((props: KeyProps) => {
@@ -53,7 +57,8 @@ const Key = React.memo((props: KeyProps) => {
         onMouseEnter,
         onMouseLeave,
         activeChord,
-        showNoteDegrees, // <-- Destructure new prop
+        showNoteDegrees, // <-- Destructure prop
+        showNoteNames, // <-- Destructure new prop
     } = props;
     const note = midiToNote(midiNumber);
     const KeyComponent = getKeyComponent(components, note.keyColor);
@@ -76,6 +81,9 @@ const Key = React.memo((props: KeyProps) => {
         isActive: active, // Pass the 'active' prop from KeyProps
     });
 
+    // Get note name
+    const noteName = useMemo(() => midiToNoteName(midiNumber), [midiNumber]);
+
     return (
         <div
             style={style}
@@ -86,17 +94,27 @@ const Key = React.memo((props: KeyProps) => {
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
         >
-            {showNoteDegrees &&
-                degreeText && ( // <-- Conditional rendering
-                    <div className="pointer-events-none absolute bottom-full left-1/2 z-[2] mb-0 -translate-x-1/2 rounded-sm px-1.5 py-1 text-xs text-neutral-600 dark:text-neutral-400">
-                        {degreeText}
-                    </div>
-                )}
+            {showNoteDegrees && degreeText && (
+                <div className="pointer-events-none absolute bottom-full left-1/2 z-[2] mb-0 -translate-x-1/2 rounded-sm px-1.5 py-1 text-xs text-neutral-600 dark:text-neutral-400">
+                    {degreeText}
+                </div>
+            )}
             <KeyComponent
                 note={note}
                 active={active}
                 isChordNote={isChordNote}
             />
+            {showNoteNames && (active || isChordNote) && (
+                <div
+                    className={`pointer-events-none absolute z-[20] text-xs font-medium ${
+                        note.keyColor === "black"
+                            ? "bottom-2 left-1/2 -translate-x-1/2 text-neutral-300/80"
+                            : "bottom-2 left-1/2 -translate-x-1/2 text-neutral-500 dark:text-neutral-400"
+                    }`}
+                >
+                    {noteName}
+                </div>
+            )}
             {Label ? (
                 <Label
                     active={active}

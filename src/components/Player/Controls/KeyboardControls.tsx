@@ -5,13 +5,15 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Baseline, Music } from "lucide-react";
+import { Baseline, Music, Tag } from "lucide-react";
 
 interface KeyboardDisplayToggleButtonProps {
     showChordNotes: boolean;
     toggleShowChordNotes: () => void;
     showNoteDegrees: boolean;
     toggleShowNoteDegrees: () => void;
+    showNoteNames: boolean;
+    toggleShowNoteNames: () => void;
 }
 
 export function KeyboardControls({
@@ -19,6 +21,8 @@ export function KeyboardControls({
     toggleShowChordNotes,
     showNoteDegrees,
     toggleShowNoteDegrees,
+    showNoteNames,
+    toggleShowNoteNames,
 }: KeyboardDisplayToggleButtonProps) {
     return (
         <div className="flex gap-2">
@@ -62,6 +66,26 @@ export function KeyboardControls({
                     </TooltipTrigger>
                     <TooltipContent>
                         <p>Toggle note degrees</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={toggleShowNoteNames}
+                            className={`rounded-sm p-1 text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-white ${
+                                showNoteNames ? "bg-neutral-800 text-white" : ""
+                            }`}
+                        >
+                            <Tag className="h-4 w-4" />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>Toggle note names</p>
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
