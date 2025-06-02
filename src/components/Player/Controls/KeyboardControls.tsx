@@ -21,7 +21,7 @@ export function KeyboardControls({
     toggleShowNoteDegrees,
 }: KeyboardDisplayToggleButtonProps) {
     return (
-        <div className="flex gap-2 px-2">
+        <div className="flex gap-2">
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
@@ -29,7 +29,11 @@ export function KeyboardControls({
                             variant="ghost"
                             size="icon"
                             onClick={toggleShowChordNotes}
-                            className={showChordNotes ? "bg-accent" : ""}
+                            className={`rounded-sm p-1 text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-white ${
+                                showChordNotes
+                                    ? "bg-neutral-800 text-white"
+                                    : ""
+                            }`}
                         >
                             <Music className="h-4 w-4" />
                         </Button>
@@ -47,7 +51,11 @@ export function KeyboardControls({
                             variant="ghost"
                             size="icon"
                             onClick={toggleShowNoteDegrees}
-                            className={showNoteDegrees ? "bg-accent" : ""}
+                            className={`rounded-sm p-1 text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-white ${
+                                showNoteDegrees
+                                    ? "bg-neutral-800 text-white"
+                                    : ""
+                            }`}
                         >
                             <Baseline className="h-4 w-4" />
                         </Button>

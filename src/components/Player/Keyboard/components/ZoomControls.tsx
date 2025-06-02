@@ -6,7 +6,7 @@ export const ZoomControls: React.FC = () => {
     const { increaseZoom, decreaseZoom } = useKeyboardActions();
 
     return (
-        <div className="flex items-center gap-1 rounded-md border border-neutral-800 bg-black/75 px-1.5 py-1 shadow-md backdrop-blur-sm">
+        <div className="flex items-center gap-1">
             <button
                 onClick={decreaseZoom}
                 className="rounded-sm p-1 text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-white"
@@ -28,6 +28,10 @@ export const ZoomControls: React.FC = () => {
                     <line x1="8" y1="11" x2="14" y2="11"></line>
                 </svg>
             </button>
+
+            <span className="min-w-8 text-center text-xs text-neutral-400">
+                {Math.round(zoomLevel * 100)}%
+            </span>
 
             <button
                 onClick={increaseZoom}

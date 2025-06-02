@@ -61,3 +61,6 @@ export const useKeyboardActions = () =>
 
 // Export internal store for advanced usage (undo/redo, etc.)
 export const keyboardStoreInternal = useKeyboardStore;
+
+// Export the store itself
+export { useKeyboardStore };

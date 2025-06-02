@@ -1,11 +1,5 @@
-import {
-    useShowChordNotes,
-    useKeyboardActions,
-    useShowNoteDegrees,
-} from "@/components/Player/Keyboard/stores/keyboardStore.ts";
-import { KeyboardControls } from "src/components/Player/Controls/KeyboardControls.tsx";
-import { TransportProvider } from "@/components/Player/Controls/context/TransportContext.tsx";
 import { usePlayerContext } from "@/components/Player/context/PlayerContext.tsx";
+import { TransportProvider } from "@/components/Player/Controls/context/TransportContext.tsx";
 import DigitalClock from "@/components/Player/Controls/components/DigitalClock.tsx";
 import { PlaybackRateControl } from "@/components/Player/Controls/components/PlaybackRateControl.tsx";
 
@@ -25,12 +19,6 @@ function Controls({
         isReady,
     } = usePlayerContext();
 
-    // Use selector hooks instead of direct store access
-    const showChordNotes = useShowChordNotes();
-    const showNoteDegrees = useShowNoteDegrees();
-    const { toggleShowChordNotes, toggleShowNoteDegrees } =
-        useKeyboardActions();
-
     return (
         <TransportProvider
             isPlaying={isPlaying}
@@ -49,13 +37,6 @@ function Controls({
                 <div className="flex items-center gap-2">
                     <PlaybackRateControl />
                 </div>
-
-                <KeyboardControls
-                    showChordNotes={showChordNotes}
-                    toggleShowChordNotes={toggleShowChordNotes}
-                    showNoteDegrees={showNoteDegrees}
-                    toggleShowNoteDegrees={toggleShowNoteDegrees}
-                />
             </div>
         </TransportProvider>
     );

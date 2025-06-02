@@ -1,5 +1,4 @@
 import { useRef, useEffect } from "react";
-import { CurrentChord } from "@/components/Player/CurrentChord.tsx";
 import { ChordEditor } from "@/components/Player/ChordEditor.tsx";
 import { usePlayerContext } from "@/components/Player/context/PlayerContext";
 import {
@@ -14,7 +13,7 @@ import { useTransportShortcuts } from "@/components/Player/hooks/useTransportSho
 import { useChordShortcuts } from "@/components/Player/hooks/useChordShortcuts";
 import { Keyboard } from "@/components/Player/Keyboard/components/Keyboard.tsx";
 import { customKeyboard } from "@/components/Player/Keyboard/components/CustomKeyboard.tsx";
-import { ZoomControls } from "@/components/Player/Keyboard/components/ZoomControls.tsx";
+import { KeyboardToolbar } from "@/components/Player/Keyboard/components/KeyboardToolbar.tsx";
 
 export const PlayerContent = () => {
     const timelineRef = useRef<TimelineHandle>(null);
@@ -84,10 +83,8 @@ export const PlayerContent = () => {
             </div>
 
             <div className="relative flex flex-col">
-                {/* Add ZoomControls in the position shown in the screenshot */}
-                <div className="absolute right-6 bottom-20 z-10">
-                    <ZoomControls />
-                </div>
+                {/* Keyboard Toolbar */}
+                <KeyboardToolbar activeChord={activeChord} />
 
                 <div className="">
                     <Keyboard
@@ -95,13 +92,12 @@ export const PlayerContent = () => {
                         activeChord={activeChord}
                         components={customKeyboard}
                         height={180}
-                        keyRange={[40, 81]}
+                        // keyRange={[40, 81]}
                     />
                 </div>
 
                 <div className="flex">
                     <Controls handleMoveToBeginning={handleMoveToBeginning} />
-                    <CurrentChord chord={activeChord} />
                 </div>
             </div>
         </div>
