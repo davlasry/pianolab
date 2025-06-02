@@ -1,32 +1,30 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
 interface TimelineState {
     isAutoScrollEnabled: boolean;
-    actions: {
-        toggleAutoScroll: () => void;
-    };
 }
 
-export const useTimelineStore = create<TimelineState>()(
-    persist(
-        (set) => ({
-            isAutoScrollEnabled: true, // enabled by default
-            actions: {
-                toggleAutoScroll: () =>
-                    set((state) => ({
-                        isAutoScrollEnabled: !state.isAutoScrollEnabled,
-                    })),
-            },
-        }),
-        {
-            name: "timeline-settings",
-        },
-    ),
-);
+// Create a simple store without persist middleware for testing
+const useTimelineStore = create<TimelineState & {
+    toggleAutoScroll: () => void;
+}>((set) => ({
+    isAutoScrollEnabled: true, // enabled by default
+    
+    toggleAutoScroll: () => {
+        set((state) => {
+            console.log("Toggling from", state.isAutoScrollEnabled, "to", !state.isAutoScrollEnabled);
+            return { isAutoScrollEnabled: !state.isAutoScrollEnabled };
+        });
+    },
+}));
 
 // Selector hooks
 export const useAutoScrollEnabled = () =>
     useTimelineStore((state) => state.isAutoScrollEnabled);
-export const useTimelineActions = () =>
-    useTimelineStore((state) => state.actions); 
+
+// For simplicity, expose toggle function directly
+export const useToggleAutoScroll = () =>
+    useTimelineStore((state) => state.toggleAutoScroll);
+
+// Export the store for direct access
+export { useTimelineStore };

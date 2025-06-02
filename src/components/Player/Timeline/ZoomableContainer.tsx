@@ -1,6 +1,8 @@
 import type { MouseEvent, WheelEvent, ReactNode, DragEvent } from "react";
 import { useEffect } from "react";
 
+const ZOOM_SENSITIVITY = 0.02; // Adjust this value to control zoom sensitivity
+
 interface ZoomableContainerProps {
     outerRef: React.RefObject<HTMLDivElement | null>;
     innerRef: React.RefObject<HTMLDivElement | null>;
@@ -98,7 +100,7 @@ export function ZoomableContainer({
                     }
                 } else {
                     // Ctrl+Wheel
-                    const zoomFactor = 1 - wheelEvent.deltaY * 0.01; // Adjust sensitivity as needed
+                    const zoomFactor = 1 - wheelEvent.deltaY * ZOOM_SENSITIVITY; // Adjust sensitivity as needed
                     newCalculatedZoom = Math.max(1, zoomLevel * zoomFactor);
                 }
 

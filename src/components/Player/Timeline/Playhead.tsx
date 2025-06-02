@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import * as Tone from "tone";
 import type { TransportState } from "@/components/Player/hooks/useTransportState";
 import { useProgressPercent } from "@/TransportTicker/transportTicker.ts";
-import { useAutoScrollEnabled } from "@/stores/timelineStore";
+import { useTimelineStore } from "@/stores/timelineStore";
 
 const SCROLL_THRESHOLD = 0.95;
 const LEFT_MARGIN_RATIO = 0.1;
@@ -26,7 +26,6 @@ export function Playhead({
 }: PlayheadProps) {
     const [outerWidth, setOuterWidth] = useState(0);
     const percent = useProgressPercent(duration);
-    const isAutoScrollEnabled = useAutoScrollEnabled();
 
     // Keep track of container width via ResizeObserver
     useEffect(() => {
@@ -41,8 +40,12 @@ export function Playhead({
     // Scroll logic
     const scrollIfNeeded = useCallback(
         (pct: number) => {
+            // Get the current state directly from the store
+            const currentAutoScroll =
+                useTimelineStore.getState().isAutoScrollEnabled;
+
             if (
-                !isAutoScrollEnabled ||
+                !currentAutoScroll ||
                 transportState !== "started" ||
                 !outerRef.current ||
                 !containerRef.current ||
@@ -67,14 +70,7 @@ export function Playhead({
                 outerRef.current.scrollLeft = Math.max(0, target);
             }
         },
-        [
-            outerWidth,
-            transportState,
-            containerRef,
-            outerRef,
-            barRef,
-            isAutoScrollEnabled,
-        ],
+        [outerWidth, transportState, containerRef, outerRef, barRef],
     );
 
     // Drive playhead animation + scrolling

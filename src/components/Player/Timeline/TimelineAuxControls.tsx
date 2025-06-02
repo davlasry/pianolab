@@ -1,13 +1,13 @@
 import { Button } from "@/components/ui/button";
 import {
     useAutoScrollEnabled,
-    useTimelineActions,
+    useToggleAutoScroll,
 } from "@/stores/timelineStore";
 import { AutoScrollIcon } from "./icons/AutoScrollIcon";
 
 export function TimelineAuxControls() {
     const isAutoScrollEnabled = useAutoScrollEnabled();
-    const { toggleAutoScroll } = useTimelineActions();
+    const toggleAutoScroll = useToggleAutoScroll();
 
     return (
         <div className="flex gap-2 p-2">
@@ -18,6 +18,7 @@ export function TimelineAuxControls() {
                 aria-label={`${
                     isAutoScrollEnabled ? "Disable" : "Enable"
                 } auto-scroll`}
+                data-testid="auto-scroll-button"
             >
                 <AutoScrollIcon
                     className={`transition-transform ${
