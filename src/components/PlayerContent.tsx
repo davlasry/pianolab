@@ -97,7 +97,7 @@ export const PlayerContent = () => {
                 </div>
 
                 <div className="flex">
-                    <Controls handleMoveToBeginning={handleMoveToBeginning} />
+                    <Controls />
                 </div>
             </div>
         </div>
