@@ -1,9 +1,9 @@
 import type { RefObject } from "react";
 import { useEffect, useState, useLayoutEffect, useRef } from "react";
-import { useTransportTime } from "@/TransportTicker/transportTicker";
+import { useCustomTransportTime } from "@/CustomTransportTicker/customTransportTicker";
 import type { TransportState } from "@/lib/CustomPlayer";
 
-interface TimelineSelectionProps {
+interface CustomTimelineSelectionProps {
     selectionStart: number | null;
     selectionEnd: number | null;
     duration: number;
@@ -14,7 +14,7 @@ interface TimelineSelectionProps {
     zoomLevel?: number;
 }
 
-export function TimelineSelection({
+export function CustomTimelineSelection({
     selectionStart,
     selectionEnd,
     duration,
@@ -23,9 +23,9 @@ export function TimelineSelection({
     onSetEndTime,
     isCreatingLoop = false,
     zoomLevel,
-}: TimelineSelectionProps) {
+}: CustomTimelineSelectionProps) {
     const [pxPerUnit, setPxPerUnit] = useState(1);
-    const currentTime = useTransportTime();
+    const currentTime = useCustomTransportTime();
     const prevTransportState = useRef<TransportState | undefined>(
         transportState,
     );

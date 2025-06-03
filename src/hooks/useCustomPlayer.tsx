@@ -164,7 +164,26 @@ export const useCustomPlayer = (
 
         try {
             const result = await playerRef.current.loadMedia(audioUrl, midiUrl);
-            setDuration(playerRef.current.duration);
+
+            // Make sure we have a valid duration
+            if (
+                playerRef.current &&
+                typeof playerRef.current.duration === "number"
+            ) {
+                setDuration(playerRef.current.duration);
+            } else {
+                // Fallback to the result's audioDuration if available
+                if (result && "audioDuration" in result) {
+                    setDuration(result.audioDuration);
+                } else {
+                    // Last resort fallback
+                    console.warn(
+                        "Could not determine media duration, using default value",
+                    );
+                    setDuration(0); // Will be updated later when the player loads
+                }
+            }
+
             return result;
         } catch (error) {
             console.error("Error loading media:", error);

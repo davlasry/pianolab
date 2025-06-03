@@ -1,98 +1,126 @@
-import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import { useFetchSession } from "@/hooks/queries/useFetchSession";
-import { CustomPlayerComponent } from "@/components/Player/CustomPlayerComponent";
-import type { Chord } from "@/lib/CustomPlayer";
+import { useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { RecordingFormModal } from "@/components/Recordings/SessionFormModal";
+import { SessionStatusDisplay } from "@/components/SessionStatusDisplay";
+import { LinkedPiecesDisplay } from "@/components/LinkedPiecesDisplay";
+import { CustomPlayerContent } from "@/components/Player/CustomPlayerContent";
+import { CustomPlayerProvider } from "@/components/Player/context/CustomPlayerContext";
+import { CustomTransportTickerProvider } from "@/CustomTransportTicker/CustomTransportTickerProvider";
+import { KeyboardShortcutProvider } from "@/shortcuts/KeyboardShortcuts";
+import { useSetSessionId } from "@/stores/sessionStore";
+import { TopNavbar } from "@/components/navigation/TopNavbar";
+import { useCustomPlayerContext } from "@/components/Player/context/CustomPlayerContext";
+import { useCustomPlayerViewLogic } from "@/hooks/useCustomPlayerViewLogic";
 
-export default function CustomPlayerPage() {
-    const { sessionId } = useParams();
-    const { session, loading, error } = useFetchSession(sessionId);
-    const [chords, setChords] = useState<Chord[]>([]);
+const CustomPlayerPageContent = () => {
+    const {
+        isPlayerReady,
+        error,
+        session,
+        activeLoop,
+        toggleLoop,
+        handleSetStartAtPlayhead,
+        handleSubmitSelection,
+        handleResetSelection,
+        selectionStart,
+        isCreatingLoop,
+        isSelectionComplete,
+        isLoopActive,
+    } = useCustomPlayerContext();
 
-    useEffect(() => {
-        // Load chord progression if available
-        if (session?.chords) {
-            try {
-                // Assume chords is already a JSON object or can be parsed if it's a string
-                const chordsData =
-                    typeof session.chords === "string"
-                        ? JSON.parse(session.chords)
-                        : session.chords;
+    const {
+        isLoading,
+        isEditModalOpen,
+        linkedPieces,
+        piecesLoading,
+        handleOpenEditModal,
+        handleCloseEditModal,
+        handleEditSuccess,
+    } = useCustomPlayerViewLogic();
 
-                setChords(chordsData as Chord[]);
-            } catch (err) {
-                console.error("Error parsing chords:", err);
-            }
-        }
-    }, [session]);
-
-    if (loading) {
+    if (isLoading || error || !session || !isPlayerReady) {
         return (
-            <div className="container flex min-h-[50vh] items-center justify-center">
-                <div className="text-lg">Loading session...</div>
-            </div>
+            <SessionStatusDisplay
+                isLoading={isLoading}
+                error={error}
+                session={session}
+                isReady={isPlayerReady}
+            />
         );
     }
 
-    if (error) {
-        return (
-            <div className="container flex min-h-[50vh] flex-col items-center justify-center space-y-4">
-                <div className="text-lg text-red-500">
-                    {error || "Error loading session"}
+    return (
+        <div className="flex h-full flex-col">
+            <TopNavbar
+                sessionTitle={`${session.name || "Untitled Session"} (Custom Player)`}
+                onEdit={handleOpenEditModal}
+                onSetStartAtPlayhead={handleSetStartAtPlayhead}
+                onSubmitSelection={handleSubmitSelection}
+                onResetSelection={handleResetSelection}
+                selectionStart={selectionStart}
+                isSelectionComplete={isSelectionComplete}
+                isCreatingLoop={isCreatingLoop}
+                activeLoop={activeLoop}
+                isLoopActive={isLoopActive}
+                onToggleLoop={toggleLoop}
+            />
+
+            <div className="flex flex-1 flex-col overflow-hidden">
+                <div className="px-4">
+                    <LinkedPiecesDisplay
+                        pieces={linkedPieces}
+                        isLoading={piecesLoading}
+                    />
                 </div>
-                <Button asChild variant="outline">
-                    <Link to="/sessions">Back to Sessions</Link>
-                </Button>
+
+                <div className="flex flex-1">
+                    <CustomPlayerContent />
+                </div>
+            </div>
+
+            <RecordingFormModal
+                isOpen={isEditModalOpen}
+                onClose={handleCloseEditModal}
+                onSuccess={handleEditSuccess}
+                session={session}
+                mode="edit"
+            />
+        </div>
+    );
+};
+
+export default function CustomPlayerPage() {
+    const { sessionId } = useParams();
+    const setSessionId = useSetSessionId();
+
+    // Update session ID in the store whenever it changes
+    useEffect(() => {
+        setSessionId(sessionId || null);
+
+        // Clean up session ID when component unmounts
+        return () => {
+            setSessionId(null);
+        };
+    }, [sessionId, setSessionId]);
+
+    if (!sessionId) {
+        return (
+            <div className="p-8 text-center">
+                <div className="text-lg">No session ID provided.</div>
+                <div className="mt-2">
+                    Please go back to the sessions list and select a session.
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="container mx-auto px-4 py-6">
-            <div className="mb-6">
-                <Link to={session ? `/session/${sessionId}` : "/sessions"}>
-                    <Button variant="ghost" className="pl-0">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        {session ? "Back to ToneJS Player" : "Back to Sessions"}
-                    </Button>
-                </Link>
-            </div>
-
-            <div className="space-y-8">
-                <div className="space-y-4">
-                    <h1 className="text-4xl font-bold">
-                        {session?.name || "Custom Player"}
-                    </h1>
-                    <p className="text-muted-foreground">
-                        This player uses Web Audio API and WebMIDI.js instead of
-                        ToneJS, allowing for synchronized variable-speed
-                        playback of audio and MIDI.
-                    </p>
-                </div>
-
-                <div className="rounded-lg border bg-card p-6 shadow-sm">
-                    {session ? (
-                        <CustomPlayerComponent
-                            audioUrl={
-                                session.audio_url ||
-                                "/pianolab/body_and_soul.mp3"
-                            }
-                            midiUrl={session.midi_url || "/pianolab/sample.mid"}
-                            chordProgression={chords}
-                        />
-                    ) : (
-                        <div className="p-4 text-center text-muted-foreground">
-                            <p>Session not found or failed to load</p>
-                            <p className="mt-2 text-sm">
-                                Try a different session or check that your media
-                                files are accessible
-                            </p>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
+        <CustomPlayerProvider>
+            <CustomTransportTickerProvider>
+                <KeyboardShortcutProvider>
+                    <CustomPlayerPageContent />
+                </KeyboardShortcutProvider>
+            </CustomTransportTickerProvider>
+        </CustomPlayerProvider>
     );
 }
