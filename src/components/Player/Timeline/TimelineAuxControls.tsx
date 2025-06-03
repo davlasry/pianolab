@@ -10,23 +10,20 @@ export function TimelineAuxControls() {
     const toggleAutoScroll = useToggleAutoScroll();
 
     return (
-        <div className="flex gap-2 p-2">
-            <Button
-                onClick={toggleAutoScroll}
-                variant={isAutoScrollEnabled ? "default" : "secondary"}
-                size="sm"
-                aria-label={`${
-                    isAutoScrollEnabled ? "Disable" : "Enable"
-                } auto-scroll`}
-                data-testid="auto-scroll-button"
-            >
-                <AutoScrollIcon
-                    className={`transition-transform ${
-                        isAutoScrollEnabled ? "rotate-0" : "-rotate-90"
-                    }`}
-                />
-                Auto-scroll
-            </Button>
-        </div>
+        <Button
+            onClick={toggleAutoScroll}
+            variant={isAutoScrollEnabled ? "default" : "secondary"}
+            size="sm"
+            className="h-8 gap-1 px-2 text-xs"
+            aria-label={`${isAutoScrollEnabled ? "Disable" : "Enable"} auto-scroll`}
+            data-testid="auto-scroll-button"
+        >
+            <AutoScrollIcon
+                className={`h-4 w-4 transition-transform ${
+                    isAutoScrollEnabled ? "rotate-0" : "-rotate-90"
+                }`}
+            />
+            <span className="sr-only">Auto-scroll</span>
+        </Button>
     );
 }

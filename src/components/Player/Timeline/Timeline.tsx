@@ -10,7 +10,6 @@ import { TimelineZoomControls } from "@/components/Player/Timeline/TimelineZoomC
 import { TimelineSelection } from "@/components/Player/Timeline/TimelineSelection";
 import { TimelineLoopControls } from "@/components/Player/Timeline/TimelineLoopControls";
 import { TimelineAuxControls } from "@/components/Player/Timeline/TimelineAuxControls";
-import { useTimelineLoop } from "@/components/Player/Timeline/hooks/useTimelineLoop";
 import { useTimelineClick } from "@/components/Player/Timeline/hooks/useTimelineClick";
 import type { TransportState } from "@/components/Player/hooks/useTransportState";
 import {
@@ -18,6 +17,7 @@ import {
     useActiveChordIndex,
 } from "@/stores/chordsStore.ts";
 import { useTimelineShortcuts } from "./hooks/useTimelineShortcuts";
+import { usePlayerContext } from "@/components/Player/context/PlayerContext";
 
 export interface TimelineHandle {
     scrollToBeginning: () => void;
@@ -43,6 +43,7 @@ const Timeline = (
     const { zoomLevel, handleZoomChange, resetZoom } =
         useTimelineZoom(outerRef);
 
+    // Get shared loop state from PlayerContext
     const {
         selectionStart,
         selectionEnd,
@@ -55,11 +56,7 @@ const Timeline = (
         activeLoop,
         isLoopActive,
         toggleLoop,
-    } = useTimelineLoop({
-        duration,
-        onSeek,
-        transportState,
-    });
+    } = usePlayerContext();
 
     const selectedChordIndices = useSelectedChordIndices();
     const activeChordIndex = useActiveChordIndex();

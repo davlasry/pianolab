@@ -3,20 +3,33 @@ import { PlayerProvider } from "@/components/Player/context/PlayerContext.tsx";
 import { PlayerContent } from "@/components/PlayerContent.tsx";
 import { RecordingFormModal } from "@/components/Recordings/SessionFormModal.tsx";
 import { useSessionViewLogic } from "@/hooks/useSessionViewLogic";
-import { SessionHeader } from "@/components/SessionHeader";
 import { LinkedPiecesDisplay } from "@/components/LinkedPiecesDisplay";
 import { SessionStatusDisplay } from "@/components/SessionStatusDisplay";
 import { TransportTickerProvider } from "@/TransportTicker/TransportTickerProvider.tsx";
 import { KeyboardShortcutProvider } from "@/shortcuts/KeyboardShortcuts.tsx";
 import { useSetSessionId } from "@/stores/sessionStore";
 import { useEffect } from "react";
+import { TopNavbar } from "@/components/navigation/TopNavbar";
+import { usePlayerContext } from "@/components/Player/context/PlayerContext";
 
 const SessionContent = () => {
     const {
-        session,
-        isLoading,
         isReady,
         error,
+        session,
+        activeLoop,
+        toggleLoop,
+        handleSetStartAtPlayhead,
+        handleSubmitSelection,
+        handleResetSelection,
+        selectionStart,
+        isCreatingLoop,
+        isSelectionComplete,
+        isLoopActive,
+    } = usePlayerContext();
+
+    const {
+        isLoading,
         isEditModalOpen,
         linkedPieces,
         piecesLoading,
@@ -37,20 +50,30 @@ const SessionContent = () => {
     }
 
     return (
-        <>
+        <div className="flex h-full flex-col">
+            <TopNavbar
+                sessionTitle={session.name || "Untitled Session"}
+                onEdit={handleOpenEditModal}
+                onSetStartAtPlayhead={handleSetStartAtPlayhead}
+                onSubmitSelection={handleSubmitSelection}
+                onResetSelection={handleResetSelection}
+                selectionStart={selectionStart}
+                isSelectionComplete={isSelectionComplete}
+                isCreatingLoop={isCreatingLoop}
+                activeLoop={activeLoop}
+                isLoopActive={isLoopActive}
+                onToggleLoop={toggleLoop}
+            />
+
             <div className="flex flex-1 flex-col overflow-hidden">
-                <div className="">
-                    <SessionHeader
-                        session={session}
-                        onOpenEditModal={handleOpenEditModal}
-                    />
+                <div className="px-4">
                     <LinkedPiecesDisplay
                         pieces={linkedPieces}
                         isLoading={piecesLoading}
                     />
                 </div>
 
-                <div className="flex w-full flex-1">
+                <div className="flex flex-1">
                     <PlayerContent />
                 </div>
             </div>
@@ -62,18 +85,18 @@ const SessionContent = () => {
                 session={session}
                 mode="edit"
             />
-        </>
+        </div>
     );
 };
 
 export const SessionView = () => {
     const { sessionId } = useParams();
     const setSessionId = useSetSessionId();
-    
+
     // Update session ID in the store whenever it changes
     useEffect(() => {
         setSessionId(sessionId || null);
-        
+
         // Clean up session ID when component unmounts
         return () => {
             setSessionId(null);

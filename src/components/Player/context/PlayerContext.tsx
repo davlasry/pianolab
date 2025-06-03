@@ -6,16 +6,18 @@ import {
 } from "@/components/Player/hooks/useMidiNotes.ts";
 import { useFetchSession } from "@/hooks/queries/useFetchSession.ts";
 import { useFilesLoader } from "@/components/Player/hooks/useFilesLoader.ts";
+import { useTimelineLoop } from "@/components/Player/Timeline/hooks/useTimelineLoop";
+import { useTransportState } from "@/components/Player/hooks/useTransportState";
 
 // Create a type for our context based on what usePlayer returns
 type PlayerContextType = ReturnType<typeof usePlayer> & {
     notes: Note[];
     setHand: (id: string, hand: "L" | "R" | null) => void;
     isReady: boolean;
-session: ReturnType<typeof useFetchSession>["session"];
+    session: ReturnType<typeof useFetchSession>["session"];
     isLoading: boolean;
     error: string | null;
-};
+} & ReturnType<typeof useTimelineLoop>;
 
 // Create the context with a default value
 export const PlayerContext = createContext<PlayerContextType | null>(null);
@@ -26,6 +28,13 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     const player = usePlayer(notes);
     const { loadAudio, isLoadingRecording, isReady, error, session } =
         useFilesLoader({ parseMidi, loadAudio: player.loadAudio });
+    const { transportState } = useTransportState();
+
+    const loopControls = useTimelineLoop({
+        duration: player.audioDuration,
+        onSeek: player.seek,
+        transportState,
+    });
 
     // Combine player and notes values into a single context value
     const contextValue: PlayerContextType = {
@@ -37,6 +46,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
         session,
         isLoading: isLoadingRecording,
         error,
+        ...loopControls,
     };
 
     return (
