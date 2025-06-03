@@ -170,7 +170,9 @@ export const TransportProvider = ({
                     stop();
                     handleMoveToBeginning();
                 },
-                rewind: () => {},
+                rewind: () => {
+                    handleMoveToBeginning();
+                },
                 fastForward: () => {},
                 toggleLoop: () => {},
                 setLoopStart,

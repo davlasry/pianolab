@@ -17,7 +17,8 @@ export function TransportControls({
     isReady,
     onPlayPause,
     onStop,
-    onReset,
+    onRewind,
+    onFastForward,
     className,
 }: TransportControlsProps) {
     return (
@@ -28,9 +29,9 @@ export function TransportControls({
             )}
         >
             <button
-                onClick={onReset}
+                onClick={onRewind}
                 className="group relative flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800/50 transition-colors duration-200 hover:bg-zinc-800"
-                aria-label="Reset"
+                aria-label="Reset to Beginning"
             >
                 <SkipBack className="h-4 w-4 text-zinc-400 transition-colors group-hover:text-zinc-200" />
             </button>
@@ -70,6 +71,7 @@ export function TransportControls({
             </button>
 
             <button
+                onClick={onFastForward}
                 className="group relative flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800/50 transition-colors duration-200 hover:bg-zinc-800"
                 aria-label="Skip Forward"
             >

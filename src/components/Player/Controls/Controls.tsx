@@ -3,11 +3,7 @@ import { TransportProvider } from "@/components/Player/Controls/context/Transpor
 import DigitalClock from "@/components/Player/Controls/components/DigitalClock.tsx";
 import { PlaybackRateControl } from "@/components/Player/Controls/components/PlaybackRateControl.tsx";
 
-function Controls({
-    handleMoveToBeginning,
-}: {
-    handleMoveToBeginning: () => void;
-}) {
+function Controls() {
     const {
         isPlaying,
         isPaused,
@@ -17,6 +13,7 @@ function Controls({
         resume,
         pause,
         isReady,
+        seekToBeginning,
     } = usePlayerContext();
 
     return (
@@ -28,7 +25,7 @@ function Controls({
             stop={stop}
             resume={resume}
             pause={pause}
-            handleMoveToBeginning={handleMoveToBeginning}
+            handleMoveToBeginning={seekToBeginning}
             isReady={isReady}
         >
             <div className="flex flex-1 items-center gap-4 bg-muted">

@@ -1,23 +1,21 @@
 import { type Ref, forwardRef, useRef, useImperativeHandle } from "react";
-import { useTimelineZoom } from "@/components/Player/Timeline/useTimelineZoom";
-import { useTimelineScroll } from "@/components/Player/Timeline/hooks/useTimelineScroll";
-import { useTimelineWheel } from "@/components/Player/Timeline/hooks/useTimelineWheel";
-import { useInitialScrollPosition } from "@/components/Player/Timeline/hooks/useInitialScrollPosition";
-import { ZoomableContainer } from "@/components/Player/Timeline/ZoomableContainer";
+import {
+    useActiveChordIndex,
+    useSelectedChordIndices,
+} from "@/stores/chordsStore.ts";
 import { Playhead } from "@/components/Player/Timeline/Playhead";
 import { TimelineChords } from "@/components/Player/Timeline/TimelineChords";
-import { TimelineZoomControls } from "@/components/Player/Timeline/TimelineZoomControls";
-import { TimelineSelection } from "@/components/Player/Timeline/TimelineSelection";
-import { TimelineLoopControls } from "@/components/Player/Timeline/TimelineLoopControls";
-import { TimelineAuxControls } from "@/components/Player/Timeline/TimelineAuxControls";
 import { useTimelineClick } from "@/components/Player/Timeline/hooks/useTimelineClick";
-import type { TransportState } from "@/components/Player/hooks/useTransportState";
-import {
-    useSelectedChordIndices,
-    useActiveChordIndex,
-} from "@/stores/chordsStore.ts";
-import { useTimelineShortcuts } from "./hooks/useTimelineShortcuts";
+import { useInitialScrollPosition } from "@/components/Player/Timeline/hooks/useInitialScrollPosition";
+import { useTimelineScroll } from "@/components/Player/Timeline/hooks/useTimelineScroll";
+import { useTimelineShortcuts } from "@/components/Player/Timeline/hooks/useTimelineShortcuts";
+import { useTimelineWheel } from "@/components/Player/Timeline/hooks/useTimelineWheel";
+import { TimelineSelection } from "@/components/Player/Timeline/TimelineSelection";
+import { TimelineZoomControls } from "@/components/Player/Timeline/TimelineZoomControls";
+import { useTimelineZoom } from "@/components/Player/Timeline/useTimelineZoom";
+import { ZoomableContainer } from "@/components/Player/Timeline/ZoomableContainer";
 import { usePlayerContext } from "@/components/Player/context/PlayerContext";
+import type { TransportState } from "@/components/Player/hooks/useTransportState";
 
 export interface TimelineHandle {
     scrollToBeginning: () => void;
@@ -43,20 +41,9 @@ const Timeline = (
     const { zoomLevel, handleZoomChange, resetZoom } =
         useTimelineZoom(outerRef);
 
-    // Get shared loop state from PlayerContext
-    const {
-        selectionStart,
-        selectionEnd,
-        handleSetStartAtPlayhead,
-        handleSetEndTime,
-        handleSubmitSelection,
-        handleResetSelection,
-        isSelectionComplete,
-        isCreatingLoop,
-        activeLoop,
-        isLoopActive,
-        toggleLoop,
-    } = usePlayerContext();
+    // Get only the needed loop state values from PlayerContext
+    const { selectionStart, selectionEnd, handleSetEndTime, isCreatingLoop } =
+        usePlayerContext();
 
     const selectedChordIndices = useSelectedChordIndices();
     const activeChordIndex = useActiveChordIndex();
@@ -100,21 +87,6 @@ const Timeline = (
 
     return (
         <div className="relative flex flex-col gap-2">
-            <div className="flex items-center justify-between">
-                <TimelineLoopControls
-                    onSetStartAtPlayhead={handleSetStartAtPlayhead}
-                    onSubmitSelection={handleSubmitSelection}
-                    onResetSelection={handleResetSelection}
-                    selectionStart={selectionStart}
-                    isSelectionComplete={isSelectionComplete}
-                    isCreatingLoop={isCreatingLoop}
-                    activeLoop={activeLoop}
-                    isLoopActive={isLoopActive}
-                    onToggleLoop={toggleLoop}
-                />
-                <TimelineAuxControls />
-            </div>
-
             <div className="relative">
                 <TimelineZoomControls
                     resetZoom={resetZoom}
