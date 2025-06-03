@@ -34,22 +34,28 @@ const useKeyboardStore = create<KeyboardState>()(
                 toggleShowChordNotes: () =>
                     set((state) => ({ showChordNotes: !state.showChordNotes })),
                 toggleShowNoteDegrees: () =>
-                    set((state) => ({ showNoteDegrees: !state.showNoteDegrees })),
+                    set((state) => ({
+                        showNoteDegrees: !state.showNoteDegrees,
+                    })),
                 toggleShowNoteNames: () =>
                     set((state) => ({ showNoteNames: !state.showNoteNames })),
-                setZoomLevel: (level: number) => 
+                setZoomLevel: (level: number) =>
                     set({ zoomLevel: Math.max(0.5, Math.min(2, level)) }), // limit between 50% and 200%
-                increaseZoom: () => 
-                    set((state) => ({ zoomLevel: Math.min(state.zoomLevel + 0.1, 2) })),
-                decreaseZoom: () => 
-                    set((state) => ({ zoomLevel: Math.max(state.zoomLevel - 0.1, 0.5) })),
+                increaseZoom: () =>
+                    set((state) => ({
+                        zoomLevel: Math.min(state.zoomLevel + 0.1, 2),
+                    })),
+                decreaseZoom: () =>
+                    set((state) => ({
+                        zoomLevel: Math.max(state.zoomLevel - 0.1, 0.5),
+                    })),
             },
         }),
         {
             name: "pianolab-keyboard-settings", // unique name for localStorage
             partialize: (state) => ({ zoomLevel: state.zoomLevel }), // only persist zoomLevel
-        }
-    )
+        },
+    ),
 );
 
 // Export selector hooks for specific state
@@ -59,8 +65,7 @@ export const useShowNoteDegrees = () =>
     useKeyboardStore((state) => state.showNoteDegrees);
 export const useShowNoteNames = () =>
     useKeyboardStore((state) => state.showNoteNames);
-export const useZoomLevel = () =>
-    useKeyboardStore((state) => state.zoomLevel);
+export const useZoomLevel = () => useKeyboardStore((state) => state.zoomLevel);
 
 // Export actions hook
 export const useKeyboardActions = () =>

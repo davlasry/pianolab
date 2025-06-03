@@ -223,11 +223,11 @@ const zustandStorage = createJSONStorage<ChordsStore>(() => ({
 let previousSessionId: string | null = null;
 useSessionStore.subscribe((state) => {
     const currentSessionId = state.sessionId;
-    
+
     // Only reload if the session ID actually changed
     if (currentSessionId && currentSessionId !== previousSessionId) {
         previousSessionId = currentSessionId;
-        
+
         // Force reload chords from Supabase
         const reloadChords = async () => {
             try {
@@ -243,12 +243,14 @@ useSessionStore.subscribe((state) => {
                 // Update the chord progression in the store
                 // Need to cast through unknown first for type safety
                 const chords = data.chords as unknown as Chord[];
-                useChordsStore.getState().actions.updateProgressionPresent(chords);
+                useChordsStore
+                    .getState()
+                    .actions.updateProgressionPresent(chords);
             } catch (error) {
                 console.error("Error reloading chords for new session:", error);
             }
         };
-        
+
         reloadChords();
     }
 });

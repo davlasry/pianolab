@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import type { RefObject } from 'react';
-import { transportTicker } from '@/TransportTicker/transportTicker';
+import { useEffect, useState } from "react";
+import type { RefObject } from "react";
+import { transportTicker } from "@/TransportTicker/transportTicker";
 
 interface UseInitialScrollPositionProps {
     duration: number;
@@ -13,10 +13,12 @@ export const useInitialScrollPosition = ({
     containerRef,
     scrollToTime,
 }: UseInitialScrollPositionProps) => {
-    const [hasScrolledToInitialPosition, setHasScrolledToInitialPosition] = useState(false);
+    const [hasScrolledToInitialPosition, setHasScrolledToInitialPosition] =
+        useState(false);
 
     useEffect(() => {
-        if (hasScrolledToInitialPosition || !duration || !containerRef.current) return;
+        if (hasScrolledToInitialPosition || !duration || !containerRef.current)
+            return;
 
         const time = transportTicker.getSnapshot();
         if (time > 0 && time < duration) {

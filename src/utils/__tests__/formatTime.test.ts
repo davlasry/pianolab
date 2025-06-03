@@ -13,4 +13,4 @@ describe("formatTime", () => {
     ])("converts %p → %p", (secs, expected) => {
         expect(formatTime(secs)).toBe(expected);
     });
-}); 
+});

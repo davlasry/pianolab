@@ -62,8 +62,12 @@ export const useTimelineZoom = (outerRef: React.RefObject<HTMLDivElement>) => {
 
             // Calculate and apply the new scroll position
             const newScrollLeft = contentAnchor * zoomLevel - viewportAnchor;
-            const maxScrollLeft = outerElement.scrollWidth - outerElement.clientWidth;
-            outerElement.scrollLeft = Math.max(0, Math.min(newScrollLeft, maxScrollLeft));
+            const maxScrollLeft =
+                outerElement.scrollWidth - outerElement.clientWidth;
+            outerElement.scrollLeft = Math.max(
+                0,
+                Math.min(newScrollLeft, maxScrollLeft),
+            );
 
             // Clear the anchor details after applying them
             zoomAnchorRef.current = null;

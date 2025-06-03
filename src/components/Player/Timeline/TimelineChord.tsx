@@ -33,7 +33,8 @@ export const TimelineChord = ({
     onSelect,
 }: Props) => {
     const currentTime = useTransportTime();
-    const { updateChordTime, extendChordToBoundary, toggleChordSelection } = useChordsActions();
+    const { updateChordTime, extendChordToBoundary, toggleChordSelection } =
+        useChordsActions();
 
     const isCurrentChord =
         currentTime !== undefined &&

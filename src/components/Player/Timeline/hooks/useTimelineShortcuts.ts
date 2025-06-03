@@ -1,8 +1,8 @@
-import { useCallback } from 'react';
-import { useShortcut } from '@/shortcuts/KeyboardShortcuts';
-import { useGlobalUndoRedo } from '@/hooks/useGlobalUndoRedo';
-import { useChordsActions } from '@/stores/chordsStore';
-import { useTransportTime } from '@/TransportTicker/transportTicker';
+import { useCallback } from "react";
+import { useShortcut } from "@/shortcuts/KeyboardShortcuts";
+import { useGlobalUndoRedo } from "@/hooks/useGlobalUndoRedo";
+import { useChordsActions } from "@/stores/chordsStore";
+import { useTransportTime } from "@/TransportTicker/transportTicker";
 
 interface UseTimelineShortcutsOptions {
     selectedChordIndices: number[];
@@ -32,11 +32,17 @@ export const useTimelineShortcuts = ({
     }, [deleteActiveChord, deleteSelectedChords, selectedChordIndices]);
 
     const handleEditChord = useCallback(() => {
-        const chordAtPlayheadResult = currentTime !== undefined ? findChordAtTime(currentTime) : null;
-        const chordIndexAtPlayhead = chordAtPlayheadResult ? chordAtPlayheadResult.index : null;
+        const chordAtPlayheadResult =
+            currentTime !== undefined ? findChordAtTime(currentTime) : null;
+        const chordIndexAtPlayhead = chordAtPlayheadResult
+            ? chordAtPlayheadResult.index
+            : null;
 
         if (activeChordIndex !== null) {
-            if (chordIndexAtPlayhead !== null && chordIndexAtPlayhead !== activeChordIndex) {
+            if (
+                chordIndexAtPlayhead !== null &&
+                chordIndexAtPlayhead !== activeChordIndex
+            ) {
                 setActiveChord(chordIndexAtPlayhead);
                 triggerEditMode();
             } else {
@@ -46,11 +52,17 @@ export const useTimelineShortcuts = ({
             setActiveChord(chordIndexAtPlayhead);
             triggerEditMode();
         }
-    }, [activeChordIndex, currentTime, findChordAtTime, setActiveChord, triggerEditMode]);
+    }, [
+        activeChordIndex,
+        currentTime,
+        findChordAtTime,
+        setActiveChord,
+        triggerEditMode,
+    ]);
 
     // Setup undo/redo shortcuts
     useShortcut({
-        key: 'z',
+        key: "z",
         handler: (e) => {
             if (e.metaKey && e.shiftKey) {
                 // Redo: Cmd+Shift+Z
@@ -61,25 +73,25 @@ export const useTimelineShortcuts = ({
             }
         },
         when: () => true, // Always active, handler checks canUndo/canRedo internally
-        description: 'Undo (Cmd+Z) / Redo (Cmd+Shift+Z)',
+        description: "Undo (Cmd+Z) / Redo (Cmd+Shift+Z)",
     });
 
     // Delete shortcuts
     useShortcut({
-        key: 'Delete',
+        key: "Delete",
         handler: handleDelete,
-        description: 'Delete selected chord(s)',
+        description: "Delete selected chord(s)",
     });
 
     useShortcut({
-        key: 'Backspace',
+        key: "Backspace",
         handler: handleDelete,
-        description: 'Delete selected chord(s)',
+        description: "Delete selected chord(s)",
     });
 
     // Edit chord shortcut
     useShortcut({
-        key: 'Enter',
+        key: "Enter",
         handler: handleEditChord,
         when: () => {
             const activeElement = document.activeElement as HTMLElement | null;
@@ -90,6 +102,6 @@ export const useTimelineShortcuts = ({
                     activeElement.isContentEditable);
             return !isInputFocused;
         },
-        description: 'Edit current chord at playhead or toggle edit mode',
+        description: "Edit current chord at playhead or toggle edit mode",
     });
 };

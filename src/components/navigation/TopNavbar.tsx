@@ -1,8 +1,14 @@
-import { ChevronLeft, Undo, Redo, Menu, Pencil } from "lucide-react";
+import { ChevronLeft, Undo, Redo, Menu, Pencil, Music } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { TimelineAuxControls } from "@/components/Player/Timeline/TimelineAuxControls";
 import LoopControls from "@/components/Player/Controls/components/LoopControls";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface TopNavbarProps {
     sessionTitle: string;
@@ -24,6 +30,7 @@ export const TopNavbar = ({
     onSetStartAtPlayhead,
     onSubmitSelection,
     onResetSelection,
+    selectionStart,
     isSelectionComplete,
     isCreatingLoop,
     activeLoop,
@@ -31,6 +38,7 @@ export const TopNavbar = ({
     onToggleLoop,
 }: TopNavbarProps) => {
     const navigate = useNavigate();
+    const { sessionId } = useParams();
 
     return (
         <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b bg-background px-4">
@@ -53,6 +61,7 @@ export const TopNavbar = ({
                     onSetStartAtPlayhead={onSetStartAtPlayhead}
                     onSubmitSelection={onSubmitSelection}
                     onResetSelection={onResetSelection}
+                    selectionStart={selectionStart}
                     isSelectionComplete={isSelectionComplete}
                     isCreatingLoop={isCreatingLoop}
                     activeLoop={activeLoop}
@@ -76,6 +85,32 @@ export const TopNavbar = ({
                         >
                             <Pencil className="h-4 w-4" />
                         </Button>
+                    )}
+                    {sessionId && (
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        asChild
+                                        aria-label="Open in custom player"
+                                    >
+                                        <Link
+                                            to={`/custom-player/${sessionId}`}
+                                        >
+                                            <Music className="h-4 w-4" />
+                                        </Link>
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent side="bottom">
+                                    <p>
+                                        Try our new custom player with
+                                        variable-speed playback
+                                    </p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
                     )}
                     <Button variant="ghost" size="icon" aria-label="Menu">
                         <Menu className="h-5 w-5" />

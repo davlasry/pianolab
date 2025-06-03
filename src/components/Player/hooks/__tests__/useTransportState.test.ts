@@ -8,11 +8,11 @@ import * as Tone from "tone";
 const createMockTransport = () => ({
     state: "stopped",
     on: vi.fn(),
-    off: vi.fn()
+    off: vi.fn(),
 });
 
 vi.mock("tone", () => ({
-    getTransport: vi.fn()
+    getTransport: vi.fn(),
 }));
 
 describe("useTransportState", () => {
@@ -20,7 +20,9 @@ describe("useTransportState", () => {
 
     beforeEach(() => {
         mockTransport = createMockTransport();
-        (Tone.getTransport as unknown as MockInstance).mockReturnValue(mockTransport);
+        (Tone.getTransport as unknown as MockInstance).mockReturnValue(
+            mockTransport,
+        );
     });
 
     it("initializes with current transport state", () => {
@@ -30,30 +32,39 @@ describe("useTransportState", () => {
 
     it("subscribes to transport events on mount", () => {
         renderHook(() => useTransportState());
-        expect(mockTransport.on).toHaveBeenCalledWith("start", expect.any(Function));
-        expect(mockTransport.on).toHaveBeenCalledWith("stop", expect.any(Function));
-        expect(mockTransport.on).toHaveBeenCalledWith("pause", expect.any(Function));
+        expect(mockTransport.on).toHaveBeenCalledWith(
+            "start",
+            expect.any(Function),
+        );
+        expect(mockTransport.on).toHaveBeenCalledWith(
+            "stop",
+            expect.any(Function),
+        );
+        expect(mockTransport.on).toHaveBeenCalledWith(
+            "pause",
+            expect.any(Function),
+        );
     });
 
     it("updates state when transport events fire", () => {
         const { result } = renderHook(() => useTransportState());
-        
+
         // Get the callback registered for 'start'
         const startCallback = mockTransport.on.mock.calls.find(
-            ([event]) => event === "start"
+            ([event]) => event === "start",
         )?.[1];
 
         // Update transport state and call the callback
-        Object.defineProperty(mockTransport, 'state', { value: 'started' });
+        Object.defineProperty(mockTransport, "state", { value: "started" });
         act(() => {
             startCallback?.();
         });
         expect(result.current.transportState).toBe("started");
 
         // Test pause
-        Object.defineProperty(mockTransport, 'state', { value: 'paused' });
+        Object.defineProperty(mockTransport, "state", { value: "paused" });
         const pauseCallback = mockTransport.on.mock.calls.find(
-            ([event]) => event === "pause"
+            ([event]) => event === "pause",
         )?.[1];
         act(() => {
             pauseCallback?.();
@@ -61,9 +72,9 @@ describe("useTransportState", () => {
         expect(result.current.transportState).toBe("paused");
 
         // Test stop
-        Object.defineProperty(mockTransport, 'state', { value: 'stopped' });
+        Object.defineProperty(mockTransport, "state", { value: "stopped" });
         const stopCallback = mockTransport.on.mock.calls.find(
-            ([event]) => event === "stop"
+            ([event]) => event === "stop",
         )?.[1];
         act(() => {
             stopCallback?.();
@@ -73,16 +84,16 @@ describe("useTransportState", () => {
 
     it("unsubscribes from transport events on unmount", () => {
         const { unmount } = renderHook(() => useTransportState());
-        
+
         // Get the callbacks that were registered
         const startCallback = mockTransport.on.mock.calls.find(
-            ([event]) => event === "start"
+            ([event]) => event === "start",
         )?.[1];
         const stopCallback = mockTransport.on.mock.calls.find(
-            ([event]) => event === "stop"
+            ([event]) => event === "stop",
         )?.[1];
         const pauseCallback = mockTransport.on.mock.calls.find(
-            ([event]) => event === "pause"
+            ([event]) => event === "pause",
         )?.[1];
 
         unmount();
@@ -92,4 +103,4 @@ describe("useTransportState", () => {
         expect(mockTransport.off).toHaveBeenCalledWith("stop", stopCallback);
         expect(mockTransport.off).toHaveBeenCalledWith("pause", pauseCallback);
     });
-}); 
+});

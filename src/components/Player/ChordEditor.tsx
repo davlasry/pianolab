@@ -107,11 +107,7 @@ export const ChordEditor = () => {
             setIsEditing(true);
             lastSeenEditTrigger.current = editModeTriggered; // Mark this trigger as processed
         }
-    }, [
-        editModeTriggered,
-        activeChord,
-        isEditing
-    ]);
+    }, [editModeTriggered, activeChord, isEditing]);
 
     // Only show editor when exactly one chord is selected
     if (
@@ -178,9 +174,7 @@ export const ChordEditor = () => {
     };
 
     return (
-        <div
-            className="border-b border-border/40 bg-gradient-to-r from-card/30 to-card/60 backdrop-blur-sm"
-        >
+        <div className="border-b border-border/40 bg-gradient-to-r from-card/30 to-card/60 backdrop-blur-sm">
             <div className="px-4 py-3">
                 {/* Header with chord position info */}
                 <div className="mb-3 flex items-center justify-between">
@@ -198,7 +192,6 @@ export const ChordEditor = () => {
                             <span>{activeChord.duration.toFixed(1)}s</span>
                         </div>
                     </div>
-
                 </div>
 
                 {/* Chord Analysis & Editing */}

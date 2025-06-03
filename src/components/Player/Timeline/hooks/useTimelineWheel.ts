@@ -1,6 +1,6 @@
-import { type RefObject } from 'react';
-import type { WheelEvent } from 'react';
-import { useThrottle } from '@/components/Player/Timeline/useThrottle';
+import { type RefObject } from "react";
+import type { WheelEvent } from "react";
+import { useThrottle } from "@/components/Player/Timeline/useThrottle";
 
 export const useTimelineWheel = (outerRef: RefObject<HTMLDivElement>) => {
     return useThrottle((e: WheelEvent<HTMLDivElement>) => {

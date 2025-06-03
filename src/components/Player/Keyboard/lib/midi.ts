@@ -46,10 +46,10 @@ export function isWhiteKey(midiNumber: number) {
 export function midiToNoteName(midiNumber: number): string {
     if (!isMidiNumber(midiNumber)) {
         throw new Error(
-            `midiToNoteName expects a valid midi number: 0-127, received ${midiNumber}`
+            `midiToNoteName expects a valid midi number: 0-127, received ${midiNumber}`,
         );
     }
-    
+
     // Use Tonal.js to convert MIDI number to note name
     return Tonal.Note.fromMidi(midiNumber).replace(/[0-9]/g, "");
 }

@@ -1,13 +1,13 @@
 import { useHistoryActions, type Snapshot } from "@/stores/historyStore";
-import { type Chord, useChordsActions, useChordProgression } from "@/stores/chordsStore.ts";
+import {
+    type Chord,
+    useChordsActions,
+    useChordProgression,
+} from "@/stores/chordsStore.ts";
 
 export const useGlobalUndoRedo = () => {
-    const {
-        undoWithCurrent,
-        redoWithCurrent,
-        canUndo,
-        canRedo,
-    } = useHistoryActions();
+    const { undoWithCurrent, redoWithCurrent, canUndo, canRedo } =
+        useHistoryActions();
     const chordsActions = useChordsActions();
     const chordProgression = useChordProgression();
 
