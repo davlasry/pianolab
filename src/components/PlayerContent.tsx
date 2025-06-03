@@ -6,9 +6,8 @@ import {
     usePlayheadActions,
 } from "@/stores/playheadStore.ts";
 import Controls from "@/components/Player/Controls/Controls.tsx";
-import Timeline, {
-    type TimelineHandle,
-} from "@/components/Player/Timeline/Timeline.tsx";
+import Timeline from "@/components/Player/Timeline/Timeline.tsx";
+import { type TimelineHandle } from "@/components/Player/Timeline/SharedTimeline";
 import { useTransportShortcuts } from "@/components/Player/hooks/useTransportShortcuts.ts";
 import { useChordShortcuts } from "@/components/Player/hooks/useChordShortcuts";
 import { Keyboard } from "@/components/Player/Keyboard/components/Keyboard.tsx";
@@ -26,10 +25,24 @@ export const PlayerContent = () => {
         transportState,
         getTransport,
         isReady,
+        play,
+        pause,
+        resume,
+        isPlaying,
+        isPaused,
     } = usePlayerContext();
 
     // Register keyboard shortcuts
-    useTransportShortcuts({ seek, getTransport, isReady });
+    useTransportShortcuts({
+        seek,
+        getTransport,
+        isReady,
+        play,
+        pause,
+        resume,
+        isPlaying,
+        isPaused,
+    });
     useChordShortcuts();
 
     // Get the restored position and action to clear it from Zustand store

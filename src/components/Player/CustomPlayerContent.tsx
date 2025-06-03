@@ -5,9 +5,6 @@ import {
     useRestoredPosition,
 } from "@/stores/playheadStore";
 import CustomControls from "@/components/Player/Controls/CustomControls";
-import CustomTimeline, {
-    type TimelineHandle,
-} from "@/components/Player/Timeline/CustomTimeline";
 import { Keyboard } from "@/components/Player/Keyboard/components/Keyboard";
 import { customKeyboard } from "@/components/Player/Keyboard/components/CustomKeyboard";
 import { KeyboardToolbar } from "@/components/Player/Keyboard/components/KeyboardToolbar";
@@ -15,6 +12,8 @@ import { CustomChordEditor } from "@/components/Player/CustomChordEditor";
 import { useCustomTransportShortcuts } from "@/components/Player/hooks/useCustomTransportShortcuts";
 import { useCustomChordShortcuts } from "@/components/Player/hooks/useCustomChordShortcuts";
 import { useCustomSpaceBarControl } from "@/components/Player/hooks/useCustomSpaceBarControl";
+import type { TimelineHandle } from "@/components/Player/Timeline/SharedTimeline.tsx";
+import CustomTimeline from "@/components/Player/Timeline/CustomTimeline.tsx";
 
 export const CustomPlayerContent = () => {
     const timelineRef = useRef<TimelineHandle>(null);
@@ -26,7 +25,7 @@ export const CustomPlayerContent = () => {
         currentTime,
         transportState,
         seek,
-        isPlayerReady,
+        // isPlayerReady,
     } = useCustomPlayerContext();
 
     // Set up all keyboard shortcuts
