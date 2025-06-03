@@ -1,7 +1,6 @@
 import type { RefObject } from "react";
-import { useEffect, useState, useLayoutEffect, useRef } from "react";
-import { useCustomTransportTime } from "@/CustomTransportTicker/customTransportTicker";
 import type { TransportState } from "@/lib/CustomPlayer";
+import { SharedTimelineSelection } from "@/components/Player/Timeline/SharedTimelineSelection";
 
 interface CustomTimelineSelectionProps {
     selectionStart: number | null;
@@ -24,73 +23,22 @@ export function CustomTimelineSelection({
     isCreatingLoop = false,
     zoomLevel,
 }: CustomTimelineSelectionProps) {
-    const [pxPerUnit, setPxPerUnit] = useState(1);
-    const currentTime = useCustomTransportTime();
-    const prevTransportState = useRef<TransportState | undefined>(
-        transportState,
-    );
-
-    const computeScale = () => {
-        if (timelineRef.current && duration > 0) {
-            setPxPerUnit(timelineRef.current.offsetWidth / duration);
-        }
-    };
-
-    useLayoutEffect(computeScale, [duration, timelineRef.current, zoomLevel]);
-    /* keep it responsive */
-    useEffect(() => {
-        window.addEventListener("resize", computeScale);
-        return () => window.removeEventListener("resize", computeScale);
-    }, []);
-
-    // Auto-finalize selection when transport stops/pauses
-    useEffect(() => {
-        const wasPlaying = prevTransportState.current === "playing";
-        const isNowStopped =
-            transportState === "stopped" || transportState === "paused";
-
-        if (
-            wasPlaying &&
-            isNowStopped &&
-            selectionStart !== null &&
-            selectionEnd === null &&
-            isCreatingLoop &&
-            onSetEndTime
-        ) {
-            // Finalize the selection with current time
-            onSetEndTime(currentTime);
-        }
-
-        prevTransportState.current = transportState;
-    }, [
-        transportState,
-        selectionStart,
-        selectionEnd,
-        currentTime,
-        onSetEndTime,
-        isCreatingLoop,
-    ]);
-
-    if (selectionStart === null) return null;
-
-    // If we have a selection start and the player is playing, use current time as end
+    // In the CustomTimelineSelection, currentTime is passed via selectionEnd if isCreatingLoop is true
+    const currentTime =
+        isCreatingLoop && selectionEnd !== null ? selectionEnd : 0;
     const isPlaying = transportState === "playing";
-    const effectiveEnd =
-        isPlaying && selectionEnd === null ? currentTime : selectionEnd;
-
-    const leftPx = selectionStart * pxPerUnit;
-    const widthPx =
-        effectiveEnd !== null
-            ? Math.max(0, (effectiveEnd - selectionStart) * pxPerUnit)
-            : 2;
 
     return (
-        <div
-            className="absolute top-0 bottom-0 bg-primary/20"
-            style={{
-                left: `${leftPx}px`,
-                width: `${widthPx}px`,
-            }}
+        <SharedTimelineSelection
+            selectionStart={selectionStart}
+            selectionEnd={selectionEnd}
+            currentTime={currentTime}
+            duration={duration}
+            timelineRef={timelineRef}
+            isPlaying={isPlaying}
+            onSetEndTime={onSetEndTime}
+            isCreatingLoop={isCreatingLoop}
+            zoomLevel={zoomLevel}
         />
     );
 }

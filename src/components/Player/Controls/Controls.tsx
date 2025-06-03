@@ -1,8 +1,14 @@
-import { usePlayerContext } from "@/components/Player/context/PlayerContext.tsx";
-import { TransportProvider } from "@/components/Player/Controls/context/TransportContext.tsx";
-import DigitalClock from "@/components/Player/Controls/components/DigitalClock.tsx";
-import { PlaybackRateControl } from "@/components/Player/Controls/components/PlaybackRateControl.tsx";
+import { usePlayerContext } from "@/components/Player/context/PlayerContext";
+import {
+    usePlaybackRate,
+    usePlaybackRateActions,
+} from "@/stores/playbackRateStore";
+import { useTransportTime } from "@/TransportTicker/transportTicker";
+import { SharedControls } from "@/components/Player/Controls/SharedControls";
 
+/**
+ * Controls component that uses the shared UI components with regular Player-specific logic
+ */
 function Controls() {
     const {
         isPlaying,
@@ -14,28 +20,59 @@ function Controls() {
         pause,
         isReady,
         seekToBeginning,
+        seek,
     } = usePlayerContext();
 
-    return (
-        <TransportProvider
-            isPlaying={isPlaying}
-            isPaused={isPaused}
-            getTransport={getTransport}
-            play={() => play()}
-            stop={stop}
-            resume={resume}
-            pause={pause}
-            handleMoveToBeginning={seekToBeginning}
-            isReady={isReady}
-        >
-            <div className="flex flex-1 items-center gap-4 bg-muted">
-                <DigitalClock />
+    // Use the transport ticker for reactive time updates
+    const currentTime = useTransportTime();
 
-                <div className="flex items-center gap-2">
-                    <PlaybackRateControl />
-                </div>
-            </div>
-        </TransportProvider>
+    // Get playback rate from store
+    const rate = usePlaybackRate();
+    const { setRate } = usePlaybackRateActions();
+
+    // Event handlers
+    const handlePlayPause = () => {
+        if (isPlaying) {
+            pause();
+        } else {
+            if (isPaused) {
+                resume();
+            } else {
+                play();
+            }
+        }
+    };
+
+    const handleStop = () => {
+        stop();
+        seekToBeginning();
+    };
+
+    const handleRewind = () => {
+        // Seek 5 seconds back
+        const transport = getTransport();
+        const newTime = Math.max(0, transport.seconds - 5);
+        seek(newTime);
+    };
+
+    const handleFastForward = () => {
+        // Seek 5 seconds forward
+        const transport = getTransport();
+        seek(transport.seconds + 5);
+    };
+
+    return (
+        <SharedControls
+            currentTime={currentTime}
+            isPlaying={isPlaying}
+            isReady={isReady}
+            playbackRate={rate}
+            onPlayPause={handlePlayPause}
+            onStop={handleStop}
+            onRewind={handleRewind}
+            onFastForward={handleFastForward}
+            onRateChange={setRate}
+        />
     );
 }
 

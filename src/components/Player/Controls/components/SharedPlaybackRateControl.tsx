@@ -1,21 +1,27 @@
 import { useState, useEffect, useRef } from "react";
-import {
-    usePlaybackRate,
-    usePlaybackRateActions,
-} from "@/stores/playbackRateStore";
 
-export function PlaybackRateControl() {
-    const rate = usePlaybackRate();
-    const { setRate } = usePlaybackRateActions();
+export interface SharedPlaybackRateControlProps {
+    currentRate: number;
+    onRateChange: (rate: number) => void;
+}
+
+/**
+ * A shared playback rate control component that can be used by both player implementations.
+ * This component is UI-only and receives all its state and handlers as props.
+ */
+export function SharedPlaybackRateControl({
+    currentRate,
+    onRateChange,
+}: SharedPlaybackRateControlProps) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     // Common playback rates
     const rates = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
+    // Handle rate change
     const handleRateChange = (newRate: number) => {
-        console.log("Setting playback rate to:", newRate);
-        setRate(newRate);
+        onRateChange(newRate);
         setIsOpen(false);
     };
 
@@ -50,7 +56,9 @@ export function PlaybackRateControl() {
                 aria-label="Change playback speed"
                 title="Change playback speed"
             >
-                <span className="font-medium">Speed: {formatRate(rate)}</span>
+                <span className="font-medium">
+                    Speed: {formatRate(currentRate)}
+                </span>
             </button>
 
             {isOpen && (
@@ -60,7 +68,7 @@ export function PlaybackRateControl() {
                             <button
                                 key={r}
                                 className={`flex h-8 w-full items-center justify-between rounded px-2 text-xs ${
-                                    r === rate
+                                    r === currentRate
                                         ? "bg-primary text-primary-foreground"
                                         : "hover:bg-muted"
                                 }`}
@@ -68,7 +76,9 @@ export function PlaybackRateControl() {
                                 title={`Set speed to ${formatRate(r)}`}
                             >
                                 {formatRate(r)}
-                                {r === rate && <span className="ml-1">✓</span>}
+                                {r === currentRate && (
+                                    <span className="ml-1">✓</span>
+                                )}
                             </button>
                         ))}
                     </div>
