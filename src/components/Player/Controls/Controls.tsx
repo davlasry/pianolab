@@ -5,6 +5,7 @@ import {
 } from "@/stores/playbackRateStore";
 import { useTransportTime } from "@/TransportTicker/transportTicker";
 import { SharedControls } from "@/components/Player/Controls/SharedControls";
+import { SlimTimeline } from "@/components/Player/Controls/SlimTimeline";
 
 /**
  * Controls component that uses the shared UI components with regular Player-specific logic
@@ -21,6 +22,7 @@ function Controls() {
         isReady,
         seekToBeginning,
         seek,
+        audioDuration,
     } = usePlayerContext();
 
     // Use the transport ticker for reactive time updates
@@ -62,17 +64,26 @@ function Controls() {
     };
 
     return (
-        <SharedControls
-            currentTime={currentTime}
-            isPlaying={isPlaying}
-            isReady={isReady}
-            playbackRate={rate}
-            onPlayPause={handlePlayPause}
-            onStop={handleStop}
-            onRewind={handleRewind}
-            onFastForward={handleFastForward}
-            onRateChange={setRate}
-        />
+        <div className="flex flex-col w-full">
+            <SlimTimeline
+                duration={audioDuration}
+                currentTime={currentTime}
+                isPlaying={isPlaying}
+                onSeek={seek}
+                className="mb-1"
+            />
+            <SharedControls
+                currentTime={currentTime}
+                isPlaying={isPlaying}
+                isReady={isReady}
+                playbackRate={rate}
+                onPlayPause={handlePlayPause}
+                onStop={handleStop}
+                onRewind={handleRewind}
+                onFastForward={handleFastForward}
+                onRateChange={setRate}
+            />
+        </div>
     );
 }
 

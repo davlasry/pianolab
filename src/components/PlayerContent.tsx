@@ -13,6 +13,8 @@ import { useChordShortcuts } from "@/components/Player/hooks/useChordShortcuts";
 import { Keyboard } from "@/components/Player/Keyboard/components/Keyboard.tsx";
 import { customKeyboard } from "@/components/Player/Keyboard/components/CustomKeyboard.tsx";
 import { KeyboardToolbar } from "@/components/Player/Keyboard/components/KeyboardToolbar.tsx";
+import { useYouTubeIsReady } from "@/stores/youtubeStore.ts";
+import { VolumeX } from "lucide-react";
 
 export const PlayerContent = () => {
     const timelineRef = useRef<TimelineHandle>(null);
@@ -30,7 +32,12 @@ export const PlayerContent = () => {
         resume,
         isPlaying,
         isPaused,
+        isMuted,
     } = usePlayerContext();
+
+    // YouTube integration
+    const isYouTubeReady = useYouTubeIsReady();
+    const showMutedIndicator = isMuted && isYouTubeReady;
 
     // Register keyboard shortcuts
     useTransportShortcuts({
@@ -87,6 +94,14 @@ export const PlayerContent = () => {
 
                 {/* ChordEditor is now always visible and positioned right below the Timeline */}
                 <ChordEditor />
+
+                {/* Muted indicator */}
+                {showMutedIndicator && (
+                    <div className="flex items-center justify-center border-y border-yellow-200 bg-yellow-50 py-1 text-xs text-muted-foreground dark:border-yellow-800 dark:bg-yellow-950/20">
+                        <VolumeX className="mr-1 h-3 w-3" />
+                        Audio muted while YouTube is active
+                    </div>
+                )}
             </div>
 
             <div className="relative flex flex-col">

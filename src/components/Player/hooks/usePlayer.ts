@@ -5,6 +5,14 @@ import { useTransportState } from "@/components/Player/hooks/useTransportState.t
 import { transportTicker } from "@/TransportTicker/transportTicker.ts";
 import { useChordProgression } from "@/stores/chordsStore.ts";
 import { usePlayheadActions } from "@/stores/playheadStore.ts";
+import { useYouTubeIsReady, useYouTubePlayer } from "@/stores/youtubeStore.ts";
+
+// Extend Window interface to include our custom property
+declare global {
+    interface Window {
+        __ytSeekHandler?: (time: number) => void;
+    }
+}
 
 // Key for storing playhead position in localStorage
 const PLAYHEAD_POSITION_KEY = "pianolab_playhead_position";
@@ -30,6 +38,7 @@ export const usePlayer = (notes: Note[]) => {
     const [activeNotes, setActiveNotes] = useState<ActiveNote[]>([]);
     const [activeChord, setActiveChord] = useState<string>("");
     const [audioDuration, setAudioDuration] = useState<number>(0);
+    const [isMuted, setIsMuted] = useState<boolean>(false);
 
     // keep these across renders
     const playerRef = useRef<Tone.Player | null>(null);
@@ -37,10 +46,55 @@ export const usePlayer = (notes: Note[]) => {
     const chordPartRef = useRef<Tone.Part | null>(null);
     const synthRef = useRef<Tone.PolySynth | null>(null);
 
+    // YouTube integration
+    const youtubePlayer = useYouTubePlayer();
+    const isYouTubeReady = useYouTubeIsReady();
+    const hasYouTubeSource = isYouTubeReady && youtubePlayer;
+
     const { transportState } = useTransportState();
     const isPlaying = transportState === "started";
     const isPaused = transportState === "paused";
     const isStopped = transportState === "stopped";
+
+    // Effect to update audio duration when YouTube player is available
+    useEffect(() => {
+        if (hasYouTubeSource && youtubePlayer.getDuration) {
+            try {
+                const ytDuration = youtubePlayer.getDuration();
+                if (ytDuration && !isNaN(ytDuration) && ytDuration > 0) {
+                    setAudioDuration(ytDuration);
+                }
+            } catch (err) {
+                console.error("Error getting YouTube duration:", err);
+            }
+        }
+    }, [hasYouTubeSource, youtubePlayer]);
+
+    // Effect to mute audio player when YouTube is ready
+    useEffect(() => {
+        if (hasYouTubeSource) {
+            // Mute the audio player when YouTube is ready
+            if (playerRef.current) {
+                try {
+                    playerRef.current.mute = true;
+                    setIsMuted(true);
+                    console.log("Audio player muted due to YouTube player");
+                } catch (err) {
+                    console.error("Error muting audio player:", err);
+                }
+            }
+        } else {
+            // Unmute the audio player when YouTube is not available
+            if (playerRef.current) {
+                try {
+                    playerRef.current.mute = false;
+                    setIsMuted(false);
+                } catch (err) {
+                    console.error("Error unmuting audio player:", err);
+                }
+            }
+        }
+    }, [hasYouTubeSource]);
 
     const loadAudio = useCallback(
         async (
@@ -79,6 +133,13 @@ export const usePlayer = (notes: Note[]) => {
                                 setRestoredPosition(time);
                             }
                         }
+
+                        // Mute if YouTube is ready
+                        if (hasYouTubeSource) {
+                            playerRef.current!.mute = true;
+                            setIsMuted(true);
+                            console.log("Audio player muted due to YouTube player (on load)");
+                        }
                     },
                     onerror: (err) => {
                         console.error("Error loading audio:", err);
@@ -95,7 +156,7 @@ export const usePlayer = (notes: Note[]) => {
                 return Promise.reject(error);
             }
         },
-        [setRestoredPosition],
+        [setRestoredPosition, hasYouTubeSource],
     );
 
     const buildNotesPart = useCallback(() => {
@@ -175,6 +236,12 @@ export const usePlayer = (notes: Note[]) => {
 
             const lookAhead = 0.05;
 
+            // If using YouTube player, don't need to play audio
+            if (hasYouTubeSource) {
+                Tone.getTransport().start();
+                return;
+            }
+
             // Check if player is initialized before using it
             if (!playerRef.current) {
                 console.warn(
@@ -191,7 +258,7 @@ export const usePlayer = (notes: Note[]) => {
 
             Tone.getTransport().start();
         },
-        [buildPart],
+        [buildPart, hasYouTubeSource],
     );
 
     const pause = useCallback(() => {
@@ -248,26 +315,26 @@ export const usePlayer = (notes: Note[]) => {
         (time: number) => {
             // 1 – silence and clear GUI
             setActiveNotes([]);
-
-            // 2 – jump the transport
+            setActiveChord("");
+            synthRef.current?.releaseAll(0); // immediate silence
+            
+            // 2 – seek the transport
             Tone.getTransport().seconds = time;
             transportTicker.set(time);
 
-            // find last played chord before the time
-            const last = chordProgression
-                .slice()
-                .reverse()
-                .find((e) => e.startTime <= time);
-
-            if (last) setActiveChord(last.label);
-
-            // Save position to localStorage when seeking (only if initiated by user action)
-            // We don't want to overwrite the saved position during initial restoration
-            if (audioDuration > 0) {
-                savePlayheadPosition();
+            // 3 – If using YouTube, seek in YouTube too (will be handled by the YouTube component)
+            if (window.__ytSeekHandler && typeof window.__ytSeekHandler === 'function') {
+                try {
+                    window.__ytSeekHandler(time);
+                } catch (err) {
+                    console.error('Error seeking YouTube player:', err);
+                }
             }
+
+            // 4 – Set the playhead position in the store
+            setRestoredPosition(time);
         },
-        [chordProgression, savePlayheadPosition, audioDuration],
+        [setRestoredPosition],
     );
 
     const seekToBeginning = useCallback(() => {
@@ -276,20 +343,22 @@ export const usePlayer = (notes: Note[]) => {
     }, [seek]);
 
     return {
+        audioDuration,
         loadAudio,
         play,
         pause,
         resume,
         stop,
-        activeNotes,
-        activeChord,
-        audioDuration,
         seek,
         seekToBeginning,
         isPlaying,
         isPaused,
         isStopped,
-        transportState,
+        isMuted,
+        buildPart,
         getTransport: () => Tone.getTransport(),
+        transportState,
+        activeNotes,
+        activeChord,
     };
 };

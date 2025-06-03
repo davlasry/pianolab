@@ -11,6 +11,9 @@ import { useSetSessionId } from "@/stores/sessionStore";
 import { useEffect } from "react";
 import { TopNavbar } from "@/components/navigation/TopNavbar";
 import { usePlayerContext } from "@/components/Player/context/PlayerContext";
+import { YouTubePlayer } from "@/components/Player/YouTubePlayer";
+import { YouTubeUrlInput } from "@/components/Player/YouTubeUrlInput";
+import { useYouTubeIsVisible } from "@/stores/youtubeStore";
 
 const SessionContent = () => {
     const {
@@ -37,6 +40,8 @@ const SessionContent = () => {
         handleCloseEditModal,
         handleEditSuccess,
     } = useSessionViewLogic();
+
+    const isYouTubeVisible = useYouTubeIsVisible();
 
     if (isLoading || error || !session || !isReady) {
         return (
@@ -65,13 +70,26 @@ const SessionContent = () => {
                 onToggleLoop={toggleLoop}
             />
 
-            <div className="flex flex-1 flex-col overflow-hidden">
+            {/*<div className="flex flex-1 flex-col overflow-hidden">*/}
+            <div className="flex flex-1 flex-col">
                 <div className="px-4">
                     <LinkedPiecesDisplay
                         pieces={linkedPieces}
                         isLoading={piecesLoading}
                     />
                 </div>
+
+                {/* YouTube URL Input */}
+                <div className="my-2 px-4">
+                    <YouTubeUrlInput compact={true} />
+                </div>
+
+                {/* YouTube Player (conditional rendering) */}
+                {isYouTubeVisible && (
+                    <div className="mb-2 px-4">
+                        <YouTubePlayer size="small" />
+                    </div>
+                )}
 
                 <div className="flex flex-1">
                     <PlayerContent />
