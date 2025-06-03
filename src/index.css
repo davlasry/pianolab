@@ -210,3 +210,31 @@
         letter-spacing: var(--tracking-normal);
     }
 }
+
+/* Scrollbar customization */
+@layer utilities {
+    /* Webkit browsers (Chrome, Safari, newer Edge) */
+    .dark ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    .dark ::-webkit-scrollbar-track {
+        background: oklch(0.23 0 0); /* Slightly lighter than dark background */
+    }
+    
+    .dark ::-webkit-scrollbar-thumb {
+        background: oklch(0.29 0 0); /* Subtle gray, not too contrasting */
+        border-radius: 4px;
+    }
+    
+    .dark ::-webkit-scrollbar-thumb:hover {
+        background: oklch(0.33 0 0); /* Slightly lighter on hover */
+    }
+    
+    /* Firefox */
+    .dark * {
+        scrollbar-width: thin;
+        scrollbar-color: oklch(0.29 0 0) oklch(0.23 0 0);
+    }
+}
