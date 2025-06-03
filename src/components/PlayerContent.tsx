@@ -23,7 +23,6 @@ export const PlayerContent = () => {
         activeNotes,
         audioDuration,
         seek,
-        seekToBeginning,
         transportState,
         getTransport,
         isReady,

@@ -90,7 +90,12 @@ const Timeline = (
             <div className="relative">
                 <TimelineZoomControls
                     resetZoom={resetZoom}
-                    zoomLevel={zoomLevel}
+                    increaseZoom={() =>
+                        handleZoomChange(Math.min(zoomLevel * 1.2, 20))
+                    }
+                    decreaseZoom={() =>
+                        handleZoomChange(Math.max(zoomLevel / 1.2, 0.5))
+                    }
                 />
 
                 <ZoomableContainer
