@@ -60,11 +60,6 @@ export const PlayerContent = () => {
         }
     }, [restoredPosition, audioDuration, setRestoredPosition]);
 
-    const handleMoveToBeginning = () => {
-        seekToBeginning();
-        timelineRef.current?.scrollToBeginning();
-    };
-
     return (
         <div
             className="flex w-full flex-1 flex-col overflow-hidden"
