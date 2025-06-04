@@ -33,9 +33,7 @@ export const TimelineChords = ({
 
     const computeScale = () => {
         if (timelineRef.current && totalDuration > 0) {
-            // Use the same calculation method as the playhead for consistency
-            const baseWidth = timelineRef.current.scrollWidth / (zoomLevel || 1);
-            setPxPerUnit(baseWidth / totalDuration * (zoomLevel || 1));
+            setPxPerUnit(timelineRef.current.offsetWidth / totalDuration);
         }
     };
 

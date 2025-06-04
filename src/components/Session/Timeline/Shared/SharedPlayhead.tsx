@@ -68,8 +68,8 @@ export function SharedPlayhead({
             // Apply zoom to the position calculation
             const x = percent * baseWidth * zoomLevel;
             
-            // No offset needed since icon is hidden
-            const centeredX = x;
+            // Offset by half the icon width (10px) to center the icon on the position
+            const centeredX = x - 10;
             
             // Use CSS custom property for better performance
             barRef.current.style.setProperty('--playhead-x', `${centeredX}px`);
