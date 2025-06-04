@@ -13,6 +13,9 @@ import { usePlayerContext } from "@/components/Session/context/PlayerContext.tsx
 import * as Tone from "tone";
 import { cn } from "@/lib/utils.ts";
 
+// YouTube sync offset in seconds - positive value makes YouTube lag behind MIDI/chords
+const YOUTUBE_SYNC_OFFSET = 0.4;
+
 // Define a type for the YouTube player instance
 interface YouTubePlayerInstance {
     destroy: () => void;
@@ -58,6 +61,8 @@ export function YouTubePlayer({
     const syncIntervalRef = useRef<number | null>(null);
     const lastSyncTimeRef = useRef<number>(0);
     const isSeeking = useRef<boolean>(false);
+    const lastSeekTimeRef = useRef<number>(0);
+    const lastSeekTimestampRef = useRef<number>(0);
     const seekHandlerRef = useRef<((time: number) => void) | null>(null);
     const handlerNameRef = useRef<string>(`__ytSeekHandler_${Date.now()}`);
     const lastYouTubeStateRef = useRef<number>(-1);
@@ -164,7 +169,8 @@ export function YouTubePlayer({
                             
                             if (syncTime > 0) {
                                 console.log(`YouTube ready: syncing to position ${syncTime}`);
-                                target.seekTo(syncTime, true);
+                                // Apply offset to make YouTube seek ahead to compensate for lag
+                                target.seekTo(Math.max(0, syncTime - YOUTUBE_SYNC_OFFSET), true);
                                 lastSyncTimeRef.current = syncTime;
                             }
                             
@@ -339,7 +345,8 @@ export function YouTubePlayer({
                         setTimeout(() => {
                             if (ytPlayerInstanceRef.current && typeof ytPlayerInstanceRef.current.seekTo === "function") {
                                 console.log(`New video cued: syncing to position ${syncTime}`);
-                                ytPlayerInstanceRef.current.seekTo(syncTime, true);
+                                // Apply offset to make YouTube seek ahead to compensate for lag
+                                ytPlayerInstanceRef.current.seekTo(Math.max(0, syncTime - YOUTUBE_SYNC_OFFSET), true);
                                 lastSyncTimeRef.current = syncTime;
                             }
                         }, 500);
@@ -394,15 +401,28 @@ export function YouTubePlayer({
                         !isSeeking.current
                     ) {
                         const currentTime = player.getCurrentTime();
+                        // Apply offset to make YouTube appear behind MIDI/chords
+                        const offsetTime = currentTime + YOUTUBE_SYNC_OFFSET;
+                        const transportTime = Tone.getTransport().seconds;
 
-                        // Only update if time has changed to avoid unnecessary updates
-                        if (
-                            Math.abs(currentTime - lastSyncTimeRef.current) >
-                            0.1
-                        ) {
-                            lastSyncTimeRef.current = currentTime;
-                            transportTicker.set(currentTime);
-                            Tone.getTransport().seconds = currentTime;
+                        // Check if we recently seeked (within last 5 seconds)
+                        const timeSinceLastSeek = Date.now() - lastSeekTimestampRef.current;
+                        const isRecentSeek = timeSinceLastSeek < 5000;
+                        
+                        // Only update if time has changed and we haven't recently seeked
+                        const timeDiff = Math.abs(offsetTime - lastSyncTimeRef.current);
+                        const transportDiff = Math.abs(offsetTime - transportTime);
+                        
+                        if (isRecentSeek) {
+                            // Completely block sync for 5 seconds after any seek to prevent interference
+                            console.log(`YouTube sync blocked: recent seek ${timeSinceLastSeek}ms ago to ${lastSeekTimeRef.current}s`);
+                        } else if (timeDiff > 0.1 && transportDiff < 2.0) {
+                            console.log(`YouTube sync: ${currentTime} + ${YOUTUBE_SYNC_OFFSET} = ${offsetTime} (transport: ${transportTime})`);
+                            lastSyncTimeRef.current = offsetTime;
+                            transportTicker.set(offsetTime);
+                            Tone.getTransport().seconds = offsetTime;
+                        } else if (transportDiff >= 2.0) {
+                            console.log(`YouTube sync skipped: large transport diff ${transportDiff}s (YouTube: ${offsetTime}, transport: ${transportTime})`);
                         }
                     }
                 } catch (err) {
@@ -444,7 +464,8 @@ export function YouTubePlayer({
                     // If transport has a different position than YouTube, sync YouTube
                     if (Math.abs(transportTime - youtubeCurrentTime) > 0.5) {
                         console.log(`Started: syncing YouTube position: ${youtubeCurrentTime} → ${transportTime}`);
-                        player.seekTo(transportTime, true);
+                        // Apply offset to make YouTube seek ahead to compensate for lag
+                        player.seekTo(Math.max(0, transportTime - YOUTUBE_SYNC_OFFSET), true);
                         lastSyncTimeRef.current = transportTime;
                     }
                     
@@ -494,25 +515,78 @@ export function YouTubePlayer({
 
     // Handle seeking from transport - fix the redefine property error
     useEffect(() => {
-        // Create the seek handler function
-        const handleSeek = (time: number) => {
+        // Create the seek handler function that waits for YouTube to be ready
+        const handleSeek = (time: number, callback?: (actualTime: number) => void) => {
             try {
                 if (
                     ytPlayerInstanceRef.current &&
                     typeof ytPlayerInstanceRef.current.seekTo === "function"
                 ) {
+                    console.log(`YouTube seek: target ${time}s, seeking to ${time - YOUTUBE_SYNC_OFFSET}s`);
                     isSeeking.current = true;
-                    ytPlayerInstanceRef.current.seekTo(time, true);
+                    (window as any).__ytSeeking = true; // Block TransportTickerProvider
+                    const targetTime = Math.max(0, time - YOUTUBE_SYNC_OFFSET);
+                    
+                    // Record seek details for smart sync filtering
+                    lastSeekTimeRef.current = time;
+                    lastSeekTimestampRef.current = Date.now();
+                    
+                    // Apply offset to make YouTube seek ahead to compensate for lag
+                    ytPlayerInstanceRef.current.seekTo(targetTime, true);
                     lastSyncTimeRef.current = time;
 
-                    // Reset the seeking flag after seeking is complete
+                    // Wait for YouTube to actually reach the target position
+                    const waitForSeekComplete = () => {
+                        if (!ytPlayerInstanceRef.current) {
+                            isSeeking.current = false;
+                            callback?.(time); // fallback to original time
+                            return;
+                        }
+
+                        try {
+                            const currentTime = ytPlayerInstanceRef.current.getCurrentTime();
+                            const diff = Math.abs(currentTime - targetTime);
+                            
+                            if (diff < 0.3) {
+                                // YouTube has reached the target, now update transport
+                                const actualTransportTime = currentTime + YOUTUBE_SYNC_OFFSET;
+                                console.log(`YouTube seek complete: ${currentTime}s, updating transport to ${actualTransportTime}s`);
+                                isSeeking.current = false;
+                                (window as any).__ytSeeking = false; // Re-enable TransportTickerProvider
+                                callback?.(actualTransportTime);
+                            } else {
+                                // Keep waiting, check again in 50ms
+                                setTimeout(waitForSeekComplete, 50);
+                            }
+                        } catch {
+                            // Fallback on error
+                            isSeeking.current = false;
+                            (window as any).__ytSeeking = false;
+                            callback?.(time);
+                        }
+                    };
+
+                    // Start checking after a brief delay
+                    setTimeout(waitForSeekComplete, 100);
+                    
+                    // Fallback timeout to prevent infinite waiting
                     setTimeout(() => {
-                        isSeeking.current = false;
-                    }, 200);
+                        if (isSeeking.current) {
+                            console.log(`YouTube seek timeout, proceeding with target ${time}s`);
+                            isSeeking.current = false;
+                            (window as any).__ytSeeking = false;
+                            callback?.(time);
+                        }
+                    }, 2000);
+                } else {
+                    // No YouTube player, proceed immediately
+                    callback?.(time);
                 }
             } catch (err) {
                 console.error("Error seeking YouTube player:", err);
                 isSeeking.current = false;
+                (window as any).__ytSeeking = false;
+                callback?.(time);
             }
         };
 

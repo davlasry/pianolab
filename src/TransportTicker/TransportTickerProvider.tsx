@@ -10,7 +10,10 @@ export function TransportTickerProvider({ children }: PropsWithChildren) {
         let isPlaying = false;
 
         const tick = () => {
-            transportTicker.set(Tone.getTransport().seconds);
+            // Check if YouTube is currently seeking to avoid conflicts
+            if (!(window as any).__ytSeeking) {
+                transportTicker.set(Tone.getTransport().seconds);
+            }
             
             if (isPlaying) {
                 // Use RAF for smooth 60fps when playing

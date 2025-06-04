@@ -322,24 +322,32 @@ export const usePlayer = (notes: Note[]) => {
             setActiveChord("");
             synthRef.current?.releaseAll(0); // immediate silence
 
-            // 2 – seek the transport
-            Tone.getTransport().seconds = time;
-            transportTicker.set(time);
-
-            // 3 – If using YouTube, seek in YouTube too (will be handled by the YouTube component)
+            // 2 – If using YouTube, let YouTube seek first and wait for it to be ready
             if (
                 window.__ytSeekHandler &&
                 typeof window.__ytSeekHandler === "function"
             ) {
                 try {
-                    window.__ytSeekHandler(time);
+                    // Let YouTube seek first, then update transport based on actual YouTube position
+                    window.__ytSeekHandler(time, (actualTime: number) => {
+                        console.log(`Transport seek: updating to YouTube's actual position ${actualTime}s`);
+                        Tone.getTransport().seconds = actualTime;
+                        transportTicker.set(actualTime);
+                        setRestoredPosition(actualTime, false);
+                    });
                 } catch (err) {
                     console.error("Error seeking YouTube player:", err);
+                    // Fallback to normal seek if YouTube fails
+                    Tone.getTransport().seconds = time;
+                    transportTicker.set(time);
+                    setRestoredPosition(time, false);
                 }
+            } else {
+                // 3 – No YouTube, seek transport directly
+                Tone.getTransport().seconds = time;
+                transportTicker.set(time);
+                setRestoredPosition(time, false);
             }
-
-            // 4 – Set the playhead position in the store (without centering for manual seeks)
-            setRestoredPosition(time, false);
         },
         [setRestoredPosition],
     );
