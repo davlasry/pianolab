@@ -66,22 +66,12 @@ export const CustomChordEditor = () => {
               )
             : [];
 
-    // Handle mounting animation and auto-focus
+    // Update edit value when active chord changes
     useEffect(() => {
         if (activeChord) {
             setEditValue(activeChord.label);
-
-            // Only auto-start editing if this is a new chord selection
-            const isNewChordSelection =
-                prevActiveChordIndexRef.current !== activeChordIndex;
-            if (isNewChordSelection) {
-                setIsEditing(true);
-            }
-
-            prevActiveChordIndexRef.current = activeChordIndex;
         } else {
             setIsEditing(false);
-            prevActiveChordIndexRef.current = null;
         }
     }, [activeChord, activeChordIndex]);
 

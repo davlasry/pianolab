@@ -62,22 +62,12 @@ export const ChordEditor = () => {
               )
             : [];
 
-    // Handle mounting animation and auto-focus
+    // Update edit value when active chord changes
     useEffect(() => {
         if (activeChord) {
             setEditValue(activeChord.label);
-
-            // Only auto-start editing if this is a new chord selection
-            const isNewChordSelection =
-                prevActiveChordIndexRef.current !== activeChordIndex;
-            if (isNewChordSelection) {
-                setIsEditing(true);
-            }
-
-            prevActiveChordIndexRef.current = activeChordIndex;
         } else {
             setIsEditing(false);
-            prevActiveChordIndexRef.current = null;
         }
     }, [activeChord, activeChordIndex]);
 
@@ -236,7 +226,20 @@ export const ChordEditor = () => {
                     <div className="flex items-center gap-2">
                         {isEditing ? (
                             <div className="flex flex-1 items-center gap-2">
-                                <Popover>
+                                <div className="flex-1">
+                                    <Input
+                                        ref={inputRef}
+                                        value={editValue}
+                                        onChange={(e) =>
+                                            setEditValue(e.target.value)
+                                        }
+                                        onKeyDown={handleKeyDown}
+                                        placeholder="Enter chord (e.g., Cmaj7, F#m, G7)"
+                                        className="text-sm"
+                                    />
+                                </div>
+                                {/* TODO: Re-enable suggestion popover later if needed */}
+                                {/* <Popover>
                                     <PopoverTrigger asChild>
                                         <div className="flex-1">
                                             <Input
@@ -337,7 +340,7 @@ export const ChordEditor = () => {
                                             </CommandList>
                                         </Command>
                                     </PopoverContent>
-                                </Popover>
+                                </Popover> */}
                                 <Button
                                     size="sm"
                                     onClick={handleSave}
