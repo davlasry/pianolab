@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { PlayerProvider } from "@/components/Player/context/PlayerContext.tsx";
+import { PlayerProvider } from "@/components/Session/context/PlayerContext.tsx";
 import { PlayerContent } from "@/components/PlayerContent.tsx";
 import { RecordingFormModal } from "@/components/Recordings/SessionFormModal.tsx";
 import { useSessionViewLogic } from "@/hooks/useSessionViewLogic";
@@ -8,8 +8,8 @@ import { TransportTickerProvider } from "@/TransportTicker/TransportTickerProvid
 import { KeyboardShortcutProvider } from "@/shortcuts/KeyboardShortcuts.tsx";
 import { useSetSessionId } from "@/stores/sessionStore";
 import { useEffect } from "react";
-import { TopNavbar } from "@/components/navigation/TopNavbar";
-import { usePlayerContext } from "@/components/Player/context/PlayerContext";
+import { TopNavbar } from "@/components/Session/TopNavbar.tsx";
+import { usePlayerContext } from "@/components/Session/context/PlayerContext";
 
 const SessionContent = () => {
     const {

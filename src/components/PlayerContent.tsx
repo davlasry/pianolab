@@ -1,18 +1,18 @@
 import { useRef, useEffect } from "react";
-import { ChordEditor } from "@/components/Player/ChordEditor.tsx";
-import { usePlayerContext } from "@/components/Player/context/PlayerContext";
+import { ChordEditor } from "@/components/Session/ChordEditor.tsx";
+import { usePlayerContext } from "@/components/Session/context/PlayerContext";
 import {
     useRestoredPosition,
     usePlayheadActions,
 } from "@/stores/playheadStore.ts";
-import Controls from "@/components/Player/Controls/Controls.tsx";
-import Timeline from "@/components/Player/Timeline/Timeline.tsx";
-import { type TimelineHandle } from "@/components/Player/Timeline/SharedTimeline";
-import { useTransportShortcuts } from "@/components/Player/hooks/useTransportShortcuts.ts";
-import { useChordShortcuts } from "@/components/Player/hooks/useChordShortcuts";
-import { Keyboard } from "@/components/Player/Keyboard/components/Keyboard.tsx";
-import { customKeyboard } from "@/components/Player/Keyboard/components/CustomKeyboard.tsx";
-import { KeyboardToolbar } from "@/components/Player/Keyboard/components/KeyboardToolbar.tsx";
+import Controls from "@/components/Session/Controls/Controls.tsx";
+import Timeline from "@/components/Session/Timeline/Timeline.tsx";
+import { type TimelineHandle } from "@/components/Session/Timeline/SharedTimeline";
+import { useTransportShortcuts } from "@/components/Session/hooks/useTransportShortcuts.ts";
+import { useChordShortcuts } from "@/components/Session/hooks/useChordShortcuts";
+import { Keyboard } from "@/components/Session/Keyboard/components/Keyboard.tsx";
+import { customKeyboard } from "@/components/Session/Keyboard/components/CustomKeyboard.tsx";
+import { KeyboardToolbar } from "@/components/Session/Keyboard/components/KeyboardToolbar.tsx";
 
 export const PlayerContent = () => {
     const timelineRef = useRef<TimelineHandle>(null);

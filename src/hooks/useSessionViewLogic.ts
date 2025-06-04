@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/supabase";
 import type { Piece } from "@/types/entities.types";
-import { usePlayerContext } from "@/components/Player/context/PlayerContext";
+import { usePlayerContext } from "@/components/Session/context/PlayerContext";
 
 export const useSessionViewLogic = () => {
     const { session, isLoading, isReady, error } = usePlayerContext();

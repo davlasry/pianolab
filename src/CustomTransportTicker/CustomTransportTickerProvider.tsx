@@ -1,5 +1,5 @@
 import { useEffect, type PropsWithChildren } from "react";
-import { useCustomPlayerContext } from "@/components/Player/context/CustomPlayerContext";
+import { useCustomPlayerContext } from "@/components/Session/context/CustomPlayerContext";
 import { customTransportTicker } from "./customTransportTicker";
 
 export function CustomTransportTickerProvider({ children }: PropsWithChildren) {

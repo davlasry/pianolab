@@ -3,13 +3,15 @@ import { useParams } from "react-router-dom";
 import { RecordingFormModal } from "@/components/Recordings/SessionFormModal";
 import { SessionStatusDisplay } from "@/components/SessionStatusDisplay";
 import { LinkedPiecesDisplay } from "@/components/LinkedPiecesDisplay";
-import { CustomPlayerContent } from "@/components/Player/CustomPlayerContent";
-import { CustomPlayerProvider } from "@/components/Player/context/CustomPlayerContext";
+import { CustomPlayerContent } from "@/components/Session/CustomPlayerContent";
+import {
+    CustomPlayerProvider,
+    useCustomPlayerContext,
+} from "@/components/Session/context/CustomPlayerContext";
 import { CustomTransportTickerProvider } from "@/CustomTransportTicker/CustomTransportTickerProvider";
 import { KeyboardShortcutProvider } from "@/shortcuts/KeyboardShortcuts";
 import { useSetSessionId } from "@/stores/sessionStore";
-import { TopNavbar } from "@/components/navigation/TopNavbar";
-import { useCustomPlayerContext } from "@/components/Player/context/CustomPlayerContext";
+import { TopNavbar } from "@/components/Session/TopNavbar.tsx";
 import { useCustomPlayerViewLogic } from "@/hooks/useCustomPlayerViewLogic";
 
 const CustomPlayerPageContent = () => {

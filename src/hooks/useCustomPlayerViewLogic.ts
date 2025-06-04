@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/supabase";
 import type { Piece } from "@/types/entities.types";
-import { useCustomPlayerContext } from "@/components/Player/context/CustomPlayerContext";
+import { useCustomPlayerContext } from "@/components/Session/context/CustomPlayerContext";
 
 export const useCustomPlayerViewLogic = () => {
-    const { session, isLoading, isPlayerReady, error } = useCustomPlayerContext();
+    const { session, isLoading, isPlayerReady, error } =
+        useCustomPlayerContext();
     const { sessionId } = useParams<{ sessionId: string }>();
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [linkedPieces, setLinkedPieces] = useState<Piece[]>([]);
@@ -60,4 +61,4 @@ export const useCustomPlayerViewLogic = () => {
         handleCloseEditModal,
         handleEditSuccess,
     };
-}; 
+};
