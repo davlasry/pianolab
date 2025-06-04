@@ -1,4 +1,12 @@
-import { ChevronLeft, Undo, Redo, Pencil, Music, BookOpen } from "lucide-react";
+import {
+    ChevronLeft,
+    Undo,
+    Redo,
+    Pencil,
+    Music,
+    BookOpen,
+    Youtube,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { TimelineAuxControls } from "@/components/Player/Timeline/TimelineAuxControls";
@@ -56,135 +64,153 @@ export const TopNavbar = ({
     const isYouTubeVisible = useYouTubeIsVisible();
 
     return (
-        <header className="sticky top-0 z-40 flex flex-col border-b bg-background">
-            <div className="flex h-14 items-center justify-between px-4">
-                <div className="flex items-center gap-3">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => navigate(-1)}
-                        aria-label="Go back"
-                    >
-                        <ChevronLeft className="h-5 w-5" />
-                    </Button>
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <h1
-                                    className="max-w-[250px] truncate text-sm font-medium"
-                                    title={sessionTitle}
-                                >
-                                    {sessionTitle}
-                                </h1>
-                            </TooltipTrigger>
-                            <TooltipContent side="bottom" align="start">
-                                <p>{sessionTitle}</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                </div>
-
-                <div className="flex items-center gap-4">
-                    <TimelineAuxControls />
-
-                    <LoopControls
-                        onSetStartAtPlayhead={onSetStartAtPlayhead}
-                        onSubmitSelection={onSubmitSelection}
-                        onResetSelection={onResetSelection}
-                        selectionStart={selectionStart}
-                        isSelectionComplete={isSelectionComplete}
-                        isCreatingLoop={isCreatingLoop}
-                        activeLoop={activeLoop}
-                        isLoopActive={isLoopActive}
-                        onToggleLoop={onToggleLoop}
-                    />
-
-                    <div className="flex items-center gap-2 border-l border-border pl-4">
-                        <Button variant="ghost" size="icon" aria-label="Undo">
-                            <Undo className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" aria-label="Redo">
-                            <Redo className="h-4 w-4" />
-                        </Button>
-
-                        <Popover>
-                            <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <PopoverTrigger asChild>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                aria-label="Linked pieces"
-                                            >
-                                                <BookOpen className="h-4 w-4" />
-                                            </Button>
-                                        </PopoverTrigger>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="bottom">
-                                        <p>Linked pieces</p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
-                            <PopoverContent align="end" className="w-80 p-3">
-                                <LinkedPiecesDisplay
-                                    pieces={linkedPieces}
-                                    isLoading={piecesLoading}
-                                    compact
-                                />
-                            </PopoverContent>
-                        </Popover>
-
-                        {onEdit && (
-                            <Button
-                                onClick={onEdit}
-                                variant="ghost"
-                                size="icon"
-                                aria-label="Edit session"
+        <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b bg-background px-4">
+            <div className="flex items-center gap-3">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => navigate(-1)}
+                    aria-label="Go back"
+                >
+                    <ChevronLeft className="h-5 w-5" />
+                </Button>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <h1
+                                className="max-w-[250px] truncate text-sm font-medium"
+                                title={sessionTitle}
                             >
-                                <Pencil className="h-4 w-4" />
-                            </Button>
-                        )}
-                        {sessionId && (
-                            <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
+                                {sessionTitle}
+                            </h1>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" align="start">
+                            <p>{sessionTitle}</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            </div>
+
+            <div className="flex items-center gap-4">
+                <TimelineAuxControls />
+
+                <LoopControls
+                    onSetStartAtPlayhead={onSetStartAtPlayhead}
+                    onSubmitSelection={onSubmitSelection}
+                    onResetSelection={onResetSelection}
+                    selectionStart={selectionStart}
+                    isSelectionComplete={isSelectionComplete}
+                    isCreatingLoop={isCreatingLoop}
+                    activeLoop={activeLoop}
+                    isLoopActive={isLoopActive}
+                    onToggleLoop={onToggleLoop}
+                />
+
+                <div className="flex items-center gap-2 border-l border-border pl-4">
+                    <Button variant="ghost" size="icon" aria-label="Undo">
+                        <Undo className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" aria-label="Redo">
+                        <Redo className="h-4 w-4" />
+                    </Button>
+
+                    {/* YouTube Button & Popover */}
+                    <Popover>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <PopoverTrigger asChild>
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            asChild
-                                            aria-label="Open in custom player"
+                                            aria-label="YouTube"
                                         >
-                                            <Link
-                                                to={`/custom-player/${sessionId}`}
-                                            >
-                                                <Music className="h-4 w-4" />
-                                            </Link>
+                                            <Youtube className="h-4 w-4" />
                                         </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="bottom">
-                                        <p>
-                                            Try our new custom player with
-                                            variable-speed playback
-                                        </p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
-                        )}
-                    </div>
-                </div>
-            </div>
+                                    </PopoverTrigger>
+                                </TooltipTrigger>
+                                <TooltipContent side="bottom">
+                                    <p>YouTube</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                        <PopoverContent align="end" className="w-96 p-3">
+                            <div className="space-y-2">
+                                <YouTubeUrlInput compact={true} />
+                                {isYouTubeVisible && (
+                                    <div className="mt-2 h-[120px]">
+                                        <YouTubePlayer size="small" />
+                                    </div>
+                                )}
+                            </div>
+                        </PopoverContent>
+                    </Popover>
 
-            {/* YouTube section */}
-            <div className="flex items-center gap-2 px-4 pb-2">
-                <div className="flex-1">
-                    <YouTubeUrlInput compact={true} />
+                    <Popover>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            aria-label="Linked pieces"
+                                        >
+                                            <BookOpen className="h-4 w-4" />
+                                        </Button>
+                                    </PopoverTrigger>
+                                </TooltipTrigger>
+                                <TooltipContent side="bottom">
+                                    <p>Linked pieces</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                        <PopoverContent align="end" className="w-80 p-3">
+                            <LinkedPiecesDisplay
+                                pieces={linkedPieces}
+                                isLoading={piecesLoading}
+                                compact
+                            />
+                        </PopoverContent>
+                    </Popover>
+
+                    {onEdit && (
+                        <Button
+                            onClick={onEdit}
+                            variant="ghost"
+                            size="icon"
+                            aria-label="Edit session"
+                        >
+                            <Pencil className="h-4 w-4" />
+                        </Button>
+                    )}
+                    {sessionId && (
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        asChild
+                                        aria-label="Open in custom player"
+                                    >
+                                        <Link
+                                            to={`/custom-player/${sessionId}`}
+                                        >
+                                            <Music className="h-4 w-4" />
+                                        </Link>
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent side="bottom">
+                                    <p>
+                                        Try our new custom player with
+                                        variable-speed playback
+                                    </p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    )}
                 </div>
-                {isYouTubeVisible && (
-                    <div className="h-[90px] w-48">
-                        <YouTubePlayer size="small" />
-                    </div>
-                )}
             </div>
         </header>
     );
