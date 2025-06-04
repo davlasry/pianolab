@@ -49,7 +49,6 @@ export function SharedPlayhead({
         const playheadX = percent * baseWidth * zoomLevel;
         
         // Check if playhead is near the right edge of the visible area
-        const visibleRight = scrollLeft + containerWidth;
         const thresholdPosition = scrollLeft + (containerWidth * SCROLL_THRESHOLD);
         
         if (playheadX > thresholdPosition) {

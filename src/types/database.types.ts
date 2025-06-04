@@ -140,6 +140,7 @@ export type Database = {
                     midi_url: string | null;
                     name: string | null;
                     performer: string | null;
+                    youtube_url: string | null;
                 };
                 Insert: {
                     audio_url?: string | null;
@@ -150,6 +151,7 @@ export type Database = {
                     midi_url?: string | null;
                     name?: string | null;
                     performer?: string | null;
+                    youtube_url?: string | null;
                 };
                 Update: {
                     audio_url?: string | null;
@@ -160,6 +162,7 @@ export type Database = {
                     midi_url?: string | null;
                     name?: string | null;
                     performer?: string | null;
+                    youtube_url?: string | null;
                 };
                 Relationships: [];
             };

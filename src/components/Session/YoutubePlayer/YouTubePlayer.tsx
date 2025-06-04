@@ -9,6 +9,7 @@ import {
 } from "@/stores/youtubeStore.ts";
 import { transportTicker } from "@/TransportTicker/transportTicker.ts";
 import { useTransportState } from "@/components/Session/hooks/useTransportState.ts";
+import { usePlayerContext } from "@/components/Session/context/PlayerContext.tsx";
 import * as Tone from "tone";
 import { cn } from "@/lib/utils.ts";
 
@@ -16,6 +17,7 @@ import { cn } from "@/lib/utils.ts";
 interface YouTubePlayerInstance {
     destroy: () => void;
     loadVideoById: (videoId: string) => void;
+    cueVideoById: (videoId: string) => void;
     getCurrentTime: () => number;
     getDuration: () => number;
     getPlayerState: () => number;
@@ -58,6 +60,7 @@ export function YouTubePlayer({
     const isSeeking = useRef<boolean>(false);
     const seekHandlerRef = useRef<((time: number) => void) | null>(null);
     const handlerNameRef = useRef<string>(`__ytSeekHandler_${Date.now()}`);
+    const lastYouTubeStateRef = useRef<number>(-1);
 
     const { status } = useYouTubeAPI();
     const url = useYouTubeUrl();
@@ -67,6 +70,15 @@ export function YouTubePlayer({
 
     const [error, setError] = useState<string | null>(null);
     const { transportState } = useTransportState();
+    const { play, pause, stop, isPlaying } = usePlayerContext();
+    
+    // Flag to prevent sync loops when we programmatically control YouTube
+    const isUpdatingYouTubeRef = useRef<boolean>(false);
+    // Flag to prevent auto-play during YouTube initialization
+    const isInitializingRef = useRef<boolean>(false);
+    // Store player context functions in refs to avoid stale closures
+    const playerContextRef = useRef({ play, pause, stop, isPlaying });
+    playerContextRef.current = { play, pause, stop, isPlaying };
 
     // Extract video ID from URL in an effect instead of during render
     useEffect(() => {
@@ -113,6 +125,9 @@ export function YouTubePlayer({
                     },
                     events: {
                         onReady: (event: { target: YouTubePlayerInstance }) => {
+                            // Set initialization flag to prevent auto-play
+                            isInitializingRef.current = true;
+                            
                             // Verify the player has the required methods
                             const target = event.target;
                             if (
@@ -133,6 +148,35 @@ export function YouTubePlayer({
                             setPlayer(target);
                             setIsReady(true);
                             setError(null);
+                            
+                            // Sync with current transport position or transportTicker if transport is at 0
+                            let syncTime = Tone.getTransport().seconds;
+                            
+                            // If Tone.js transport is at 0 but transportTicker has a restored position, use that
+                            if (syncTime === 0) {
+                                const tickerTime = transportTicker.getSnapshot();
+                                if (tickerTime > 0) {
+                                    console.log(`YouTube ready: syncing Tone.js transport to restored position ${tickerTime}`);
+                                    Tone.getTransport().seconds = tickerTime;
+                                    syncTime = tickerTime;
+                                }
+                            }
+                            
+                            if (syncTime > 0) {
+                                console.log(`YouTube ready: syncing to position ${syncTime}`);
+                                target.seekTo(syncTime, true);
+                                lastSyncTimeRef.current = syncTime;
+                            }
+                            
+                            // Immediately pause to prevent any auto-play
+                            if (typeof target.pauseVideo === "function") {
+                                target.pauseVideo();
+                            }
+                            
+                            // Clear initialization flag quickly to allow state changes
+                            setTimeout(() => {
+                                isInitializingRef.current = false;
+                            }, 100);
                         },
                         onError: (event: { data: number }) => {
                             console.error("YouTube Player Error:", event);
@@ -141,8 +185,50 @@ export function YouTubePlayer({
                             );
                             setIsReady(false);
                         },
-                        onStateChange: () => {
-                            // Handle state changes if needed
+                        onStateChange: (event: { data: number }) => {
+                            // Track the YouTube state to prevent duplicate processing
+                            const currentYTState = event.data;
+                            const previousYTState = lastYouTubeStateRef.current;
+                            lastYouTubeStateRef.current = currentYTState;
+
+                            // Don't sync if we're programmatically updating YouTube or during initialization
+                            if (isUpdatingYouTubeRef.current || isInitializingRef.current) {
+                                console.log(`YouTube state change ignored: ${currentYTState} (updating: ${isUpdatingYouTubeRef.current}, initializing: ${isInitializingRef.current})`);
+                                return;
+                            }
+
+                            // Ignore if state hasn't actually changed (YouTube can fire duplicate events)
+                            if (currentYTState === previousYTState) {
+                                console.log(`YouTube state unchanged: ${currentYTState}`);
+                                return;
+                            }
+
+                            // YouTube player states:
+                            // -1 = unstarted, 0 = ended, 1 = playing, 2 = paused, 3 = buffering, 5 = video cued
+                            console.log(`YouTube state change: ${previousYTState} → ${currentYTState}, current app isPlaying: ${playerContextRef.current.isPlaying}`);
+                            
+                            // Process state change immediately for user interactions
+                            // Get current values from ref to avoid stale closures
+                            const { play: currentPlay, pause: currentPause, stop: currentStop, isPlaying: currentIsPlaying } = playerContextRef.current;
+                            
+                            switch (currentYTState) {
+                                case 1: // playing
+                                    if (!currentIsPlaying) {
+                                        console.log('YouTube playing → calling app play()');
+                                        currentPlay();
+                                    }
+                                    break;
+                                case 2: // paused
+                                    if (currentIsPlaying) {
+                                        console.log('YouTube paused → calling app pause()');
+                                        currentPause();
+                                    }
+                                    break;
+                                case 0: // ended
+                                    console.log('YouTube ended → calling app stop()');
+                                    currentStop();
+                                    break;
+                            }
                         },
                     },
                 });
@@ -184,6 +270,14 @@ export function YouTubePlayer({
         }
 
         return () => {
+            // Only cleanup on unmount, not on dependency changes
+            // This prevents the player from being destroyed and recreated unnecessarily
+        };
+    }, [status, storedVideoId, setPlayer, setIsReady]);
+
+    // Separate cleanup effect that only runs on unmount
+    useEffect(() => {
+        return () => {
             if (ytPlayerInstanceRef.current) {
                 try {
                     if (
@@ -198,9 +292,10 @@ export function YouTubePlayer({
                 ytPlayerInstanceRef.current = null;
                 setPlayer(null);
                 setIsReady(false);
+                lastYouTubeStateRef.current = -1;
             }
         };
-    }, [status, storedVideoId, setPlayer, setIsReady]);
+    }, [setPlayer, setIsReady]);
 
     // Handle video ID changes after initial setup
     useEffect(() => {
@@ -215,8 +310,45 @@ export function YouTubePlayer({
                     typeof ytPlayerInstanceRef.current.loadVideoById ===
                     "function"
                 ) {
+                    // Set initialization flag when loading new video
+                    isInitializingRef.current = true;
                     ytPlayerInstanceRef.current.loadVideoById(storedVideoId);
+                    
+                    // Immediately pause after loading
+                    if (typeof ytPlayerInstanceRef.current.pauseVideo === "function") {
+                        ytPlayerInstanceRef.current.pauseVideo();
+                    }
+                    
                     setIsReady(true);
+                    
+                    // Sync with current transport position after cuing new video
+                    let syncTime = Tone.getTransport().seconds;
+                    
+                    // If Tone.js transport is at 0 but transportTicker has a position, use that
+                    if (syncTime === 0) {
+                        const tickerTime = transportTicker.getSnapshot();
+                        if (tickerTime > 0) {
+                            console.log(`New video: syncing Tone.js transport to restored position ${tickerTime}`);
+                            Tone.getTransport().seconds = tickerTime;
+                            syncTime = tickerTime;
+                        }
+                    }
+                    
+                    if (syncTime > 0) {
+                        // Wait a bit for video to cue before seeking
+                        setTimeout(() => {
+                            if (ytPlayerInstanceRef.current && typeof ytPlayerInstanceRef.current.seekTo === "function") {
+                                console.log(`New video cued: syncing to position ${syncTime}`);
+                                ytPlayerInstanceRef.current.seekTo(syncTime, true);
+                                lastSyncTimeRef.current = syncTime;
+                            }
+                        }, 500);
+                    }
+                    
+                    // Clear flag quickly to allow state changes
+                    setTimeout(() => {
+                        isInitializingRef.current = false;
+                    }, 100);
                 } else {
                     console.error(
                         "YouTube player is missing loadVideoById method. Recreating player...",
@@ -281,35 +413,62 @@ export function YouTubePlayer({
         };
 
         try {
+            // Ensure player methods exist before proceeding
+            if (!player.getPlayerState || !player.playVideo || !player.pauseVideo) {
+                console.error("YouTube player missing required methods");
+                return;
+            }
+            
+            const ytState = player.getPlayerState();
+            console.log(`Transport state changed to: ${transportState}, YouTube state: ${ytState}`);
+            
+            let shouldSetFlag = false;
+            
             switch (transportState) {
                 case "started":
-                    if (
-                        typeof player.getPlayerState === "function" &&
-                        player.getPlayerState() !== 1
-                    ) {
-                        // 1 = playing
-                        if (typeof player.playVideo === "function") {
-                            player.playVideo();
+                    // Ensure Tone.js transport and YouTube are at the correct position before playing
+                    let transportTime = Tone.getTransport().seconds;
+                    
+                    // If Tone.js transport is at 0 but transportTicker has a position, sync Tone.js first
+                    if (transportTime === 0) {
+                        const tickerTime = transportTicker.getSnapshot();
+                        if (tickerTime > 0) {
+                            console.log(`Started: syncing Tone.js transport to restored position ${tickerTime}`);
+                            Tone.getTransport().seconds = tickerTime;
+                            transportTime = tickerTime;
                         }
+                    }
+                    
+                    const youtubeCurrentTime = player.getCurrentTime();
+                    
+                    // If transport has a different position than YouTube, sync YouTube
+                    if (Math.abs(transportTime - youtubeCurrentTime) > 0.5) {
+                        console.log(`Started: syncing YouTube position: ${youtubeCurrentTime} → ${transportTime}`);
+                        player.seekTo(transportTime, true);
+                        lastSyncTimeRef.current = transportTime;
+                    }
+                    
+                    // Only play if YouTube is not already playing (1) or buffering (3)
+                    if (ytState !== 1 && ytState !== 3) {
+                        shouldSetFlag = true;
+                        isUpdatingYouTubeRef.current = true;
+                        player.playVideo();
                     }
                     startSync();
                     break;
                 case "paused":
-                    if (
-                        typeof player.getPlayerState === "function" &&
-                        player.getPlayerState() === 1
-                    ) {
-                        // 1 = playing
-                        if (typeof player.pauseVideo === "function") {
-                            player.pauseVideo();
-                        }
+                    // Only pause if YouTube is currently playing (1) or buffering (3)
+                    if (ytState === 1 || ytState === 3) {
+                        shouldSetFlag = true;
+                        isUpdatingYouTubeRef.current = true;
+                        player.pauseVideo();
                     }
                     stopSync();
                     break;
                 case "stopped":
-                    if (typeof player.pauseVideo === "function") {
-                        player.pauseVideo();
-                    }
+                    shouldSetFlag = true;
+                    isUpdatingYouTubeRef.current = true;
+                    player.pauseVideo();
                     if (typeof player.seekTo === "function") {
                         player.seekTo(0, true);
                     }
@@ -318,8 +477,16 @@ export function YouTubePlayer({
                     stopSync();
                     break;
             }
+            
+            // Only reset flag if we actually controlled YouTube
+            if (shouldSetFlag) {
+                setTimeout(() => {
+                    isUpdatingYouTubeRef.current = false;
+                }, 100);
+            }
         } catch (err) {
             console.error("Error controlling YouTube player:", err);
+            isUpdatingYouTubeRef.current = false;
         }
 
         return stopSync;

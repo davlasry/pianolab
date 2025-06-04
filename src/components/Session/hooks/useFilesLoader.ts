@@ -3,6 +3,7 @@ import { useRef, useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useMidiNotes } from "@/components/Session/hooks/useMidiNotes.ts";
 import type { usePlayer } from "@/components/Session/hooks/usePlayer.ts";
+import { useYouTubeActions } from "@/stores/youtubeStore.ts";
 
 interface Props {
     parseMidi: ReturnType<typeof useMidiNotes>["parseMidi"];
@@ -20,6 +21,12 @@ export const useFilesLoader = ({ parseMidi, loadAudio }: Props) => {
 
     // Track if we've already loaded assets for this session
     const assetsLoadedForIdRef = useRef<string | null>(null);
+    
+    // YouTube store actions and state
+    const { setUrl, setIsVisible } = useYouTubeActions();
+    
+    // Track which session we've initialized YouTube for
+    const youtubeInitializedForIdRef = useRef<string | null>(null);
 
     // Memoize the loadMidi function to maintain a stable reference
     const loadMidi = useCallback(
@@ -32,6 +39,13 @@ export const useFilesLoader = ({ parseMidi, loadAudio }: Props) => {
     useEffect(() => {
         // Skip if session is not loaded yet
         if (!session) return;
+
+        // Initialize YouTube URL from session data (do this first, before asset loading)
+        if (session.youtube_url && youtubeInitializedForIdRef.current !== session.id) {
+            setUrl(session.youtube_url);
+            setIsVisible(true);
+            youtubeInitializedForIdRef.current = session.id;
+        }
 
         // Skip if we've already loaded assets for this session
         if (assetsLoadedForIdRef.current === session.id) return;
@@ -67,7 +81,7 @@ export const useFilesLoader = ({ parseMidi, loadAudio }: Props) => {
         return () => {
             isMounted = false;
         };
-    }, [session, loadMidi, loadAudio]);
+    }, [session, loadMidi, loadAudio, setUrl, setIsVisible]);
 
     return {
         isLoadingRecording,

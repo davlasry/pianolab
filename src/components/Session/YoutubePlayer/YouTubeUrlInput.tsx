@@ -1,10 +1,11 @@
 import type { KeyboardEvent } from "react";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useYouTubeActions, useYouTubeUrl } from "@/stores/youtubeStore.ts";
+import { useYouTubeUrlPersistence } from "@/hooks/useYouTubeUrlPersistence.ts";
 import { isValidYouTubeUrl } from "@/utils/youtubeUtils.ts";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import { Eye, EyeOff, Youtube } from "lucide-react";
+import { Eye, EyeOff, Youtube, X } from "lucide-react";
 import { cn } from "@/lib/utils.ts";
 
 interface YouTubeUrlInputProps {
@@ -20,6 +21,12 @@ export function YouTubeUrlInput({
     const [inputUrl, setInputUrl] = useState(storedUrl || "");
     const [error, setError] = useState<string | null>(null);
     const { setUrl, toggleVisibility, setIsVisible } = useYouTubeActions();
+    const { saveYouTubeUrl } = useYouTubeUrlPersistence();
+
+    // Update input when stored URL changes (from database load)
+    useEffect(() => {
+        setInputUrl(storedUrl || "");
+    }, [storedUrl]);
 
     const handleUrlChange = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,7 +36,7 @@ export function YouTubeUrlInput({
         [],
     );
 
-    const handleSubmit = useCallback(() => {
+    const handleSubmit = useCallback(async () => {
         if (!inputUrl.trim()) {
             setError("Please enter a YouTube URL");
             return;
@@ -43,7 +50,10 @@ export function YouTubeUrlInput({
         setUrl(inputUrl);
         setError(null);
         setIsVisible(true); // Automatically show player when URL is submitted
-    }, [inputUrl, setUrl, setIsVisible]);
+        
+        // Save to database
+        await saveYouTubeUrl(inputUrl);
+    }, [inputUrl, setUrl, setIsVisible, saveYouTubeUrl]);
 
     const handleKeyDown = useCallback(
         (e: KeyboardEvent<HTMLInputElement>) => {
@@ -53,6 +63,16 @@ export function YouTubeUrlInput({
         },
         [handleSubmit],
     );
+
+    const handleClear = useCallback(async () => {
+        setInputUrl("");
+        setError(null);
+        setUrl(null);
+        setIsVisible(false);
+        
+        // Clear from database
+        await saveYouTubeUrl(null);
+    }, [setUrl, setIsVisible, saveYouTubeUrl]);
 
     return (
         <div
@@ -91,6 +111,16 @@ export function YouTubeUrlInput({
             >
                 <Youtube className={cn(compact ? "h-3 w-3" : "h-4 w-4")} />
             </Button>
+            {storedUrl && (
+                <Button
+                    variant="outline"
+                    size={compact ? "sm" : "icon"}
+                    onClick={handleClear}
+                    aria-label="Clear YouTube URL"
+                >
+                    <X className={cn(compact ? "h-3 w-3" : "h-4 w-4")} />
+                </Button>
+            )}
             <Button
                 variant="outline"
                 size={compact ? "sm" : "icon"}

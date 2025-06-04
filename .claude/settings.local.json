@@ -4,7 +4,9 @@
       "Bash(npm run build:*)",
       "Bash(rg:*)",
       "Bash(/Users/davidlasry/Library/Application\\ Support/fnm/node-versions/v20.9.0/installation/lib/node_modules/@anthropic-ai/claude-code/vendor/ripgrep/arm64-darwin/rg \"scrollIfNeeded|SCROLL_THRESHOLD|LEFT_MARGIN_RATIO\" --type-add 'ts:*.ts' --type-add 'tsx:*.tsx' --type ts --type tsx)",
-      "Bash(/Users/davidlasry/Library/Application\\ Support/fnm/node-versions/v20.9.0/installation/lib/node_modules/@anthropic-ai/claude-code/vendor/ripgrep/arm64-darwin/rg \"TimelineAuxControls\" /Users/davidlasry/dev/pianolab/src)"
+      "Bash(/Users/davidlasry/Library/Application\\ Support/fnm/node-versions/v20.9.0/installation/lib/node_modules/@anthropic-ai/claude-code/vendor/ripgrep/arm64-darwin/rg \"TimelineAuxControls\" /Users/davidlasry/dev/pianolab/src)",
+      "Bash(npm run lint)",
+      "WebFetch(domain:developers.google.com)"
     ]
   },
   "enableAllProjectMcpServers": false
