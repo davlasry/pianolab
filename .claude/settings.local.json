@@ -7,7 +7,14 @@
       "Bash(/Users/davidlasry/Library/Application\\ Support/fnm/node-versions/v20.9.0/installation/lib/node_modules/@anthropic-ai/claude-code/vendor/ripgrep/arm64-darwin/rg \"TimelineAuxControls\" /Users/davidlasry/dev/pianolab/src)",
       "Bash(npm run lint)",
       "WebFetch(domain:developers.google.com)",
-      "Bash(npm run test:*)"
+      "Bash(npm run test:*)",
+      "Bash(git add:*)",
+      "Bash(npm run dev:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git revert:*)",
+      "Bash(/Users/davidlasry/Library/Application\\ Support/fnm/node-versions/v20.9.0/installation/lib/node_modules/@anthropic-ai/claude-code/vendor/ripgrep/arm64-darwin/rg \"playhead.*icon|icon.*playhead\" /Users/davidlasry/dev/pianolab/src/components/Session/TopNavbar/TopNavbar.tsx)",
+      "Bash(grep:*)"
     ]
   },
   "enableAllProjectMcpServers": false
