@@ -153,6 +153,7 @@ const SharedTimeline = (
                         percent={percentComplete}
                         barRef={barRef}
                         containerRef={containerRef}
+                        scrollableRef={outerRef}
                         zoomLevel={zoomLevel}
                     />
                 </ZoomableContainer>

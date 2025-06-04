@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useAutoScrollEnabled } from "../../../../stores/timelineStore";
 
 interface SharedPlayheadProps {
     duration: number;
@@ -6,6 +7,7 @@ interface SharedPlayheadProps {
     currentTime: number;
     barRef: React.RefObject<HTMLDivElement | null>;
     containerRef: React.RefObject<HTMLDivElement | null>;
+    scrollableRef?: React.RefObject<HTMLDivElement | null>;
     zoomLevel: number;
 }
 
@@ -19,8 +21,46 @@ export function SharedPlayhead({
     currentTime,
     barRef,
     containerRef,
+    scrollableRef,
     zoomLevel,
 }: SharedPlayheadProps) {
+    const isAutoScrollEnabled = useAutoScrollEnabled();
+
+    // Constants for auto-scroll behavior
+    const SCROLL_THRESHOLD = 0.9; // Scroll when playhead reaches 90% of visible area
+    const LEFT_MARGIN_RATIO = 0.1; // Maintain 10% left margin when scrolling
+
+    // Function to scroll the timeline if the playhead is near the edge
+    const scrollIfNeeded = () => {
+        if (!isAutoScrollEnabled || !containerRef.current) return;
+        
+        // Use scrollableRef if available (the actual scrollable element), otherwise fallback to containerRef
+        const scrollableElement = scrollableRef?.current || containerRef.current;
+        const contentElement = containerRef.current;
+        
+        if (!scrollableElement) return;
+        
+        const scrollLeft = scrollableElement.scrollLeft;
+        const containerWidth = scrollableElement.clientWidth;
+        const scrollWidth = contentElement.scrollWidth;
+        
+        // Calculate playhead position in pixels (same calculation as in useEffect)
+        const baseWidth = scrollWidth / zoomLevel;
+        const playheadX = percent * baseWidth * zoomLevel;
+        
+        // Check if playhead is near the right edge of the visible area
+        const visibleRight = scrollLeft + containerWidth;
+        const thresholdPosition = scrollLeft + (containerWidth * SCROLL_THRESHOLD);
+        
+        if (playheadX > thresholdPosition) {
+            // Scroll to keep playhead at LEFT_MARGIN_RATIO from the left edge
+            const newScrollLeft = playheadX - (containerWidth * LEFT_MARGIN_RATIO);
+            const clampedScrollLeft = Math.max(0, Math.min(newScrollLeft, scrollWidth - containerWidth));
+            
+            scrollableElement.scrollLeft = clampedScrollLeft;
+        }
+    };
+
     // Optimized playhead animation with CSS custom properties
     useEffect(() => {
         if (barRef.current && containerRef.current) {
@@ -34,8 +74,11 @@ export function SharedPlayhead({
             
             // Use CSS custom property for better performance
             barRef.current.style.setProperty('--playhead-x', `${centeredX}px`);
+            
+            // Handle auto-scroll
+            scrollIfNeeded();
         }
-    }, [barRef, containerRef, percent, zoomLevel]);
+    }, [barRef, containerRef, percent, zoomLevel, isAutoScrollEnabled]);
 
     return (
         <div

@@ -24,6 +24,7 @@ import {
 import { LinkedPiecesDisplay } from "@/components/LinkedPiecesDisplay.tsx";
 import type { Piece } from "@/types/entities.types.ts";
 import { YouTubeUrlInput } from "@/components/Session/YoutubePlayer/YouTubeUrlInput.tsx";
+import { TimelineAuxControls } from "./TimelineAuxControls.tsx";
 
 interface TopNavbarProps {
     sessionTitle: string;
@@ -99,6 +100,8 @@ export const TopNavbar = ({
                     isLoopActive={isLoopActive}
                     onToggleLoop={onToggleLoop}
                 />
+
+                <TimelineAuxControls />
 
                 <div className="flex items-center gap-2 border-l border-border pl-4">
                     <Button variant="ghost" size="icon" aria-label="Undo">
