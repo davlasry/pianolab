@@ -42,7 +42,7 @@ const sizeClasses: Record<YouTubePlayerSize, string> = {
 // Extend Window interface to include dynamic properties
 declare global {
     interface Window {
-        __ytSeekHandler?: (time: number) => void;
+        __ytSeekHandler?: (time: number, callback?: (actualTime: number) => void) => void;
         [key: string]: unknown;
     }
 }
@@ -580,6 +580,7 @@ export function YouTubePlayer({
                     }, 2000);
                 } else {
                     // No YouTube player, proceed immediately
+                    console.log(`No YouTube player instance, proceeding with direct seek to ${time}s`);
                     callback?.(time);
                 }
             } catch (err) {

@@ -7,12 +7,7 @@ import { useChordProgression } from "@/stores/chordsStore.ts";
 import { usePlayheadActions } from "@/stores/playheadStore.ts";
 import { useYouTubeIsReady, useYouTubePlayer, useYouTubeIsVisible } from "@/stores/youtubeStore.ts";
 
-// Extend Window interface to include our custom property
-declare global {
-    interface Window {
-        __ytSeekHandler?: (time: number) => void;
-    }
-}
+// Window interface is now declared in YouTubePlayer.tsx with callback support
 
 // Key for storing playhead position in localStorage
 const PLAYHEAD_POSITION_KEY = "pianolab_playhead_position";
