@@ -9,7 +9,7 @@ interface UseNoteDegreeProps {
 
 /** Functional degree names for each semitone from the root (0-11). */
 const DEGREE_BY_CHROMA: Record<number, string> = {
-    0: "R",
+    0: "1",
     1: "b2",
     2: "2",
     3: "b3",

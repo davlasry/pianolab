@@ -62,7 +62,21 @@ export const TopNavbar = ({
                 >
                     <ChevronLeft className="h-5 w-5" />
                 </Button>
-                <h1 className="text-sm font-medium">{sessionTitle}</h1>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <h1
+                                className="max-w-[250px] truncate text-sm font-medium"
+                                title={sessionTitle}
+                            >
+                                {sessionTitle}
+                            </h1>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" align="start">
+                            <p>{sessionTitle}</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
             </div>
 
             <div className="flex items-center gap-4">
