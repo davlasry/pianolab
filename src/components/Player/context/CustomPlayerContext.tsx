@@ -1,8 +1,14 @@
-import { createContext, useContext, type ReactNode } from "react";
+import {
+    createContext,
+    useContext,
+    type ReactNode,
+    useState,
+    useEffect,
+    useCallback,
+} from "react";
 import { useCustomPlayer } from "@/hooks/useCustomPlayer";
 import { useFetchSession } from "@/hooks/queries/useFetchSession";
-import { useState, useEffect, useCallback } from "react";
-import type { Chord, MidiNote } from "@/lib/CustomPlayer";
+import type { Chord } from "@/lib/CustomPlayer";
 import { useParams } from "react-router-dom";
 
 // Create a type for our context based on what useCustomPlayer returns
