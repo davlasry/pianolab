@@ -1,12 +1,4 @@
-import {
-    ChevronLeft,
-    Undo,
-    Redo,
-    Menu,
-    Pencil,
-    Music,
-    BookOpen,
-} from "lucide-react";
+import { ChevronLeft, Undo, Redo, Pencil, Music, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { TimelineAuxControls } from "@/components/Player/Timeline/TimelineAuxControls";
@@ -160,9 +152,6 @@ export const TopNavbar = ({
                             </Tooltip>
                         </TooltipProvider>
                     )}
-                    <Button variant="ghost" size="icon" aria-label="Menu">
-                        <Menu className="h-5 w-5" />
-                    </Button>
                 </div>
             </div>
         </header>
