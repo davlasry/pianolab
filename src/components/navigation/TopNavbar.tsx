@@ -1,4 +1,12 @@
-import { ChevronLeft, Undo, Redo, Menu, Pencil, Music } from "lucide-react";
+import {
+    ChevronLeft,
+    Undo,
+    Redo,
+    Menu,
+    Pencil,
+    Music,
+    BookOpen,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { TimelineAuxControls } from "@/components/Player/Timeline/TimelineAuxControls";
@@ -9,6 +17,13 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
+import { LinkedPiecesDisplay } from "@/components/LinkedPiecesDisplay";
+import type { Piece } from "@/types/entities.types";
 
 interface TopNavbarProps {
     sessionTitle: string;
@@ -22,6 +37,8 @@ interface TopNavbarProps {
     activeLoop: { start: number; end: number } | null;
     isLoopActive: boolean;
     onToggleLoop: () => void;
+    linkedPieces?: Piece[];
+    piecesLoading?: boolean;
 }
 
 export const TopNavbar = ({
@@ -36,6 +53,8 @@ export const TopNavbar = ({
     activeLoop,
     isLoopActive,
     onToggleLoop,
+    linkedPieces = [],
+    piecesLoading = false,
 }: TopNavbarProps) => {
     const navigate = useNavigate();
     const { sessionId } = useParams();
@@ -76,6 +95,35 @@ export const TopNavbar = ({
                     <Button variant="ghost" size="icon" aria-label="Redo">
                         <Redo className="h-4 w-4" />
                     </Button>
+
+                    <Popover>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            aria-label="Linked pieces"
+                                        >
+                                            <BookOpen className="h-4 w-4" />
+                                        </Button>
+                                    </PopoverTrigger>
+                                </TooltipTrigger>
+                                <TooltipContent side="bottom">
+                                    <p>Linked pieces</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                        <PopoverContent align="end" className="w-80 p-3">
+                            <LinkedPiecesDisplay
+                                pieces={linkedPieces}
+                                isLoading={piecesLoading}
+                                compact
+                            />
+                        </PopoverContent>
+                    </Popover>
+
                     {onEdit && (
                         <Button
                             onClick={onEdit}

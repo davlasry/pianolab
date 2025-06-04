@@ -5,22 +5,26 @@ import type { Piece } from "@/types/entities.types";
 interface LinkedPiecesDisplayProps {
     pieces: Piece[];
     isLoading: boolean;
+    compact?: boolean;
 }
 
 export const LinkedPiecesDisplay = ({
     pieces,
     isLoading,
+    compact = false,
 }: LinkedPiecesDisplayProps) => {
     if (isLoading) {
         return (
-            <div className="mb-4 px-4 text-sm text-gray-500">
+            <div
+                className={`text-sm text-gray-500 ${!compact ? "mb-4 px-4" : ""}`}
+            >
                 <p>Loading linked pieces...</p>
             </div>
         );
     }
 
     return (
-        <div className="mb-6">
+        <div className={compact ? "" : "mb-6"}>
             <h3 className="mb-1 flex items-center text-sm font-medium text-gray-600 dark:text-gray-400">
                 <Music className="mr-1.5 h-4 w-4 text-gray-500 dark:text-gray-400" />{" "}
                 Linked Pieces:

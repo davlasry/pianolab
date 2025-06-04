@@ -3,7 +3,6 @@ import { PlayerProvider } from "@/components/Player/context/PlayerContext.tsx";
 import { PlayerContent } from "@/components/PlayerContent.tsx";
 import { RecordingFormModal } from "@/components/Recordings/SessionFormModal.tsx";
 import { useSessionViewLogic } from "@/hooks/useSessionViewLogic";
-import { LinkedPiecesDisplay } from "@/components/LinkedPiecesDisplay";
 import { SessionStatusDisplay } from "@/components/SessionStatusDisplay";
 import { TransportTickerProvider } from "@/TransportTicker/TransportTickerProvider.tsx";
 import { KeyboardShortcutProvider } from "@/shortcuts/KeyboardShortcuts.tsx";
@@ -68,17 +67,12 @@ const SessionContent = () => {
                 activeLoop={activeLoop}
                 isLoopActive={isLoopActive}
                 onToggleLoop={toggleLoop}
+                linkedPieces={linkedPieces}
+                piecesLoading={piecesLoading}
             />
 
             {/*<div className="flex flex-1 flex-col overflow-hidden">*/}
             <div className="flex flex-1 flex-col">
-                <div className="px-4">
-                    <LinkedPiecesDisplay
-                        pieces={linkedPieces}
-                        isLoading={piecesLoading}
-                    />
-                </div>
-
                 {/* YouTube URL Input */}
                 <div className="my-2 px-4">
                     <YouTubeUrlInput compact={true} />
