@@ -5,7 +5,7 @@ import { useTransportState } from "@/components/Session/hooks/useTransportState.
 import { transportTicker } from "@/TransportTicker/transportTicker.ts";
 import { useChordProgression } from "@/stores/chordsStore.ts";
 import { usePlayheadActions } from "@/stores/playheadStore.ts";
-import { useYouTubeIsReady, useYouTubePlayer } from "@/stores/youtubeStore.ts";
+import { useYouTubeIsReady, useYouTubePlayer, useYouTubeIsVisible } from "@/stores/youtubeStore.ts";
 
 // Extend Window interface to include our custom property
 declare global {
@@ -49,6 +49,7 @@ export const usePlayer = (notes: Note[]) => {
     // YouTube integration
     const youtubePlayer = useYouTubePlayer();
     const isYouTubeReady = useYouTubeIsReady();
+    const isYouTubeVisible = useYouTubeIsVisible();
     const hasYouTubeSource = isYouTubeReady && youtubePlayer;
 
     const { transportState } = useTransportState();
@@ -70,31 +71,32 @@ export const usePlayer = (notes: Note[]) => {
         }
     }, [hasYouTubeSource, youtubePlayer]);
 
-    // Effect to mute audio player when YouTube is ready
+    // Effect to mute audio player when YouTube is ready and visible
     useEffect(() => {
-        if (hasYouTubeSource) {
-            // Mute the audio player when YouTube is ready
+        if (hasYouTubeSource && isYouTubeVisible) {
+            // Mute the audio player when YouTube is ready and visible
             if (playerRef.current) {
                 try {
                     playerRef.current.mute = true;
                     setIsMuted(true);
-                    console.log("Audio player muted due to YouTube player");
+                    console.log("Audio player muted due to YouTube player being visible");
                 } catch (err) {
                     console.error("Error muting audio player:", err);
                 }
             }
         } else {
-            // Unmute the audio player when YouTube is not available
+            // Unmute the audio player when YouTube is not available or not visible
             if (playerRef.current) {
                 try {
                     playerRef.current.mute = false;
                     setIsMuted(false);
+                    console.log("Audio player unmuted - YouTube not visible or not available");
                 } catch (err) {
                     console.error("Error unmuting audio player:", err);
                 }
             }
         }
-    }, [hasYouTubeSource]);
+    }, [hasYouTubeSource, isYouTubeVisible]);
 
     const loadAudio = useCallback(
         async (
