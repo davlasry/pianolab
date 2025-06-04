@@ -7,10 +7,21 @@ export function CustomTransportTickerProvider({ children }: PropsWithChildren) {
 
     useEffect(() => {
         let raf: number;
+        let timeoutId: number;
+        const isPlaying = transportState === "playing";
 
         const tick = () => {
             customTransportTicker.set(currentTime);
-            raf = requestAnimationFrame(tick);
+            
+            if (isPlaying) {
+                // Use RAF for smooth 60fps when playing
+                raf = requestAnimationFrame(tick);
+            } else {
+                // Reduced frequency when paused (still update for seek operations)
+                timeoutId = window.setTimeout(() => {
+                    raf = requestAnimationFrame(tick);
+                }, 100); // 10fps when paused
+            }
         };
 
         // keep RAF in sync with Transport's state
@@ -20,11 +31,13 @@ export function CustomTransportTickerProvider({ children }: PropsWithChildren) {
 
         const stop = () => {
             cancelAnimationFrame(raf);
+            clearTimeout(timeoutId);
             raf = 0;
+            timeoutId = 0;
         };
 
         // Start/stop ticker based on transport state
-        if (transportState === "playing") {
+        if (isPlaying) {
             start();
         } else {
             stop();

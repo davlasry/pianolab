@@ -238,3 +238,11 @@
         scrollbar-color: oklch(0.29 0 0) oklch(0.23 0 0);
     }
 }
+
+/* Optimized playhead animations */
+.playhead-bar {
+    --playhead-x: 0px;
+    transform: translateX(var(--playhead-x));
+    will-change: transform;
+    contain: layout style paint;
+}
