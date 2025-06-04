@@ -96,7 +96,7 @@ export function SharedPlayhead({
                 width="20"
                 height="20"
                 viewBox="0 0 20 20"
-                className="flex-shrink-0 drop-shadow-sm"
+                className="flex-shrink-0 drop-shadow-sm hidden"
                 style={{ marginTop: '-2px' }}
             >
                 <path
