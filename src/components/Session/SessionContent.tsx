@@ -14,9 +14,12 @@ import { useChordShortcuts } from "@/components/Session/hooks/useChordShortcuts.
 import { Keyboard } from "@/components/Session/Keyboard/components/Keyboard.tsx";
 import { customKeyboard } from "@/components/Session/Keyboard/components/CustomKeyboard.tsx";
 import { KeyboardToolbar } from "@/components/Session/Keyboard/components/KeyboardToolbar.tsx";
+import { YouTubePlayer } from "@/components/Session/YoutubePlayer/YouTubePlayer.tsx";
+import { useYouTubeIsVisible } from "@/stores/youtubeStore.ts";
 
 export const SessionContent = () => {
     const timelineRef = useRef<TimelineHandle>(null);
+    const isYouTubeVisible = useYouTubeIsVisible();
 
     const {
         activeChord,
@@ -62,7 +65,10 @@ export const SessionContent = () => {
             if (restoredPosition > 0 && restoredPosition < audioDuration) {
                 // Add a small delay to ensure the timeline is fully rendered
                 setTimeout(() => {
-                    timelineRef.current?.scrollToTime(restoredPosition, shouldCenter);
+                    timelineRef.current?.scrollToTime(
+                        restoredPosition,
+                        shouldCenter,
+                    );
 
                     // Clear the restored position after handling it
                     setRestoredPosition(null);
@@ -90,6 +96,13 @@ export const SessionContent = () => {
                 {/* ChordEditor is now always visible and positioned right below the Timeline */}
                 <ChordEditor />
             </div>
+
+            {/* YouTube Player Section */}
+            {isYouTubeVisible && (
+                <div className="w-full px-4 py-2">
+                    <YouTubePlayer size="large" />
+                </div>
+            )}
 
             <div className="relative flex flex-col">
                 {/* Keyboard Toolbar */}

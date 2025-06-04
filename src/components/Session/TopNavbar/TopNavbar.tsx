@@ -24,8 +24,6 @@ import {
 import { LinkedPiecesDisplay } from "@/components/LinkedPiecesDisplay.tsx";
 import type { Piece } from "@/types/entities.types.ts";
 import { YouTubeUrlInput } from "@/components/Session/YoutubePlayer/YouTubeUrlInput.tsx";
-import { YouTubePlayer } from "@/components/Session/YoutubePlayer/YouTubePlayer.tsx";
-import { useYouTubeIsVisible } from "@/stores/youtubeStore.ts";
 
 interface TopNavbarProps {
     sessionTitle: string;
@@ -60,7 +58,6 @@ export const TopNavbar = ({
 }: TopNavbarProps) => {
     const navigate = useNavigate();
     const { sessionId } = useParams();
-    const isYouTubeVisible = useYouTubeIsVisible();
 
     return (
         <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b bg-background px-4">
@@ -134,11 +131,6 @@ export const TopNavbar = ({
                         <PopoverContent align="end" className="w-96 p-3">
                             <div className="space-y-2">
                                 <YouTubeUrlInput compact={true} />
-                                {isYouTubeVisible && (
-                                    <div className="mt-2 h-[120px]">
-                                        <YouTubePlayer size="small" />
-                                    </div>
-                                )}
                             </div>
                         </PopoverContent>
                     </Popover>
