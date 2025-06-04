@@ -12,7 +12,7 @@ import { usePlayerContext } from "@/components/Session/context/PlayerContext";
 import type { TransportState } from "@/components/Session/hooks/useTransportState";
 import SharedTimeline, {
     type TimelineHandle,
-} from "@/components/Session/Timeline/SharedTimeline";
+} from "@/components/Session/Timeline/Shared/SharedTimeline.tsx";
 
 export interface TimelineProps {
     duration: number;

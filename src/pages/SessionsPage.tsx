@@ -1,4 +1,4 @@
-import { Sessions } from "@/components/Recordings/Sessions.tsx";
+import { Sessions } from "@/components/Sessions/Sessions.tsx";
 
 export const SessionsPage = () => {
     return (

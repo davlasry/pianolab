@@ -1,8 +1,8 @@
 import "./App.css";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
-import { Home } from "@/components/Home.tsx";
-import { SessionView } from "@/components/SessionView.tsx";
+import { Home } from "@/pages/Home.tsx";
+import { SessionView } from "@/components/Session/SessionView.tsx";
 import { PieceView } from "@/components/Pieces/PieceView.tsx";
 import { PiecesPage } from "@/pages/PiecesPage";
 import { SessionsPage } from "@/pages/SessionsPage.tsx";

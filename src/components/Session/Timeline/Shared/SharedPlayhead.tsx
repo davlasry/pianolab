@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useTimelineStore } from "@/stores/timelineStore";
+import { useTimelineStore } from "@/stores/timelineStore.ts";
 
 const SCROLL_THRESHOLD = 0.95;
 const LEFT_MARGIN_RATIO = 0.1;

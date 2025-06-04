@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDeleteSession } from "@/hooks/queries/useDeleteSession.ts";
-import { RecordingFormModal } from "@/components/Recordings/SessionFormModal.tsx";
+import { RecordingFormModal } from "@/components/Sessions/SessionFormModal.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import type { Session } from "@/types/entities.types.ts";
 import { Plus, Music } from "lucide-react";
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/alert-dialog.tsx";
 import { useNavigate } from "react-router-dom";
 import { useFetchSessions } from "@/hooks/queries/useFetchSessions.ts";
-import { SessionsTable } from "@/components/Recordings/SessionsTable.tsx";
+import { SessionsTable } from "@/components/Sessions/SessionsTable.tsx";
 
 export const Sessions = () => {
     const navigate = useNavigate();
@@ -75,10 +75,12 @@ export const Sessions = () => {
         <div className="space-y-6 p-6">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/20">
                         <Music className="h-6 w-6 text-primary" />
                     </div>
-                    <h1 className="text-3xl font-bold tracking-tight">Sessions</h1>
+                    <h1 className="text-3xl font-bold tracking-tight">
+                        Sessions
+                    </h1>
                 </div>
                 <Button
                     onClick={openCreateModal}
@@ -95,16 +97,20 @@ export const Sessions = () => {
                     <div className="flex h-[300px] items-center justify-center">
                         <div className="flex flex-col items-center gap-2">
                             <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                            <p className="text-sm text-muted-foreground">Loading sessions...</p>
+                            <p className="text-sm text-muted-foreground">
+                                Loading sessions...
+                            </p>
                         </div>
                     </div>
                 ) : sessions.length === 0 ? (
                     <div className="flex h-[300px] flex-col items-center justify-center gap-4 p-8 text-center">
-                        <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
                             <Music className="h-8 w-8 text-primary" />
                         </div>
                         <div className="space-y-2">
-                            <h3 className="text-xl font-semibold">No sessions yet</h3>
+                            <h3 className="text-xl font-semibold">
+                                No sessions yet
+                            </h3>
                             <p className="text-muted-foreground">
                                 Create your first session to get started
                             </p>

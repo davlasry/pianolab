@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { TimelineAuxControls } from "@/components/Session/Timeline/TimelineAuxControls.tsx";
+import { TimelineAuxControls } from "@/components/Session/TopNavbar/TimelineAuxControls.tsx";
 import LoopControls from "@/components/Session/Controls/components/LoopControls.tsx";
 import {
     Tooltip,
@@ -24,8 +24,8 @@ import {
 } from "@/components/ui/popover.tsx";
 import { LinkedPiecesDisplay } from "@/components/LinkedPiecesDisplay.tsx";
 import type { Piece } from "@/types/entities.types.ts";
-import { YouTubeUrlInput } from "@/components/Session/YouTubeUrlInput.tsx";
-import { YouTubePlayer } from "@/components/Session/YouTubePlayer.tsx";
+import { YouTubeUrlInput } from "@/components/Session/YoutubePlayer/YouTubeUrlInput.tsx";
+import { YouTubePlayer } from "@/components/Session/YoutubePlayer/YouTubePlayer.tsx";
 import { useYouTubeIsVisible } from "@/stores/youtubeStore.ts";
 
 interface TopNavbarProps {

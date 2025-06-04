@@ -6,13 +6,13 @@ import {
 import {
     useCustomTransportTime,
     useCustomProgressPercent,
-} from "@/CustomTransportTicker/customTransportTicker";
-import { useCustomTimelineShortcuts } from "@/components/Session/Timeline/hooks/useCustomTimelineShortcuts";
-import { useCustomPlayerContext } from "@/components/Session/context/CustomPlayerContext";
+} from "@/CustomTransportTicker/customTransportTicker.ts";
+import { useCustomTimelineShortcuts } from "@/components/Session/Timeline/hooks/useCustomTimelineShortcuts.ts";
+import { useCustomPlayerContext } from "@/components/Session/context/CustomPlayerContext.tsx";
 import type { TransportState } from "@/lib/CustomPlayer";
 import SharedTimeline, {
     type TimelineHandle,
-} from "@/components/Session/Timeline/SharedTimeline";
+} from "@/components/Session/Timeline/Shared/SharedTimeline.tsx";
 
 export interface TimelineProps {
     duration: number;

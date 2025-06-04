@@ -1,6 +1,6 @@
 import type { TransportState } from "@/components/Session/hooks/useTransportState";
 import { useProgressPercent } from "@/TransportTicker/transportTicker.ts";
-import { SharedPlayhead } from "@/components/Session/Timeline/SharedPlayhead";
+import { SharedPlayhead } from "@/components/Session/Timeline/Shared/SharedPlayhead.tsx";
 import * as Tone from "tone";
 
 interface PlayheadProps {

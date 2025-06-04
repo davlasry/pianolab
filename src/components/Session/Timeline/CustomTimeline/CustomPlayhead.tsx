@@ -1,6 +1,6 @@
 import type { TransportState } from "@/lib/CustomPlayer";
-import { useCustomProgressPercent } from "@/CustomTransportTicker/customTransportTicker";
-import { SharedPlayhead } from "@/components/Session/Timeline/SharedPlayhead";
+import { useCustomProgressPercent } from "@/CustomTransportTicker/customTransportTicker.ts";
+import { SharedPlayhead } from "@/components/Session/Timeline/Shared/SharedPlayhead.tsx";
 
 interface CustomPlayheadProps {
     duration: number;

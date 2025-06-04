@@ -1,9 +1,9 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button.tsx";
 import {
     useAutoScrollEnabled,
     useToggleAutoScroll,
-} from "@/stores/timelineStore";
-import { AutoScrollIcon } from "./icons/AutoScrollIcon";
+} from "@/stores/timelineStore.ts";
+import { AutoScrollIcon } from "src/components/Session/Timeline/icons/AutoScrollIcon.tsx";
 
 export function TimelineAuxControls() {
     const isAutoScrollEnabled = useAutoScrollEnabled();

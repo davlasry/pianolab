@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { RecordingFormModal } from "@/components/Recordings/SessionFormModal";
+import { RecordingFormModal } from "@/components/Sessions/SessionFormModal";
 import { SessionStatusDisplay } from "@/components/SessionStatusDisplay";
 import { LinkedPiecesDisplay } from "@/components/LinkedPiecesDisplay";
 import { CustomPlayerContent } from "@/components/Session/CustomPlayerContent";
@@ -11,7 +11,7 @@ import {
 import { CustomTransportTickerProvider } from "@/CustomTransportTicker/CustomTransportTickerProvider";
 import { KeyboardShortcutProvider } from "@/shortcuts/KeyboardShortcuts";
 import { useSetSessionId } from "@/stores/sessionStore";
-import { TopNavbar } from "@/components/Session/TopNavbar.tsx";
+import { TopNavbar } from "@/components/Session/TopNavbar/TopNavbar.tsx";
 import { useCustomPlayerViewLogic } from "@/hooks/useCustomPlayerViewLogic";
 
 const CustomPlayerPageContent = () => {

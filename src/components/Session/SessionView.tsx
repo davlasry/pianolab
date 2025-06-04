@@ -1,17 +1,19 @@
 import { useParams } from "react-router-dom";
-import { PlayerProvider } from "@/components/Session/context/PlayerContext.tsx";
-import { PlayerContent } from "@/components/PlayerContent.tsx";
-import { RecordingFormModal } from "@/components/Recordings/SessionFormModal.tsx";
-import { useSessionViewLogic } from "@/hooks/useSessionViewLogic";
-import { SessionStatusDisplay } from "@/components/SessionStatusDisplay";
+import {
+    PlayerProvider,
+    usePlayerContext,
+} from "@/components/Session/context/PlayerContext.tsx";
+import { SessionContent } from "@/components/Session/SessionContent.tsx";
+import { RecordingFormModal } from "@/components/Sessions/SessionFormModal.tsx";
+import { useSessionViewLogic } from "@/hooks/useSessionViewLogic.ts";
+import { SessionStatusDisplay } from "@/components/SessionStatusDisplay.tsx";
 import { TransportTickerProvider } from "@/TransportTicker/TransportTickerProvider.tsx";
 import { KeyboardShortcutProvider } from "@/shortcuts/KeyboardShortcuts.tsx";
-import { useSetSessionId } from "@/stores/sessionStore";
+import { useSetSessionId } from "@/stores/sessionStore.ts";
 import { useEffect } from "react";
-import { TopNavbar } from "@/components/Session/TopNavbar.tsx";
-import { usePlayerContext } from "@/components/Session/context/PlayerContext";
+import { TopNavbar } from "@/components/Session/TopNavbar/TopNavbar.tsx";
 
-const SessionContent = () => {
+const _SessionView = () => {
     const {
         isReady,
         error,
@@ -68,7 +70,7 @@ const SessionContent = () => {
 
             <div className="flex flex-1 flex-col">
                 <div className="flex flex-1">
-                    <PlayerContent />
+                    <SessionContent />
                 </div>
             </div>
 
@@ -112,7 +114,7 @@ export const SessionView = () => {
         <PlayerProvider>
             <TransportTickerProvider>
                 <KeyboardShortcutProvider>
-                    <SessionContent />
+                    <_SessionView />
                 </KeyboardShortcutProvider>
             </TransportTickerProvider>
         </PlayerProvider>

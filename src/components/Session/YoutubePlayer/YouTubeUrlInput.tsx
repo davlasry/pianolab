@@ -1,11 +1,11 @@
-import { useState, useCallback } from "react";
 import type { KeyboardEvent } from "react";
-import { useYouTubeActions, useYouTubeUrl } from "@/stores/youtubeStore";
-import { isValidYouTubeUrl } from "@/utils/youtubeUtils";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useState, useCallback } from "react";
+import { useYouTubeActions, useYouTubeUrl } from "@/stores/youtubeStore.ts";
+import { isValidYouTubeUrl } from "@/utils/youtubeUtils.ts";
+import { Button } from "@/components/ui/button.tsx";
+import { Input } from "@/components/ui/input.tsx";
 import { Eye, EyeOff, Youtube } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils.ts";
 
 interface YouTubeUrlInputProps {
     className?: string;

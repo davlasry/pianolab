@@ -1,6 +1,6 @@
 import type { RefObject } from "react";
 import type { TransportState } from "@/lib/CustomPlayer";
-import { SharedTimelineSelection } from "@/components/Session/Timeline/SharedTimelineSelection";
+import { SharedTimelineSelection } from "@/components/Session/Timeline/Shared/SharedTimelineSelection.tsx";
 
 interface CustomTimelineSelectionProps {
     selectionStart: number | null;

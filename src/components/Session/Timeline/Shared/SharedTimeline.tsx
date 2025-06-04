@@ -1,14 +1,14 @@
 import { type Ref, forwardRef, useRef, useImperativeHandle } from "react";
-import { TimelineChords } from "@/components/Session/Timeline/TimelineChords";
-import { useTimelineClick } from "@/components/Session/Timeline/hooks/useTimelineClick";
-import { useInitialScrollPosition } from "@/components/Session/Timeline/hooks/useInitialScrollPosition";
-import { useTimelineScroll } from "@/components/Session/Timeline/hooks/useTimelineScroll";
-import { useTimelineWheel } from "@/components/Session/Timeline/hooks/useTimelineWheel";
-import { SharedTimelineSelection } from "@/components/Session/Timeline/SharedTimelineSelection";
+import { TimelineChords } from "@/components/Session/Timeline/TimelineChords.tsx";
+import { useTimelineClick } from "@/components/Session/Timeline/hooks/useTimelineClick.ts";
+import { useInitialScrollPosition } from "@/components/Session/Timeline/hooks/useInitialScrollPosition.ts";
+import { useTimelineScroll } from "@/components/Session/Timeline/hooks/useTimelineScroll.ts";
+import { useTimelineWheel } from "@/components/Session/Timeline/hooks/useTimelineWheel.ts";
+import { SharedTimelineSelection } from "@/components/Session/Timeline/Shared/SharedTimelineSelection.tsx";
 import { TimelineZoomControls } from "@/components/Session/Timeline/TimelineZoom/TimelineZoomControls.tsx";
 import { useTimelineZoom } from "@/components/Session/Timeline/TimelineZoom/useTimelineZoom.ts";
 import { ZoomableContainer } from "@/components/Session/Timeline/TimelineZoom/ZoomableContainer.tsx";
-import { SharedPlayhead } from "@/components/Session/Timeline/SharedPlayhead";
+import { SharedPlayhead } from "@/components/Session/Timeline/Shared/SharedPlayhead.tsx";
 
 export interface TimelineHandle {
     scrollToBeginning: () => void;

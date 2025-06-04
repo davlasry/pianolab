@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button.tsx";
+import { Input } from "@/components/ui/input.tsx";
+import { Badge } from "@/components/ui/badge.tsx";
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@/components/ui/popover.tsx";
 import {
     Command,
     CommandEmpty,
@@ -14,22 +14,22 @@ import {
     CommandInput,
     CommandItem,
     CommandList,
-} from "@/components/ui/command";
+} from "@/components/ui/command.tsx";
 import { X, Check, Music, Clock, Hash } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils.ts";
 import {
     useChordProgression,
     useActiveChordIndex,
     useSelectedChordIndices,
     useChordsActions,
     useEditModeTriggered,
-} from "@/stores/chordsStore";
+} from "@/stores/chordsStore.ts";
 import {
     parseChord,
     getChordSuggestions,
     getProgressionSuggestions,
     type ChordInfo,
-} from "@/lib/chordAnalysis";
+} from "@/lib/chordAnalysis.ts";
 
 export const ChordEditor = () => {
     const chordProgression = useChordProgression();

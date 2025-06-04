@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import { useYouTubeAPI } from "@/hooks/useYouTubeAPI";
-import { extractYouTubeVideoId } from "@/utils/youtubeUtils";
+import { useYouTubeAPI } from "@/hooks/useYouTubeAPI.ts";
+import { extractYouTubeVideoId } from "@/utils/youtubeUtils.ts";
 import {
     useYouTubeActions,
     useYouTubeIsVisible,
     useYouTubeUrl,
     useYouTubeVideoId,
-} from "@/stores/youtubeStore";
-import { transportTicker } from "@/TransportTicker/transportTicker";
-import { useTransportState } from "@/components/Session/hooks/useTransportState";
+} from "@/stores/youtubeStore.ts";
+import { transportTicker } from "@/TransportTicker/transportTicker.ts";
+import { useTransportState } from "@/components/Session/hooks/useTransportState.ts";
 import * as Tone from "tone";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils.ts";
 
 // Define a type for the YouTube player instance
 interface YouTubePlayerInstance {

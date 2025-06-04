@@ -8,12 +8,12 @@ import CustomControls from "@/components/Session/Controls/CustomControls";
 import { Keyboard } from "@/components/Session/Keyboard/components/Keyboard";
 import { customKeyboard } from "@/components/Session/Keyboard/components/CustomKeyboard";
 import { KeyboardToolbar } from "@/components/Session/Keyboard/components/KeyboardToolbar";
-import { CustomChordEditor } from "@/components/Session/CustomChordEditor";
+import { CustomChordEditor } from "@/components/Session/ChordEditor/CustomChordEditor.tsx";
 import { useCustomTransportShortcuts } from "@/components/Session/hooks/useCustomTransportShortcuts";
 import { useCustomChordShortcuts } from "@/components/Session/hooks/useCustomChordShortcuts";
 import { useCustomSpaceBarControl } from "@/components/Session/hooks/useCustomSpaceBarControl";
-import type { TimelineHandle } from "@/components/Session/Timeline/SharedTimeline.tsx";
-import CustomTimeline from "@/components/Session/Timeline/CustomTimeline.tsx";
+import type { TimelineHandle } from "@/components/Session/Timeline/Shared/SharedTimeline.tsx";
+import CustomTimeline from "@/components/Session/Timeline/CustomTimeline/CustomTimeline.tsx";
 
 export const CustomPlayerContent = () => {
     const timelineRef = useRef<TimelineHandle>(null);

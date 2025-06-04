@@ -1,6 +1,6 @@
 import type { RefObject } from "react";
 import type { TransportState } from "@/components/Session/hooks/useTransportState";
-import { SharedTimelineSelection } from "@/components/Session/Timeline/SharedTimelineSelection";
+import { SharedTimelineSelection } from "@/components/Session/Timeline/Shared/SharedTimelineSelection.tsx";
 import * as Tone from "tone";
 
 interface TimelineSelectionProps {
