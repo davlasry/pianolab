@@ -1,6 +1,9 @@
 {
-    "enableAllProjectMcpServers": false,
-    "permissions": {
-        "allow": ["Bash(npm run build:*)"]
-    }
+  "permissions": {
+    "allow": [
+      "Bash(npm run build:*)",
+      "Bash(rg:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": false
 }

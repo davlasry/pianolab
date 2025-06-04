@@ -10,6 +10,8 @@ import { useCustomPlayer } from "@/hooks/useCustomPlayer";
 import { useFetchSession } from "@/hooks/queries/useFetchSession";
 import type { Chord } from "@/lib/CustomPlayer";
 import { useParams } from "react-router-dom";
+import { usePlayheadActions } from "@/stores/playheadStore.ts";
+import { customTransportTicker } from "@/CustomTransportTicker/customTransportTicker.ts";
 
 // Create a type for our context based on what useCustomPlayer returns
 type CustomPlayerContextType = ReturnType<typeof useCustomPlayer> & {
@@ -59,6 +61,8 @@ export const CustomPlayerProvider = ({ children }: { children: ReactNode }) => {
         visualizationFPS: 30,
     });
 
+    const { setRestoredPosition } = usePlayheadActions();
+
     // Load media when session is available
     useEffect(() => {
         if (!customPlayer.isPlayerReady || !session || sessionLoading) return;
@@ -103,6 +107,15 @@ export const CustomPlayerProvider = ({ children }: { children: ReactNode }) => {
                     }
                 }
 
+                // After media is loaded, restore position from localStorage if available
+                const savedPosition = customTransportTicker.getSnapshot();
+                if (savedPosition > 0 && customPlayer.duration > 0 && savedPosition < customPlayer.duration) {
+                    // Seek to the saved position
+                    customPlayer.seek(savedPosition);
+                    // Set restored position with centering enabled for initial load
+                    setRestoredPosition(savedPosition, true);
+                }
+
                 setIsLoading(false);
             } catch (err) {
                 console.error("Error loading media:", err);
@@ -118,6 +131,9 @@ export const CustomPlayerProvider = ({ children }: { children: ReactNode }) => {
         sessionLoading,
         customPlayer.loadMedia,
         customPlayer.setChordProgression,
+        customPlayer.seek,
+        customPlayer.duration,
+        setRestoredPosition,
     ]);
 
     // Timeline loop control functions
@@ -180,9 +196,16 @@ export const CustomPlayerProvider = ({ children }: { children: ReactNode }) => {
         return () => clearInterval(intervalId);
     }, [isLoopActive, activeLoop, customPlayer.currentTime, customPlayer.seek]);
 
+    // Wrap the seek function to handle restored position without centering
+    const wrappedSeek = useCallback((time: number) => {
+        customPlayer.seek(time);
+        setRestoredPosition(time, false); // Don't center on manual seeks
+    }, [customPlayer.seek, setRestoredPosition]);
+
     // Combine player and notes values into a single context value
     const contextValue: CustomPlayerContextType = {
         ...customPlayer,
+        seek: wrappedSeek, // Override the seek function
         session,
         isLoading: isLoading || sessionLoading,
         error: loadError || sessionError,

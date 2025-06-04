@@ -5,8 +5,9 @@ import { create } from "zustand";
 ───────────────────────────────────────────────────────────────*/
 interface PlayheadState {
     restoredPosition: number | null;
+    shouldCenter: boolean;
     actions: {
-        setRestoredPosition: (time: number | null) => void;
+        setRestoredPosition: (time: number | null, shouldCenter?: boolean) => void;
     };
 }
 
@@ -16,11 +17,12 @@ interface PlayheadState {
 export const usePlayheadStore = create<PlayheadState>((set) => ({
     // Initial state
     restoredPosition: null,
+    shouldCenter: false,
 
     // Actions
     actions: {
-        setRestoredPosition: (time: number | null) =>
-            set({ restoredPosition: time }),
+        setRestoredPosition: (time: number | null, shouldCenter = false) =>
+            set({ restoredPosition: time, shouldCenter }),
     },
 }));
 
@@ -29,6 +31,9 @@ export const usePlayheadStore = create<PlayheadState>((set) => ({
 ───────────────────────────────────────────────────────────────*/
 export const useRestoredPosition = () =>
     usePlayheadStore((state) => state.restoredPosition);
+
+export const useShouldCenter = () =>
+    usePlayheadStore((state) => state.shouldCenter);
 
 /*───────────────────────────────────────────────────────────────
   Actions Hook

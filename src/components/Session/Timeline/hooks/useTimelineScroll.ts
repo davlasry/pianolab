@@ -19,13 +19,14 @@ export const useTimelineScroll = (duration: number): TimelineScrollHandle => {
         (time: number, center = false) => {
             if (!outerRef.current || !containerRef.current) return;
 
-            // Ensure time is within valid range
-            const clampedTime = Math.max(0, Math.min(time, duration));
-            const pct = clampedTime / duration;
-            const totalWidth = containerRef.current.scrollWidth;
-            const targetPosition = pct * totalWidth;
-
+            // Only scroll if center is explicitly requested (for initial load)
             if (center) {
+                // Ensure time is within valid range
+                const clampedTime = Math.max(0, Math.min(time, duration));
+                const pct = clampedTime / duration;
+                const totalWidth = containerRef.current.scrollWidth;
+                const targetPosition = pct * totalWidth;
+
                 const viewportWidth = outerRef.current.clientWidth;
                 let scrollPosition = Math.max(
                     0,
@@ -37,13 +38,8 @@ export const useTimelineScroll = (duration: number): TimelineScrollHandle => {
                     maxScroll > 0 ? maxScroll : 0,
                 );
                 outerRef.current.scrollLeft = scrollPosition;
-            } else {
-                const margin = outerRef.current.clientWidth * 0.1;
-                outerRef.current.scrollLeft = Math.max(
-                    0,
-                    targetPosition - margin,
-                );
             }
+            // If center=false, don't scroll at all - let the playhead stay where the user clicked
         },
         [duration],
     );

@@ -101,7 +101,6 @@ const SharedTimeline = (
     // Handle click events for seeking and setting end time
     const onClick = useTimelineClick({
         containerRef,
-        barRef,
         duration: validDuration,
         onSeek,
         isCreatingLoop,
@@ -150,12 +149,10 @@ const SharedTimeline = (
 
                     <SharedPlayhead
                         duration={validDuration}
-                        isPlaying={isPlaying}
                         currentTime={currentTime}
                         percent={percentComplete}
                         barRef={barRef}
                         containerRef={containerRef}
-                        outerRef={outerRef}
                         zoomLevel={zoomLevel}
                     />
                 </ZoomableContainer>

@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { TimelineAuxControls } from "@/components/Session/TopNavbar/TimelineAuxControls.tsx";
 import LoopControls from "@/components/Session/Controls/components/LoopControls.tsx";
 import {
     Tooltip,
@@ -92,8 +91,6 @@ export const TopNavbar = ({
             </div>
 
             <div className="flex items-center gap-4">
-                <TimelineAuxControls />
-
                 <LoopControls
                     onSetStartAtPlayhead={onSetStartAtPlayhead}
                     onSubmitSelection={onSubmitSelection}

@@ -3,6 +3,7 @@ import { useCustomPlayerContext } from "@/components/Session/context/CustomPlaye
 import {
     usePlayheadActions,
     useRestoredPosition,
+    useShouldCenter,
 } from "@/stores/playheadStore";
 import CustomControls from "@/components/Session/Controls/CustomControls";
 import { Keyboard } from "@/components/Session/Keyboard/components/Keyboard";
@@ -35,6 +36,7 @@ export const CustomPlayerContent = () => {
 
     // Get the restored position and action to clear it from Zustand store
     const restoredPosition = useRestoredPosition();
+    const shouldCenter = useShouldCenter();
     const { setRestoredPosition } = usePlayheadActions();
 
     // React to changes in the restored position
@@ -44,7 +46,7 @@ export const CustomPlayerContent = () => {
             if (restoredPosition > 0 && restoredPosition < duration) {
                 // Add a small delay to ensure the timeline is fully rendered
                 setTimeout(() => {
-                    timelineRef.current?.scrollToTime(restoredPosition, true);
+                    timelineRef.current?.scrollToTime(restoredPosition, shouldCenter);
 
                     // Clear the restored position after handling it
                     setRestoredPosition(null);
@@ -54,7 +56,7 @@ export const CustomPlayerContent = () => {
                 setRestoredPosition(null);
             }
         }
-    }, [restoredPosition, duration, setRestoredPosition]);
+    }, [restoredPosition, shouldCenter, duration, setRestoredPosition]);
 
     // Convert MidiNote[] from CustomPlayer to the format expected by Keyboard
     const formattedActiveNotes = activeNotes.map((note) => ({

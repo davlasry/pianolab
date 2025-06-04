@@ -3,7 +3,6 @@ import type { MouseEvent } from "react";
 
 interface UseTimelineClickProps {
     containerRef: { current: HTMLDivElement };
-    barRef: { current: HTMLDivElement | null };
     duration: number;
     onSeek: (time: number) => void;
     isCreatingLoop?: boolean;
@@ -12,7 +11,6 @@ interface UseTimelineClickProps {
 
 export const useTimelineClick = ({
     containerRef,
-    barRef,
     duration,
     onSeek,
     isCreatingLoop,
@@ -41,12 +39,7 @@ export const useTimelineClick = ({
             if (isCreatingLoop && onSetEndTime) {
                 onSetEndTime(time);
             }
-
-            if (barRef.current && containerRef.current) {
-                const x = percent * containerRef.current.scrollWidth;
-                barRef.current.style.transform = `translateX(${x}px)`;
-            }
         },
-        [containerRef, barRef, duration, onSeek, isCreatingLoop, onSetEndTime],
+        [containerRef, duration, onSeek, isCreatingLoop, onSetEndTime],
     );
 };

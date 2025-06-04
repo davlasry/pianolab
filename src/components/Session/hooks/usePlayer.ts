@@ -130,7 +130,7 @@ export const usePlayer = (notes: Note[]) => {
                                 Tone.getTransport().seconds = time;
                                 transportTicker.set(time);
 
-                                setRestoredPosition(time);
+                                setRestoredPosition(time, true);
                             }
                         }
 
@@ -336,8 +336,8 @@ export const usePlayer = (notes: Note[]) => {
                 }
             }
 
-            // 4 – Set the playhead position in the store
-            setRestoredPosition(time);
+            // 4 – Set the playhead position in the store (without centering for manual seeks)
+            setRestoredPosition(time, false);
         },
         [setRestoredPosition],
     );

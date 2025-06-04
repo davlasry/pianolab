@@ -3,6 +3,7 @@ import { ChordEditor } from "@/components/Session/ChordEditor/ChordEditor.tsx";
 import { usePlayerContext } from "@/components/Session/context/PlayerContext.tsx";
 import {
     useRestoredPosition,
+    useShouldCenter,
     usePlayheadActions,
 } from "@/stores/playheadStore.ts";
 import Controls from "@/components/Session/Controls/Controls.tsx";
@@ -47,6 +48,7 @@ export const SessionContent = () => {
 
     // Get the restored position and action to clear it from Zustand store
     const restoredPosition = useRestoredPosition();
+    const shouldCenter = useShouldCenter();
     const { setRestoredPosition } = usePlayheadActions();
 
     // React to changes in the restored position
@@ -60,7 +62,7 @@ export const SessionContent = () => {
             if (restoredPosition > 0 && restoredPosition < audioDuration) {
                 // Add a small delay to ensure the timeline is fully rendered
                 setTimeout(() => {
-                    timelineRef.current?.scrollToTime(restoredPosition, true);
+                    timelineRef.current?.scrollToTime(restoredPosition, shouldCenter);
 
                     // Clear the restored position after handling it
                     setRestoredPosition(null);
@@ -70,7 +72,7 @@ export const SessionContent = () => {
                 setRestoredPosition(null);
             }
         }
-    }, [restoredPosition, audioDuration, setRestoredPosition]);
+    }, [restoredPosition, shouldCenter, audioDuration, setRestoredPosition]);
 
     return (
         <div

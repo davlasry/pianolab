@@ -1,18 +1,11 @@
-import { useCallback, useEffect, useRef } from "react";
-import { useTimelineStore } from "@/stores/timelineStore.ts";
-import { useThrottledCallback } from "@/hooks/useThrottledCallback";
-
-const SCROLL_THRESHOLD = 0.95;
-const LEFT_MARGIN_RATIO = 0.1;
+import { useEffect } from "react";
 
 interface SharedPlayheadProps {
     duration: number;
-    isPlaying: boolean;
     percent: number;
     currentTime: number;
     barRef: React.RefObject<HTMLDivElement | null>;
     containerRef: React.RefObject<HTMLDivElement | null>;
-    outerRef: React.RefObject<HTMLDivElement | null>;
     zoomLevel: number;
 }
 
@@ -22,76 +15,12 @@ interface SharedPlayheadProps {
  */
 export function SharedPlayhead({
     duration,
-    isPlaying,
     percent,
     currentTime,
     barRef,
     containerRef,
-    outerRef,
     zoomLevel,
 }: SharedPlayheadProps) {
-    const cachedDimensions = useRef({ containerWidth: 0, outerWidth: 0 });
-    const lastPercent = useRef(percent);
-
-    // Keep track of container width via ResizeObserver with caching
-    useEffect(() => {
-        if (!outerRef.current || !containerRef.current) return;
-        
-        const updateDimensions = (entries?: ResizeObserverEntry[]) => {
-            const outerRect = entries?.[0]?.contentRect || outerRef.current!.getBoundingClientRect();
-            const containerWidth = containerRef.current!.scrollWidth;
-            
-            cachedDimensions.current = {
-                containerWidth,
-                outerWidth: outerRect.width
-            };
-        };
-        
-        // Initial measurement
-        updateDimensions();
-        
-        const ro = new ResizeObserver(updateDimensions);
-        ro.observe(outerRef.current);
-        return () => ro.disconnect();
-    }, [outerRef, containerRef]);
-
-    // Optimized scroll logic with cached dimensions
-    const scrollLogic = useCallback(
-        (pct: number) => {
-            // Get the current state directly from the store
-            const currentAutoScroll =
-                useTimelineStore.getState().isAutoScrollEnabled;
-
-            if (
-                !currentAutoScroll ||
-                !isPlaying ||
-                !outerRef.current ||
-                !containerRef.current ||
-                !barRef.current
-            ) {
-                return;
-            }
-
-            // Use cached dimensions to avoid expensive DOM queries
-            const { containerWidth, outerWidth: cachedOuterWidth } = cachedDimensions.current;
-            const currentX = pct * containerWidth * zoomLevel;
-            const containerRightThreshold = cachedOuterWidth * SCROLL_THRESHOLD;
-            const viewportLeft = outerRef.current.scrollLeft;
-            const barRightEdge = currentX - viewportLeft;
-
-            // Only scroll if the bar is approaching the right threshold
-            if (barRightEdge >= containerRightThreshold) {
-                const leftMargin = cachedOuterWidth * LEFT_MARGIN_RATIO;
-                const target = currentX - leftMargin;
-                outerRef.current.scrollLeft = Math.max(0, target);
-            }
-        },
-        [isPlaying, containerRef, outerRef, barRef, zoomLevel],
-    );
-    
-    // Throttled version for performance
-    const throttledScrollCheck = useThrottledCallback(scrollLogic, 100);
-
     // Optimized playhead animation with CSS custom properties
     useEffect(() => {
         if (barRef.current && containerRef.current) {
@@ -100,27 +29,41 @@ export function SharedPlayhead({
             // Apply zoom to the position calculation
             const x = percent * baseWidth * zoomLevel;
             
+            // Offset by half the icon width (10px) to center the icon on the position
+            const centeredX = x - 10;
+            
             // Use CSS custom property for better performance
-            barRef.current.style.setProperty('--playhead-x', `${x}px`);
+            barRef.current.style.setProperty('--playhead-x', `${centeredX}px`);
         }
-        
-        // Only trigger scroll check if percent actually changed significantly
-        if (Math.abs(percent - lastPercent.current) > 0.001) {
-            throttledScrollCheck(percent);
-            lastPercent.current = percent;
-        }
-    }, [barRef, containerRef, percent, throttledScrollCheck, zoomLevel]);
+    }, [barRef, containerRef, percent, zoomLevel]);
 
     return (
         <div
             ref={barRef}
-            className="playhead-bar absolute top-0 bottom-0 z-20 w-px bg-white"
+            className="playhead-bar absolute top-0 bottom-0 z-20 flex flex-col items-center"
             role="slider"
             aria-valuemin={0}
             aria-valuemax={duration}
             aria-valuenow={currentTime}
             aria-label="Playback position"
             tabIndex={0}
-        />
+            style={{ transform: 'translateX(var(--playhead-x, 0px))' }}
+        >
+            {/* Playhead icon */}
+            <svg
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                className="flex-shrink-0 drop-shadow-sm"
+                style={{ marginTop: '-2px' }}
+            >
+                <path
+                    d="M2 2 C2 0.895 2.895 0 4 0 L16 0 C17.105 0 18 0.895 18 2 L18 12 C18 12.552 17.776 13.079 17.382 13.447 L10.618 19.447 C10.272 19.772 9.728 19.772 9.382 19.447 L2.618 13.447 C2.224 13.079 2 12.552 2 12 L2 2 Z"
+                    fill="oklch(0.4365 0.1044 156.7556)"
+                />
+            </svg>
+            {/* Vertical line */}
+            <div className="w-0.5 bg-white flex-1 -mt-px" />
+        </div>
     );
 }

@@ -1,23 +1,18 @@
-import type { TransportState } from "@/lib/CustomPlayer";
 import { useCustomProgressPercent } from "@/CustomTransportTicker/customTransportTicker.ts";
 import { SharedPlayhead } from "@/components/Session/Timeline/Shared/SharedPlayhead.tsx";
 
 interface CustomPlayheadProps {
     duration: number;
-    transportState?: TransportState;
     barRef: React.RefObject<HTMLDivElement | null>;
     containerRef: React.RefObject<HTMLDivElement | null>;
-    outerRef: React.RefObject<HTMLDivElement | null>;
     zoomLevel: number;
     currentTime?: number;
 }
 
 export function CustomPlayhead({
     duration = 100,
-    transportState,
     barRef,
     containerRef,
-    outerRef,
     zoomLevel,
     currentTime = 0,
 }: CustomPlayheadProps) {
@@ -31,18 +26,13 @@ export function CustomPlayhead({
     // Use our custom progress percent hook instead of the Tone.js one
     const percent = useCustomProgressPercent(validDuration);
 
-    // Map the transport state to a boolean for the shared component
-    const isPlaying = transportState === "playing";
-
     return (
         <SharedPlayhead
             duration={validDuration}
-            isPlaying={isPlaying}
             currentTime={validCurrentTime}
             percent={percent}
             barRef={barRef}
             containerRef={containerRef}
-            outerRef={outerRef}
             zoomLevel={zoomLevel}
         />
     );
