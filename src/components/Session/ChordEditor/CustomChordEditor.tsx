@@ -45,7 +45,6 @@ export const CustomChordEditor = () => {
     const [editValue, setEditValue] = useState("");
     const [isEditing, setIsEditing] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
-    const prevActiveChordIndexRef = useRef<number | null>(null);
     const lastSeenEditTrigger = useRef(0);
 
     const activeChord =

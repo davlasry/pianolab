@@ -2,19 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover.tsx";
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-} from "@/components/ui/command.tsx";
 import { X, Check, Music, Clock, Hash } from "lucide-react";
 import { cn } from "@/lib/utils.ts";
 import {
@@ -26,8 +13,6 @@ import {
 } from "@/stores/chordsStore.ts";
 import {
     parseChord,
-    getChordSuggestions,
-    getProgressionSuggestions,
     type ChordInfo,
 } from "@/lib/chordAnalysis.ts";
 
@@ -41,7 +26,6 @@ export const ChordEditor = () => {
     const [editValue, setEditValue] = useState("");
     const [isEditing, setIsEditing] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
-    const prevActiveChordIndexRef = useRef<number | null>(null);
     const lastSeenEditTrigger = useRef(0);
 
     const activeChord =
@@ -50,17 +34,6 @@ export const ChordEditor = () => {
         ? parseChord(activeChord.label)
         : null;
 
-    // Get chord suggestions based on current input
-    const suggestions = getChordSuggestions(editValue);
-    const progressionSuggestions =
-        activeChord && activeChordIndex !== null
-            ? getProgressionSuggestions(
-                  activeChord.label,
-                  chordProgression
-                      .slice(0, activeChordIndex)
-                      .map((c) => c.label),
-              )
-            : [];
 
     // Update edit value when active chord changes
     useEffect(() => {
@@ -138,13 +111,6 @@ export const ChordEditor = () => {
         }
     };
 
-    const handleSuggestionSelect = (suggestion: string) => {
-        setEditValue(suggestion);
-        if (activeChordIndex !== null) {
-            updateChordLabel(activeChordIndex, suggestion);
-            setIsEditing(false);
-        }
-    };
 
     const getQualityColor = (quality: string) => {
         switch (quality) {
