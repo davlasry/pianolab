@@ -87,18 +87,60 @@ export const TimelineChord = ({
             onClick={(e) => handleChordClick(e)}
             onHandleDoubleClick={handleChordHandleDoubleClick}
             className={cn(
-                "group absolute top-8 bottom-1 z-10 flex flex-col items-center justify-center rounded-lg p-2.5 shadow-sm transition-colors duration-150 ease-in-out",
+                "group absolute top-8 bottom-1 z-10 flex flex-col items-center justify-center rounded-lg p-2.5 shadow-sm transition-all duration-150 ease-in-out",
+                // Base LCD styling for all chords
+                "bg-black border font-mono",
+                // State-specific styling
                 isCurrentChord && isSelected
-                    ? "bg-primary text-primary-foreground ring-1 ring-white/70 ring-inset"
+                    ? "border-2 border-primary text-primary ring-2 ring-primary/50 ring-offset-1 ring-offset-black shadow-lg"
                     : isCurrentChord
-                      ? "border border-primary/70 bg-primary text-primary-foreground"
+                      ? "border-2 border-primary text-primary shadow-lg"
                       : isSelected
-                        ? "bg-card text-primary ring-1 ring-primary ring-inset"
-                        : "border border-border bg-card text-card-foreground hover:bg-accent hover:text-accent-foreground",
+                        ? "border border-primary/60 text-primary/90 ring-1 ring-primary/40 ring-offset-1 ring-offset-black"
+                        : "border border-primary/30 text-primary/70 hover:border-primary/50 hover:text-primary/85",
                 isEditMode && "cursor-grab",
             )}
             draggingClassName="z-20 opacity-75 shadow-lg ring-2 ring-ring"
         >
+            {/* LCD glow effects - different intensities based on state */}
+            {isCurrentChord ? (
+                /* Active chord - full LCD effects */
+                <>
+                    <div className="absolute -inset-1 bg-primary/25 blur-sm rounded-lg" />
+                    <div className="absolute inset-0 bg-primary/8 rounded-lg" />
+                    <div 
+                        className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/12 to-transparent opacity-40 rounded-lg"
+                        style={{
+                            backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 1px, hsl(var(--primary) / 0.15) 1px, hsl(var(--primary) / 0.15) 2px)'
+                        }}
+                    />
+                    <div className="absolute inset-1 bg-gradient-to-b from-primary/5 to-black/50 rounded-md" />
+                </>
+            ) : isSelected ? (
+                /* Selected chord - medium LCD effects */
+                <>
+                    <div className="absolute -inset-0.5 bg-primary/15 blur-sm rounded-lg" />
+                    <div className="absolute inset-0 bg-primary/4 rounded-lg" />
+                    <div 
+                        className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/8 to-transparent opacity-25 rounded-lg"
+                        style={{
+                            backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 1px, hsl(var(--primary) / 0.1) 1px, hsl(var(--primary) / 0.1) 2px)'
+                        }}
+                    />
+                </>
+            ) : (
+                /* Normal chord - subtle LCD effects */
+                <>
+                    <div className="absolute inset-0 bg-primary/2 rounded-lg" />
+                    <div 
+                        className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/4 to-transparent opacity-15 rounded-lg"
+                        style={{
+                            backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, hsl(var(--primary) / 0.05) 2px, hsl(var(--primary) / 0.05) 3px)'
+                        }}
+                    />
+                </>
+            )}
+            
             {isEditMode && (
                 <Button
                     onClick={handleAddAfter}
@@ -113,18 +155,25 @@ export const TimelineChord = ({
             )}
             <div
                 className={cn(
-                    "truncate text-sm font-medium",
+                    "relative truncate font-mono font-bold tracking-wide",
                     isCurrentChord
-                        ? "text-primary-foreground"
+                        ? "text-sm text-primary drop-shadow-[0_0_5px_hsl(var(--primary)_/_0.8)]"
                         : isSelected
-                          ? "text-primary"
-                          : "text-card-foreground",
+                          ? "text-sm text-primary/90 drop-shadow-[0_0_3px_hsl(var(--primary)_/_0.5)]"
+                          : "text-xs text-primary/70 drop-shadow-[0_0_2px_hsl(var(--primary)_/_0.3)]",
                 )}
             >
                 {chord.label}
             </div>
             {isEditMode && !chord.label && (
-                <div className="mt-0.5 text-base font-normal text-muted-foreground">
+                <div className={cn(
+                    "mt-0.5 font-mono font-bold",
+                    isCurrentChord 
+                        ? "relative text-base text-primary drop-shadow-[0_0_4px_hsl(var(--primary)_/_0.7)]"
+                        : isSelected
+                          ? "text-sm text-primary/80 drop-shadow-[0_0_2px_hsl(var(--primary)_/_0.4)]"
+                          : "text-xs text-primary/50 drop-shadow-[0_0_1px_hsl(var(--primary)_/_0.2)]"
+                )}>
                     ?
                 </div>
             )}
