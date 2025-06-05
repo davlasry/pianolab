@@ -3,7 +3,7 @@ import * as Tone from "tone";
 import type { Note } from "@/components/Session/hooks/useMidiNotes.ts";
 import { useTransportState } from "@/components/Session/hooks/useTransportState.ts";
 import { transportTicker } from "@/TransportTicker/transportTicker.ts";
-import { useChordProgression } from "@/stores/chordsStore.ts";
+import { useChordProgression, useChordsActions } from "@/stores/chordsStore.ts";
 import { usePlayheadActions } from "@/stores/playheadStore.ts";
 import { useYouTubeIsReady, useYouTubePlayer, useYouTubeIsVisible } from "@/stores/youtubeStore.ts";
 
@@ -30,10 +30,21 @@ export const usePlayer = (notes: Note[]) => {
     const { setRestoredPosition } = usePlayheadActions();
 
     const chordProgression = useChordProgression();
+    const { findChordAtTime } = useChordsActions();
     const [activeNotes, setActiveNotes] = useState<ActiveNote[]>([]);
     const [activeChord, setActiveChord] = useState<string>("");
     const [audioDuration, setAudioDuration] = useState<number>(0);
     const [isMuted, setIsMuted] = useState<boolean>(false);
+
+    // Helper function to update active chord based on current time
+    const updateActiveChordForTime = useCallback((time: number) => {
+        const chordAtTime = findChordAtTime(time);
+        if (chordAtTime) {
+            setActiveChord(chordAtTime.chord.label);
+        } else {
+            setActiveChord("");
+        }
+    }, [findChordAtTime]);
 
     // keep these across renders
     const playerRef = useRef<Tone.Player | null>(null);
@@ -314,7 +325,6 @@ export const usePlayer = (notes: Note[]) => {
         (time: number) => {
             // 1 – silence and clear GUI
             setActiveNotes([]);
-            setActiveChord("");
             synthRef.current?.releaseAll(0); // immediate silence
 
             // 2 – If using YouTube, let YouTube seek first and wait for it to be ready
@@ -329,6 +339,8 @@ export const usePlayer = (notes: Note[]) => {
                         Tone.getTransport().seconds = actualTime;
                         transportTicker.set(actualTime);
                         setRestoredPosition(actualTime, false);
+                        // Update active chord based on the actual time
+                        updateActiveChordForTime(actualTime);
                     });
                 } catch (err) {
                     console.error("Error seeking YouTube player:", err);
@@ -336,15 +348,19 @@ export const usePlayer = (notes: Note[]) => {
                     Tone.getTransport().seconds = time;
                     transportTicker.set(time);
                     setRestoredPosition(time, false);
+                    // Update active chord based on the requested time
+                    updateActiveChordForTime(time);
                 }
             } else {
                 // 3 – No YouTube, seek transport directly
                 Tone.getTransport().seconds = time;
                 transportTicker.set(time);
                 setRestoredPosition(time, false);
+                // Update active chord based on the requested time
+                updateActiveChordForTime(time);
             }
         },
-        [setRestoredPosition],
+        [setRestoredPosition, updateActiveChordForTime],
     );
 
     const seekToBeginning = useCallback(() => {

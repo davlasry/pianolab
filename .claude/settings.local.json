@@ -14,7 +14,9 @@
       "Bash(git push:*)",
       "Bash(git revert:*)",
       "Bash(/Users/davidlasry/Library/Application\\ Support/fnm/node-versions/v20.9.0/installation/lib/node_modules/@anthropic-ai/claude-code/vendor/ripgrep/arm64-darwin/rg \"playhead.*icon|icon.*playhead\" /Users/davidlasry/dev/pianolab/src/components/Session/TopNavbar/TopNavbar.tsx)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npx tsc:*)"
     ]
   },
   "enableAllProjectMcpServers": false
