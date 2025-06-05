@@ -161,14 +161,12 @@ export function YouTubePlayer({
                             if (syncTime === 0) {
                                 const tickerTime = transportTicker.getSnapshot();
                                 if (tickerTime > 0) {
-                                    console.log(`YouTube ready: syncing Tone.js transport to restored position ${tickerTime}`);
                                     Tone.getTransport().seconds = tickerTime;
                                     syncTime = tickerTime;
                                 }
                             }
                             
                             if (syncTime > 0) {
-                                console.log(`YouTube ready: syncing to position ${syncTime}`);
                                 // Apply offset to make YouTube seek ahead to compensate for lag
                                 target.seekTo(Math.max(0, syncTime - YOUTUBE_SYNC_OFFSET), true);
                                 lastSyncTimeRef.current = syncTime;
@@ -199,19 +197,16 @@ export function YouTubePlayer({
 
                             // Don't sync if we're programmatically updating YouTube or during initialization
                             if (isUpdatingYouTubeRef.current || isInitializingRef.current) {
-                                console.log(`YouTube state change ignored: ${currentYTState} (updating: ${isUpdatingYouTubeRef.current}, initializing: ${isInitializingRef.current})`);
                                 return;
                             }
 
                             // Ignore if state hasn't actually changed (YouTube can fire duplicate events)
                             if (currentYTState === previousYTState) {
-                                console.log(`YouTube state unchanged: ${currentYTState}`);
                                 return;
                             }
 
                             // YouTube player states:
                             // -1 = unstarted, 0 = ended, 1 = playing, 2 = paused, 3 = buffering, 5 = video cued
-                            console.log(`YouTube state change: ${previousYTState} → ${currentYTState}, current app isPlaying: ${playerContextRef.current.isPlaying}`);
                             
                             // Process state change immediately for user interactions
                             // Get current values from ref to avoid stale closures
@@ -220,18 +215,15 @@ export function YouTubePlayer({
                             switch (currentYTState) {
                                 case 1: // playing
                                     if (!currentIsPlaying) {
-                                        console.log('YouTube playing → calling app play()');
                                         currentPlay();
                                     }
                                     break;
                                 case 2: // paused
                                     if (currentIsPlaying) {
-                                        console.log('YouTube paused → calling app pause()');
                                         currentPause();
                                     }
                                     break;
                                 case 0: // ended
-                                    console.log('YouTube ended → calling app stop()');
                                     currentStop();
                                     break;
                             }
@@ -334,7 +326,6 @@ export function YouTubePlayer({
                     if (syncTime === 0) {
                         const tickerTime = transportTicker.getSnapshot();
                         if (tickerTime > 0) {
-                            console.log(`New video: syncing Tone.js transport to restored position ${tickerTime}`);
                             Tone.getTransport().seconds = tickerTime;
                             syncTime = tickerTime;
                         }
@@ -344,7 +335,6 @@ export function YouTubePlayer({
                         // Wait a bit for video to cue before seeking
                         setTimeout(() => {
                             if (ytPlayerInstanceRef.current && typeof ytPlayerInstanceRef.current.seekTo === "function") {
-                                console.log(`New video cued: syncing to position ${syncTime}`);
                                 // Apply offset to make YouTube seek ahead to compensate for lag
                                 ytPlayerInstanceRef.current.seekTo(Math.max(0, syncTime - YOUTUBE_SYNC_OFFSET), true);
                                 lastSyncTimeRef.current = syncTime;
@@ -415,14 +405,11 @@ export function YouTubePlayer({
                         
                         if (isRecentSeek) {
                             // Completely block sync for 5 seconds after any seek to prevent interference
-                            console.log(`YouTube sync blocked: recent seek ${timeSinceLastSeek}ms ago to ${lastSeekTimeRef.current}s`);
                         } else if (timeDiff > 0.1 && transportDiff < 2.0) {
-                            console.log(`YouTube sync: ${currentTime} + ${YOUTUBE_SYNC_OFFSET} = ${offsetTime} (transport: ${transportTime})`);
                             lastSyncTimeRef.current = offsetTime;
                             transportTicker.set(offsetTime);
                             Tone.getTransport().seconds = offsetTime;
                         } else if (transportDiff >= 2.0) {
-                            console.log(`YouTube sync skipped: large transport diff ${transportDiff}s (YouTube: ${offsetTime}, transport: ${transportTime})`);
                         }
                     }
                 } catch (err) {
@@ -440,7 +427,6 @@ export function YouTubePlayer({
             }
             
             const ytState = player.getPlayerState();
-            console.log(`Transport state changed to: ${transportState}, YouTube state: ${ytState}`);
             
             let shouldSetFlag = false;
             
@@ -453,7 +439,6 @@ export function YouTubePlayer({
                     if (transportTime === 0) {
                         const tickerTime = transportTicker.getSnapshot();
                         if (tickerTime > 0) {
-                            console.log(`Started: syncing Tone.js transport to restored position ${tickerTime}`);
                             Tone.getTransport().seconds = tickerTime;
                             transportTime = tickerTime;
                         }
@@ -463,7 +448,6 @@ export function YouTubePlayer({
                     
                     // If transport has a different position than YouTube, sync YouTube
                     if (Math.abs(transportTime - youtubeCurrentTime) > 0.5) {
-                        console.log(`Started: syncing YouTube position: ${youtubeCurrentTime} → ${transportTime}`);
                         // Apply offset to make YouTube seek ahead to compensate for lag
                         player.seekTo(Math.max(0, transportTime - YOUTUBE_SYNC_OFFSET), true);
                         lastSyncTimeRef.current = transportTime;
@@ -522,7 +506,6 @@ export function YouTubePlayer({
                     ytPlayerInstanceRef.current &&
                     typeof ytPlayerInstanceRef.current.seekTo === "function"
                 ) {
-                    console.log(`YouTube seek: target ${time}s, seeking to ${time - YOUTUBE_SYNC_OFFSET}s`);
                     isSeeking.current = true;
                     (window as any).__ytSeeking = true; // Block TransportTickerProvider
                     const targetTime = Math.max(0, time - YOUTUBE_SYNC_OFFSET);
@@ -550,7 +533,6 @@ export function YouTubePlayer({
                             if (diff < 0.3) {
                                 // YouTube has reached the target, now update transport
                                 const actualTransportTime = currentTime + YOUTUBE_SYNC_OFFSET;
-                                console.log(`YouTube seek complete: ${currentTime}s, updating transport to ${actualTransportTime}s`);
                                 isSeeking.current = false;
                                 (window as any).__ytSeeking = false; // Re-enable TransportTickerProvider
                                 callback?.(actualTransportTime);
@@ -572,7 +554,6 @@ export function YouTubePlayer({
                     // Fallback timeout to prevent infinite waiting
                     setTimeout(() => {
                         if (isSeeking.current) {
-                            console.log(`YouTube seek timeout, proceeding with target ${time}s`);
                             isSeeking.current = false;
                             (window as any).__ytSeeking = false;
                             callback?.(time);
@@ -580,7 +561,6 @@ export function YouTubePlayer({
                     }, 2000);
                 } else {
                     // No YouTube player, proceed immediately
-                    console.log(`No YouTube player instance, proceeding with direct seek to ${time}s`);
                     callback?.(time);
                 }
             } catch (err) {

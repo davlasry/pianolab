@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import * as Tone from "tone";
 import type { Note } from "@/components/Session/hooks/useMidiNotes.ts";
 import { useTransportState } from "@/components/Session/hooks/useTransportState.ts";
@@ -45,6 +45,87 @@ export const usePlayer = (notes: Note[]) => {
             setActiveChord("");
         }
     }, [findChordAtTime]);
+
+    // Cache for recent active notes calculations
+    const activeNotesCache = useRef<Map<number, ActiveNote[]>>(new Map());
+
+    // Memoize sorted notes for efficient binary search
+    const sortedNotes = useMemo(() => {
+        // Clear cache when notes change
+        activeNotesCache.current.clear();
+        return [...notes].sort((a, b) => a.time - b.time);
+    }, [notes]);
+
+    // Helper function to find notes that are currently playing at a given time (optimized)
+    const findActiveNotesAtTimeInternal = useCallback((time: number): ActiveNote[] => {
+        // Check cache first (round to nearest 0.1s for cache efficiency)
+        const cacheKey = Math.round(time * 10) / 10;
+        if (activeNotesCache.current.has(cacheKey)) {
+            return activeNotesCache.current.get(cacheKey)!;
+        }
+
+        // For small note sets, use simple filter (faster than binary search overhead)
+        if (sortedNotes.length < 1000) {
+            const result = sortedNotes
+                .filter(note => note.time <= time && note.time + note.duration > time)
+                .map(note => ({
+                    midi: note.midi,
+                    hand: (note.midi > 75 ? "right" : "left") as "left" | "right"
+                }));
+            
+            // Cache result (keep cache size limited)
+            if (activeNotesCache.current.size > 50) {
+                activeNotesCache.current.clear();
+            }
+            activeNotesCache.current.set(cacheKey, result);
+            return result;
+        }
+
+        // For large note sets, use binary search to find start range
+        let left = 0;
+        let right = sortedNotes.length - 1;
+        let startIdx = -1;
+
+        // Find first note that could be active (binary search for notes starting before or at time)
+        while (left <= right) {
+            const mid = Math.floor((left + right) / 2);
+            if (sortedNotes[mid].time <= time) {
+                startIdx = mid;
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+
+        const activeNotes: ActiveNote[] = [];
+        
+        // Scan backwards from found position to collect all active notes
+        for (let i = startIdx; i >= 0; i--) {
+            const note = sortedNotes[i];
+            if (note.time + note.duration <= time) {
+                // Note has ended, and since we're going backwards in time, 
+                // no earlier notes can be active
+                break;
+            }
+            if (note.time <= time) {
+                activeNotes.push({
+                    midi: note.midi,
+                    hand: (note.midi > 75 ? "right" : "left") as "left" | "right"
+                });
+            }
+        }
+
+        // Cache result (keep cache size limited)
+        if (activeNotesCache.current.size > 50) {
+            activeNotesCache.current.clear();
+        }
+        activeNotesCache.current.set(cacheKey, activeNotes);
+        
+        return activeNotes;
+    }, [sortedNotes]);
+
+    // Use the optimized function directly (caching provides sufficient performance)
+    const findActiveNotesAtTime = findActiveNotesAtTimeInternal;
 
     // keep these across renders
     const playerRef = useRef<Tone.Player | null>(null);
@@ -341,6 +422,9 @@ export const usePlayer = (notes: Note[]) => {
                         setRestoredPosition(actualTime, false);
                         // Update active chord based on the actual time
                         updateActiveChordForTime(actualTime);
+                        // Set notes that are currently playing at this time
+                        const activeNotesAtTime = findActiveNotesAtTime(actualTime);
+                        setActiveNotes(activeNotesAtTime);
                     });
                 } catch (err) {
                     console.error("Error seeking YouTube player:", err);
@@ -350,6 +434,9 @@ export const usePlayer = (notes: Note[]) => {
                     setRestoredPosition(time, false);
                     // Update active chord based on the requested time
                     updateActiveChordForTime(time);
+                    // Set notes that are currently playing at this time
+                    const activeNotesAtTime = findActiveNotesAtTime(time);
+                    setActiveNotes(activeNotesAtTime);
                 }
             } else {
                 // 3 – No YouTube, seek transport directly
@@ -358,9 +445,12 @@ export const usePlayer = (notes: Note[]) => {
                 setRestoredPosition(time, false);
                 // Update active chord based on the requested time
                 updateActiveChordForTime(time);
+                // Set notes that are currently playing at this time
+                const activeNotesAtTime = findActiveNotesAtTime(time);
+                setActiveNotes(activeNotesAtTime);
             }
         },
-        [setRestoredPosition, updateActiveChordForTime],
+        [setRestoredPosition, updateActiveChordForTime, findActiveNotesAtTime],
     );
 
     const seekToBeginning = useCallback(() => {
