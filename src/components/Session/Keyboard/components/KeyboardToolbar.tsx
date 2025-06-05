@@ -37,7 +37,7 @@ export const KeyboardToolbar: React.FC<KeyboardToolbarProps> = ({
                 />
             </div>
 
-            {/* Center section - Current chord with LCD-style display */}
+            {/* Center section - Current chord with retro green CRT display */}
             <div className="flex flex-1 items-center justify-center">
                 <CurrentChord chord={activeChord} variant="large" />
             </div>
