@@ -14,7 +14,7 @@ import * as Tone from "tone";
 import { cn } from "@/lib/utils.ts";
 
 // YouTube sync offset in seconds - positive value makes YouTube lag behind MIDI/chords
-const YOUTUBE_SYNC_OFFSET = 0;
+const YOUTUBE_SYNC_OFFSET = 0.3;
 
 // Define a type for the YouTube player instance
 interface YouTubePlayerInstance {
