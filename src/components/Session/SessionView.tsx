@@ -51,7 +51,7 @@ const _SessionView = () => {
     }
 
     return (
-        <div className="flex h-screen flex-col">
+        <div className="flex h-full flex-col">
             <TopNavbar
                 sessionTitle={session.name || "Untitled Session"}
                 onEdit={handleOpenEditModal}
@@ -68,7 +68,7 @@ const _SessionView = () => {
                 piecesLoading={piecesLoading}
             />
 
-            <div className="flex flex-1 flex-col overflow-y-auto min-h-0">
+            <div className="flex flex-1 flex-col overflow-y-auto">
                 <div className="flex flex-1">
                     <SessionContent />
                 </div>

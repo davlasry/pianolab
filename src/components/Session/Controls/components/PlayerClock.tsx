@@ -29,8 +29,8 @@ export function PlayerClock({
             className={`flex-1 overflow-hidden border border-muted transition-all duration-300 ${isPlaying ? "shadow-primary/20" : ""}`}
         >
             <div className="p-2">
-                <div className="flex flex-col items-center gap-2 sm:gap-4 md:gap-6 md:flex-row">
-                    <TimeDisplay time={currentTime} isPlaying={isPlaying} className="hidden md:block" />
+                <div className="flex flex-col items-center gap-6 md:flex-row">
+                    <TimeDisplay time={currentTime} isPlaying={isPlaying} />
                     <div className="flex flex-1 flex-col gap-4">
                         <TransportControls
                             isPlaying={isPlaying}

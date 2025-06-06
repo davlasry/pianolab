@@ -16,12 +16,10 @@ import { customKeyboard } from "@/components/Session/Keyboard/components/CustomK
 import { KeyboardToolbar } from "@/components/Session/Keyboard/components/KeyboardToolbar.tsx";
 import { YouTubePlayer } from "@/components/Session/YoutubePlayer/YouTubePlayer.tsx";
 import { useYouTubeIsVisible } from "@/stores/youtubeStore.ts";
-import { useIsMobile } from "@/hooks/use-mobile.ts";
 
 export const SessionContent = () => {
     const timelineRef = useRef<TimelineHandle>(null);
     const isYouTubeVisible = useYouTubeIsVisible();
-    const isMobile = useIsMobile();
 
     const {
         activeChord,
@@ -84,10 +82,10 @@ export const SessionContent = () => {
 
     return (
         <div
-            className="flex w-full flex-1 flex-col overflow-y-auto min-h-0"
+            className="flex w-full flex-1 flex-col overflow-hidden"
             data-testid="player-content"
         >
-            <div className="flex flex-col">
+            <div className="flex flex-1 flex-col">
                 <Timeline
                     duration={audioDuration}
                     onSeek={seek}
@@ -100,8 +98,8 @@ export const SessionContent = () => {
             </div>
 
             {/* YouTube Player Section */}
-            {isYouTubeVisible && !isMobile && (
-                <div className="w-full px-4 py-1 sm:py-2">
+            {isYouTubeVisible && (
+                <div className="w-full px-4 py-2">
                     <YouTubePlayer size="large" />
                 </div>
             )}
@@ -110,12 +108,12 @@ export const SessionContent = () => {
                 {/* Keyboard Toolbar */}
                 <KeyboardToolbar activeChord={activeChord} />
 
-                <div className="h-[120px] md:h-[180px]">
+                <div className="">
                     <Keyboard
                         activeNotes={activeNotes}
                         activeChord={activeChord}
                         components={customKeyboard}
-                        height="100%"
+                        height={180}
                         // keyRange={[40, 81]}
                     />
                 </div>
