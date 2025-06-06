@@ -87,7 +87,7 @@ export const SessionContent = () => {
             className="flex w-full flex-1 flex-col overflow-y-auto min-h-0"
             data-testid="player-content"
         >
-            <div className="flex flex-1 flex-col">
+            <div className="flex flex-col">
                 <Timeline
                     duration={audioDuration}
                     onSeek={seek}
