@@ -16,10 +16,12 @@ import { customKeyboard } from "@/components/Session/Keyboard/components/CustomK
 import { KeyboardToolbar } from "@/components/Session/Keyboard/components/KeyboardToolbar.tsx";
 import { YouTubePlayer } from "@/components/Session/YoutubePlayer/YouTubePlayer.tsx";
 import { useYouTubeIsVisible } from "@/stores/youtubeStore.ts";
+import { useIsMobile } from "@/hooks/use-mobile.ts";
 
 export const SessionContent = () => {
     const timelineRef = useRef<TimelineHandle>(null);
     const isYouTubeVisible = useYouTubeIsVisible();
+    const isMobile = useIsMobile();
 
     const {
         activeChord,
@@ -98,7 +100,7 @@ export const SessionContent = () => {
             </div>
 
             {/* YouTube Player Section */}
-            {isYouTubeVisible && (
+            {isYouTubeVisible && !isMobile && (
                 <div className="w-full px-4 py-1 sm:py-2">
                     <YouTubePlayer size="large" />
                 </div>
