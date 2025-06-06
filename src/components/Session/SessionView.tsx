@@ -68,7 +68,7 @@ const _SessionView = () => {
                 piecesLoading={piecesLoading}
             />
 
-            <div className="flex flex-1 flex-col">
+            <div className="flex flex-1 flex-col overflow-y-auto">
                 <div className="flex flex-1">
                     <SessionContent />
                 </div>

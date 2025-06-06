@@ -15,7 +15,7 @@ function useTouch(props: UseTouchProps) {
 
     const handleTouchStart = useCallback(
         (event: TouchEvent) => {
-            event.preventDefault();
+            // event.preventDefault();
             Array.from(event.changedTouches).forEach((addedTouch) => {
                 const targetEvaluation = evaluateTarget(
                     addedTouch.clientX,
