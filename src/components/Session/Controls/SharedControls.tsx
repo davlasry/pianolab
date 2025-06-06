@@ -29,7 +29,7 @@ export function SharedControls({
     onRateChange,
 }: SharedControlsProps) {
     return (
-        <div className="flex flex-1 items-center gap-4 bg-muted">
+        <div className="flex flex-1 items-center gap-2 sm:gap-4 bg-muted">
             <PlayerClock
                 currentTime={currentTime}
                 isPlaying={isPlaying}

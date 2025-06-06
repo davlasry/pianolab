@@ -24,7 +24,7 @@ export function TransportControls({
     return (
         <div
             className={cn(
-                "flex items-center justify-center space-x-4",
+                "flex items-center justify-center space-x-2 sm:space-x-4",
                 className,
             )}
         >
