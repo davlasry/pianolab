@@ -319,6 +319,7 @@ const getRootStyles = (
     overflowX: "auto", // Enable horizontal scrolling
     overflowY: "hidden", // Typically you don't want vertical scroll on the keyboard itself
     paddingTop: paddingTopValue,
+    WebkitOverflowScrolling: "touch",
 });
 
 type InteractivitySettings = {
