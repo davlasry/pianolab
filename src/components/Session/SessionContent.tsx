@@ -82,7 +82,7 @@ export const SessionContent = () => {
 
     return (
         <div
-            className="flex w-full flex-1 flex-col overflow-hidden"
+            className="flex w-full flex-1 flex-col overflow-y-auto min-h-0"
             data-testid="player-content"
         >
             <div className="flex flex-1 flex-col">
@@ -99,7 +99,7 @@ export const SessionContent = () => {
 
             {/* YouTube Player Section */}
             {isYouTubeVisible && (
-                <div className="w-full px-4 py-2">
+                <div className="w-full px-4 py-1 sm:py-2">
                     <YouTubePlayer size="large" />
                 </div>
             )}
@@ -108,12 +108,12 @@ export const SessionContent = () => {
                 {/* Keyboard Toolbar */}
                 <KeyboardToolbar activeChord={activeChord} />
 
-                <div className="">
+                <div className="h-[120px] md:h-[180px]">
                     <Keyboard
                         activeNotes={activeNotes}
                         activeChord={activeChord}
                         components={customKeyboard}
-                        height={180}
+                        height="100%"
                         // keyRange={[40, 81]}
                     />
                 </div>
