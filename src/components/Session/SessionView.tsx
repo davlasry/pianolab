@@ -51,7 +51,7 @@ const _SessionView = () => {
     }
 
     return (
-        <div className="flex h-full flex-col">
+        <div className="flex h-screen flex-col">
             <TopNavbar
                 sessionTitle={session.name || "Untitled Session"}
                 onEdit={handleOpenEditModal}
