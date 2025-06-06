@@ -30,7 +30,7 @@ export function PlayerClock({
         >
             <div className="p-2">
                 <div className="flex flex-col items-center gap-2 sm:gap-4 md:gap-6 md:flex-row">
-                    <TimeDisplay time={currentTime} isPlaying={isPlaying} />
+                    <TimeDisplay time={currentTime} isPlaying={isPlaying} className="hidden md:block" />
                     <div className="flex flex-1 flex-col gap-4">
                         <TransportControls
                             isPlaying={isPlaying}
